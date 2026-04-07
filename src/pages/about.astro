@@ -1,0 +1,144 @@
+---
+// src/pages/about.astro
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { t } from "@/i18n/translations";
+
+const lang = "en" as const;
+---
+
+<BaseLayout
+  lang={lang}
+  title="About · PAI LAB"
+  description="About Aaron Snowberger and the Physical AI Laboratory based in Jeonju, Korea."
+>
+  <div style="padding: 1rem 0 5rem; max-width: 800px;">
+
+    <div class="section-header" style="margin-bottom: 2.5rem;">
+      <span class="sec-num">06</span>
+      <h1 style="font-size: 1.15rem;">{t(lang, "sec_about")}</h1>
+    </div>
+
+    <!-- PI + lab intro -->
+    <div style="display: grid; grid-template-columns: 200px 1fr; gap: 2.5rem; align-items: start; margin-bottom: 3rem;">
+
+      <div class="card" style="text-align: center;">
+        <div class="avatar" style="margin: 0 auto 1rem; width: 64px; height: 64px; font-size: 1.1rem;">AS</div>
+        <p style="font-size: 0.9rem; font-weight: 500; margin-bottom: 2px;">Aaron Snowberger</p>
+        <p style="font-size: 0.75rem; color: var(--text-2); margin-bottom: 0.25rem;">Principal Investigator</p>
+        <p style="font-size: 0.68rem; font-family: var(--font-mono); color: var(--text-3); margin-bottom: 1rem;">
+          aaron [at] physicalai.kr
+        </p>
+        <div style="border-top: 0.5px solid var(--border); padding-top: 0.875rem; display: flex; flex-direction: column; gap: 7px; text-align: left;">
+          <a href="https://aaron.kr"            class="pi-link">aaron.kr — blog & hub</a>
+          <a href="https://aaronsnowberger.com" class="pi-link">aaronsnowberger.com — contact</a>
+          <a href="https://kspai.org"           class="pi-link">kspai.org — KSPAI society</a>
+          <a href="https://aaronkr-courses.github.io/courses/"
+             class="pi-link" style="font-family: var(--font-mono); font-size: 0.7rem;">
+            courses.aaron.kr
+          </a>
+          <a href="https://keytokorean.com"     class="pi-link">keytokorean.com</a>
+          <a href="https://blog.naver.com/aaron_kr"
+             class="pi-link">Naver blog (한국어)</a>
+        </div>
+      </div>
+
+      <div>
+        <p style="font-size: 0.95rem; line-height: 1.85; margin-bottom: 1.25rem;">
+          Aaron Snowberger is a researcher and educator working at the intersection of
+          machine learning, embedded hardware, and physical systems. He teaches across
+          multiple Korean universities — Jeonbuk National University, Korea National
+          University of Transportation, Hanbat National University, and Wonkwang University —
+          covering topics from circuit theory to autonomous driving.
+        </p>
+        <p style="font-size: 0.95rem; line-height: 1.85; margin-bottom: 1.25rem;">
+          His current research focus is <strong style="font-weight:500">Physical AI</strong>:
+          machine intelligence that perceives and acts in the real world in real time,
+          deployed on or near the hardware doing the sensing and actuation. He is a founding
+          organiser of the Korean Society for Physical AI (한국피지컬AI학회 · KSPAI).
+        </p>
+        <p style="font-size: 0.95rem; line-height: 1.85;">
+          Before Korea, Aaron completed graduate work in education technology and has a
+          background in linguistic computing — including work on ancient Korean script
+          recognition that continues as a side research thread.
+        </p>
+      </div>
+    </div>
+
+    <!-- Research interests -->
+    <section style="margin-bottom: 3rem; padding-top: 2rem; border-top: 0.5px solid var(--border);">
+      <h2 style="font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-3); letter-spacing: 0.1em; margin-bottom: 1.25rem;">
+        RESEARCH INTERESTS
+      </h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+        {[
+          { area: "Physical AI",           detail: "Edge inference, sensor-actuator loops, real-time guarantees" },
+          { area: "Embedded ML",           detail: "TinyML, TFLite Micro, FPGA deployment" },
+          { area: "Robotic perception",    detail: "Gesture recognition, object detection, pose estimation" },
+          { area: "Curriculum design",     detail: "Bilingual Physical AI tracks, plug-in course modules" },
+          { area: "Script recognition",    detail: "Ancient Korean glyph datasets and OCR models" },
+          { area: "Open research",         detail: "CC-BY datasets, reproducible benchmarks, public code" },
+        ].map(({ area, detail }) => (
+          <div style="padding: 1rem; background: var(--bg-subtle); border-radius: var(--radius-md);">
+            <p style="font-size: 0.85rem; font-weight: 500; margin-bottom: 4px;">{area}</p>
+            <p style="font-size: 0.78rem; color: var(--text-2); line-height: 1.5;">{detail}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Affiliated institutions -->
+    <section style="margin-bottom: 3rem; padding-top: 2rem; border-top: 0.5px solid var(--border);">
+      <h2 style="font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-3); letter-spacing: 0.1em; margin-bottom: 1.25rem;">
+        AFFILIATED INSTITUTIONS
+      </h2>
+      <div style="display: flex; flex-direction: column; gap: 0;">
+        {[
+          { name: "Jeonbuk National University",                    ko: "전북대학교",    abbr: "JBNU",  url: "https://www.jbnu.ac.kr" },
+          { name: "Korea National University of Transportation",    ko: "한국교통대학교", abbr: "UT",   url: "https://www.ut.ac.kr" },
+          { name: "Hanbat National University",                     ko: "한밭대학교",    abbr: "HBU",   url: "https://www.hanbat.ac.kr" },
+          { name: "Wonkwang University",                            ko: "원광대학교",    abbr: "WKU",   url: "https://www.wku.ac.kr" },
+          { name: "Jeonju National University of Education",        ko: "전주교육대학교", abbr: "JNUE", url: "https://www.jnue.kr" },
+        ].map(({ name, ko, abbr, url }) => (
+          <div style="display: grid; grid-template-columns: 60px 1fr 1fr; gap: 1rem; padding: 0.75rem 0; border-top: 0.5px solid var(--border); align-items: center;">
+            <span style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-3);">{abbr}</span>
+            <a href={url} target="_blank" rel="noopener"
+               style="font-size: 0.85rem; color: var(--text);">{name}</a>
+            <span style="font-size: 0.85rem; color: var(--text-2);">{ko}</span>
+          </div>
+        ))}
+        <div style="display: grid; grid-template-columns: 60px 1fr 1fr; gap: 1rem; padding: 0.75rem 0; border-top: 0.5px solid var(--border); align-items: center;">
+          <span style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--accent);">KSPAI</span>
+          <a href="https://kspai.org" target="_blank" rel="noopener"
+             style="font-size: 0.85rem; color: var(--text);">Korean Society for Physical AI</a>
+          <span style="font-size: 0.85rem; color: var(--text-2);">한국피지컬AI학회</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section style="padding-top: 2rem; border-top: 0.5px solid var(--border);">
+      <h2 style="font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-3); letter-spacing: 0.1em; margin-bottom: 1.25rem;">
+        CONTACT & COLLABORATION
+      </h2>
+      <p style="font-size: 0.9rem; line-height: 1.75; color: var(--text-2); max-width: 560px;">
+        Interested in research collaboration, curriculum adoption, or dataset use?
+        The best way to reach Aaron is via
+        <a href="https://aaronsnowberger.com" style="color: var(--accent);">aaronsnowberger.com</a>
+        or through the
+        <a href="https://kspai.org" style="color: var(--accent);">KSPAI society</a>.
+        For Korean correspondence, the
+        <a href="https://blog.naver.com/aaron_kr" style="color: var(--accent);">Naver blog</a>
+        has a contact link.
+      </p>
+    </section>
+
+  </div>
+</BaseLayout>
+
+<style>
+.pi-link { font-size: 0.78rem; color: var(--accent); text-decoration: none; }
+.pi-link:hover { text-decoration: underline; }
+@media (max-width: 640px) {
+  div[style*="grid-template-columns: 200px"] { grid-template-columns: 1fr; }
+}
+</style>

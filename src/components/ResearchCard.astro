@@ -1,0 +1,88 @@
+---
+// src/components/ResearchCard.astro
+import type { CollectionEntry } from "astro:content";
+import { type Lang } from "@/i18n/translations";
+
+interface Props {
+  paper: CollectionEntry<"research">;
+  lang: Lang;
+}
+
+const { paper, lang } = Astro.props;
+const { title, title_ko, authors, venue, year, status, doi, pdf, tags } = paper.data;
+
+const displayTitle = lang === "ko" && title_ko ? title_ko : title;
+
+const pillClass = status === "published" ? "ok"
+                : status === "in-review"  ? "warn"
+                : "info";
+
+const pillLabel: Record<string, string> = {
+  "published": lang === "ko" ? "게시됨"  : "Published",
+  "in-review": lang === "ko" ? "검토 중" : "In review",
+  "preprint":  lang === "ko" ? "프리프린트" : "Preprint",
+};
+---
+
+<div class="card research-card">
+  <div class="card-meta">
+    <span class="mono-label">{year} · {venue}</span>
+    <span class={`pill ${pillClass}`}>{pillLabel[status]}</span>
+  </div>
+
+  <h3 class="paper-title">{displayTitle}</h3>
+  <p class="paper-authors">{authors}</p>
+
+  <div class="tag-row">
+    {tags.map((tag) => (
+      <span class={`tag${tag === "Physical AI" ? " accent" : ""}`}>{tag}</span>
+    ))}
+  </div>
+
+  {(doi || pdf) && (
+    <div class="card-links">
+      {doi && <a href={doi} target="_blank" rel="noopener">DOI ↗</a>}
+      {pdf && <a href={pdf} target="_blank" rel="noopener">PDF ↗</a>}
+    </div>
+  )}
+</div>
+
+<style>
+.research-card { display: flex; flex-direction: column; gap: 0; }
+.card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.625rem;
+}
+.mono-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-3);
+}
+.paper-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.45;
+  margin-bottom: 0.375rem;
+  letter-spacing: -0.01em;
+}
+.paper-authors {
+  font-size: 0.75rem;
+  color: var(--text-2);
+  margin-bottom: 0.75rem;
+}
+.tag-row { margin-bottom: 0.5rem; }
+.card-links {
+  display: flex;
+  gap: 12px;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 0.5px solid var(--border);
+}
+.card-links a {
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  color: var(--accent);
+}
+</style>

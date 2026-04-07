@@ -1,0 +1,58 @@
+---
+// src/components/ProjectRow.astro
+import type { CollectionEntry } from "astro:content";
+import { type Lang } from "@/i18n/translations";
+
+interface Props {
+  project: CollectionEntry<"projects">;
+  lang: Lang;
+}
+
+const { project, lang } = Astro.props;
+const { title, title_ko, year, status, tags, github, demo } = project.data;
+
+const displayTitle = lang === "ko" && title_ko ? title_ko : title;
+
+const pillClass: Record<string, string> = {
+  active:    "ok",
+  published: "info",
+  planned:   "warn",
+  archived:  "",
+};
+
+const pillLabel: Record<string, Record<Lang, string>> = {
+  active:    { en: "Active",     ko: "진행 중" },
+  published: { en: "Published",  ko: "게시됨" },
+  planned:   { en: "Planned",    ko: "예정" },
+  archived:  { en: "Archived",   ko: "완료" },
+};
+---
+
+<div class="row-item">
+  <span style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-3);">{year}</span>
+
+  <div>
+    <p style="font-size: 0.875rem; font-weight: 500; margin-bottom: 0.3rem;">{displayTitle}</p>
+    <div>
+      {tags.map((tag) => (
+        <span class={`tag${tag === "Physical AI" ? " accent" : ""}`}>{tag}</span>
+      ))}
+      {github && (
+        <a href={github} target="_blank" rel="noopener"
+           style="font-size: 0.68rem; font-family: var(--font-mono); color: var(--accent); margin-left: 8px;">
+          GitHub ↗
+        </a>
+      )}
+      {demo && (
+        <a href={demo} target="_blank" rel="noopener"
+           style="font-size: 0.68rem; font-family: var(--font-mono); color: var(--accent); margin-left: 8px;">
+          Demo ↗
+        </a>
+      )}
+    </div>
+  </div>
+
+  <span class={`pill ${pillClass[status]}`}>
+    {pillLabel[status][lang]}
+  </span>
+</div>

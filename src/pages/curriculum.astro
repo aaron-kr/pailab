@@ -1,0 +1,75 @@
+---
+// src/pages/curriculum.astro
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const lang = "en" as const;
+const tracks = (await getCollection("curriculum")).sort((a, b) => a.data.order - b.data.order);
+
+const levelLabel: Record<string, string> = {
+  beginner:     "Beginner",
+  intermediate: "Intermediate",
+  advanced:     "Advanced",
+  open:         "Open data",
+};
+
+const levelDesc: Record<string, string> = {
+  beginner:     "No prior ML or embedded experience required.",
+  intermediate: "Requires Track 01 or equivalent microcontroller experience.",
+  advanced:     "Requires Track 02 and Python proficiency.",
+  open:         "Freely available. No prerequisites.",
+};
+---
+
+<BaseLayout lang={lang} title="Curriculum · PAI LAB">
+  <div style="padding: 1rem 0 5rem;">
+
+    <div class="section-header" style="margin-bottom: 0.5rem;">
+      <span class="sec-num">02</span>
+      <h1 style="font-size: 1.15rem;">Curriculum</h1>
+    </div>
+    <p style="font-size: 0.85rem; color: var(--text-2); margin-bottom: 2.5rem; margin-left: 1.75rem;">
+      Four structured tracks from first principles to advanced robotics.
+      All tracks are bilingual (EN / 한국어) and freely available.
+    </p>
+
+    <!-- Track cards — full detail view -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      {tracks.map((track) => (
+        <div class="card" style="display: grid; grid-template-columns: 160px 1fr; gap: 2rem; align-items: start;">
+
+          <!-- Left: track meta -->
+          <div style="padding-top: 0.125rem;">
+            <div style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-3); margin-bottom: 6px;">
+              TRACK {track.data.track}
+            </div>
+            <div style="font-size: 0.72rem; font-weight: 500; color: var(--accent); margin-bottom: 10px;">
+              {levelLabel[track.data.level]}
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+              <span class="tag">{track.data.units} units</span>
+              {track.data.bilingual && <span class="tag accent">EN · 한국어</span>}
+            </div>
+            <p style="font-size: 0.68rem; color: var(--text-3); margin-top: 10px; line-height: 1.5;">
+              {levelDesc[track.data.level]}
+            </p>
+          </div>
+
+          <!-- Right: title + description + content preview -->
+          <div>
+            <h2 style="font-size: 1rem; margin-bottom: 0.5rem;">{track.data.title}</h2>
+            {track.data.title_ko && (
+              <p style="font-size: 0.78rem; color: var(--text-2); margin-bottom: 0.75rem;">{track.data.title_ko}</p>
+            )}
+            <p style="font-size: 0.85rem; color: var(--text-2); line-height: 1.65; margin-bottom: 1rem;">
+              {track.data.description}
+            </p>
+            <!-- Inline MDX body would go here; for now link to detail page if needed -->
+          </div>
+
+        </div>
+      ))}
+    </div>
+
+  </div>
+</BaseLayout>

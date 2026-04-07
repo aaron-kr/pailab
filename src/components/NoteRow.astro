@@ -1,0 +1,46 @@
+---
+// src/components/NoteRow.astro
+import type { CollectionEntry } from "astro:content";
+import { type Lang } from "@/i18n/translations";
+
+interface Props {
+  note: CollectionEntry<"notes">;
+  lang: Lang;
+}
+
+const { note, lang } = Astro.props;
+const { title, title_ko, pubDate, lang: noteLang, naver_url } = note.data;
+
+const displayTitle = lang === "ko" && title_ko ? title_ko : title;
+const dateStr = pubDate.toISOString().slice(0, 10);
+
+const prefix = lang === "ko" ? "/ko" : "";
+---
+
+<div class="note-row">
+  <span style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-3);">{dateStr}</span>
+
+  <div style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;">
+    <a href={`${prefix}/notes/${note.slug}`}
+       style="font-size: 0.875rem; font-weight: 500; color: var(--text);">
+      {displayTitle}
+    </a>
+
+    {noteLang === "both" && (
+      <span class="tag accent" style="font-size: 0.62rem;">EN · 한국어</span>
+    )}
+    {noteLang === "ko" && (
+      <span class="tag" style="font-size: 0.62rem;">한국어</span>
+    )}
+    {noteLang === "en" && (
+      <span class="tag" style="font-size: 0.62rem;">EN</span>
+    )}
+
+    {noteLang === "both" && naver_url && lang === "en" && (
+      <a href={naver_url} target="_blank" rel="noopener"
+         style="font-size: 0.68rem; color: var(--text-3);">
+        한국어 버전 ↗
+      </a>
+    )}
+  </div>
+</div>

@@ -1,0 +1,104 @@
+---
+// src/layouts/BaseLayout.astro
+import "@/styles/global.css";
+import Nav from "@/components/Nav.astro";
+import Footer from "@/components/Footer.astro";
+import { type Lang } from "@/i18n/translations";
+
+interface Props {
+  title?: string;
+  description?: string;
+  lang?: Lang;
+  ogImage?: string;
+}
+
+const {
+  title = "PAI LAB — Physical AI Laboratory",
+  description = "Research lab focused on embedded systems, robotics, and real-time AI at the edge. Based in Jeonju, Korea.",
+  lang = "en",
+  ogImage = "/og-default.png",
+} = Astro.props;
+
+const siteName = lang === "ko" ? "피지컬 AI 연구소" : "PAI LAB";
+const fullTitle = title.includes("PAI LAB") ? title : `${title} · ${siteName}`;
+---
+
+<!doctype html>
+<html lang={lang} data-theme="light" data-lang={lang}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+  <meta name="generator" content={Astro.generator} />
+
+  <!-- Open Graph -->
+  <meta property="og:title"       content={fullTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image"       content={ogImage} />
+  <meta property="og:type"        content="website" />
+  <meta property="og:site_name"   content={siteName} />
+
+  <!-- Canonical + hreflang -->
+  <link rel="canonical" href={Astro.url.href} />
+  {lang === "en" && <link rel="alternate" hreflang="ko" href={`/ko${Astro.url.pathname}`} />}
+  {lang === "ko" && <link rel="alternate" hreflang="en" href={Astro.url.pathname.replace(/^\/ko/, "") || "/"} />}
+  <link rel="alternate" hreflang="x-default" href={Astro.url.pathname} />
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>{fullTitle}</title>
+
+  <!-- Preload fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!-- Theme: read saved preference before paint to avoid flash -->
+  <script is:inline>
+    (function () {
+      const saved = localStorage.getItem("theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const theme = saved || (prefersDark ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+</head>
+
+<body>
+  <Nav lang={lang} currentPath={Astro.url.pathname} />
+
+  <main class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+    <slot />
+  </main>
+
+  <footer class="footer container">
+    <Footer lang={lang} />
+  </footer>
+
+  <!-- Theme toggle script (runs after paint) -->
+  <script>
+    function initTheme() {
+      const btn = document.getElementById("theme-toggle");
+      if (!btn) return;
+
+      function update(theme: string) {
+        document.documentElement.setAttribute("data-theme", theme);
+        localStorage.setItem("theme", theme);
+        btn!.setAttribute("aria-label", theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
+        btn!.textContent = theme === "dark" ? "☀" : "☾";
+      }
+
+      btn.addEventListener("click", () => {
+        const current = document.documentElement.getAttribute("data-theme") ?? "light";
+        update(current === "dark" ? "light" : "dark");
+      });
+
+      // Sync button label on load
+      const current = document.documentElement.getAttribute("data-theme") ?? "light";
+      btn.textContent = current === "dark" ? "☀" : "☾";
+    }
+
+    // Works with Astro view transitions too
+    document.addEventListener("DOMContentLoaded", initTheme);
+    document.addEventListener("astro:page-load", initTheme);
+  </script>
+</body>
+</html>

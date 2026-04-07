@@ -1,0 +1,44 @@
+---
+// src/pages/ko/research.astro
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import ResearchCard from "@/components/ResearchCard.astro";
+import { getCollection } from "astro:content";
+import { t } from "@/i18n/translations";
+
+const lang = "ko" as const;
+const all      = (await getCollection("research")).sort((a, b) => b.data.year - a.data.year);
+const featured = all.filter((p) => p.data.featured);
+const rest     = all.filter((p) => !p.data.featured);
+---
+
+<BaseLayout lang={lang} title="연구 · PAI LAB">
+  <div style="padding: 1rem 0 4rem;">
+    <div class="section-header" style="margin-bottom: 0.5rem;">
+      <span class="sec-num">01</span>
+      <h1 style="font-size: 1.15rem;">{t(lang, "sec_research")}</h1>
+    </div>
+    <p style="font-size: 0.85rem; color: var(--text-2); margin-bottom: 2.5rem; margin-left: 1.75rem;">
+      피지컬 AI 연구소의 논문, 프리프린트, 기술 보고서.
+    </p>
+    {featured.length > 0 && (
+      <>
+        <h2 style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-3); letter-spacing: 0.1em; margin-bottom: 1rem;">
+          주요 논문
+        </h2>
+        <div class="card-grid" style="margin-bottom: 2.5rem;">
+          {featured.map((p) => <ResearchCard paper={p} lang={lang} />)}
+        </div>
+      </>
+    )}
+    {rest.length > 0 && (
+      <>
+        <h2 style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-3); letter-spacing: 0.1em; margin-bottom: 1rem;">
+          전체 논문
+        </h2>
+        <div class="card-grid">
+          {rest.map((p) => <ResearchCard paper={p} lang={lang} />)}
+        </div>
+      </>
+    )}
+  </div>
+</BaseLayout>

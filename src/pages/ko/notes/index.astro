@@ -1,0 +1,26 @@
+---
+// src/pages/ko/notes/index.astro
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import NoteRow from "@/components/NoteRow.astro";
+import { getCollection } from "astro:content";
+import { t } from "@/i18n/translations";
+
+const lang = "ko" as const;
+const notes = (await getCollection("notes"))
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+---
+
+<BaseLayout lang={lang} title="노트 · PAI LAB">
+  <div style="padding: 1rem 0 3rem;">
+    <div class="section-header" style="margin-bottom: 0.5rem;">
+      <span class="sec-num">05</span>
+      <h1 style="font-size: 1.15rem;">{t(lang, "sec_notes")}</h1>
+    </div>
+    <p style="font-size: 0.85rem; color: var(--text-2); margin-bottom: 2rem; margin-left: 1.75rem;">
+      연구소 업데이트, 튜토리얼, 현장 노트.
+    </p>
+    <div class="row-list">
+      {notes.map((note) => <NoteRow note={note} lang={lang} />)}
+    </div>
+  </div>
+</BaseLayout>

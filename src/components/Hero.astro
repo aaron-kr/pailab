@@ -1,0 +1,55 @@
+---
+// src/components/Hero.astro
+import { t, type Lang } from "@/i18n/translations";
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+---
+
+<section class="section" style="border-top: none; padding-top: 1rem; padding-bottom: 3.5rem;">
+  <p class="hero-location">{t(lang, "hero_location")}</p>
+
+  <h1 class="hero-title">
+    {
+      t(lang, "hero_title")
+        .split("\n")
+        .map((line, i) => (
+          <>{line}{i === 0 && <br />}</>
+        ))
+    }
+  </h1>
+
+  <p class="hero-tagline">{t(lang, "hero_tagline")}</p>
+
+  <div class="hero-cta">
+    <a href="#research" class="btn-primary">{t(lang, "hero_cta_research")}</a>
+    <a href="#about"    class="btn-outline">{t(lang, "hero_cta_about")}</a>
+  </div>
+</section>
+
+<style>
+.hero-location {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-3);
+  letter-spacing: 0.12em;
+  margin-bottom: 1.25rem;
+}
+
+.hero-title {
+  margin-bottom: 1.25rem;
+}
+
+.hero-tagline {
+  font-size: 1rem;
+  color: var(--text-2);
+  max-width: 540px;
+  margin-bottom: 2rem;
+}
+
+.hero-cta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+</style>

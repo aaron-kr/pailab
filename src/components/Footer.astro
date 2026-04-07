@@ -1,0 +1,10 @@
+---
+// src/components/Footer.astro
+import { t, type Lang } from "@/i18n/translations";
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+---
+
+<span class="footer-mono">{t(lang, "footer_copy")}</span>
+<span class="footer-mono">physicalai.kr</span>

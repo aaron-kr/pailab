@@ -1,0 +1,48 @@
+---
+// src/pages/research.astro
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import ResearchCard from "@/components/ResearchCard.astro";
+import { getCollection } from "astro:content";
+
+const lang = "en" as const;
+
+const all = (await getCollection("research")).sort((a, b) => b.data.year - a.data.year);
+const featured  = all.filter((p) => p.data.featured);
+const rest      = all.filter((p) => !p.data.featured);
+---
+
+<BaseLayout lang={lang} title="Research · PAI LAB">
+  <div style="padding: 1rem 0 4rem;">
+
+    <div class="section-header" style="margin-bottom: 0.5rem;">
+      <span class="sec-num">01</span>
+      <h1 style="font-size: 1.15rem;">Research</h1>
+    </div>
+    <p style="font-size: 0.85rem; color: var(--text-2); margin-bottom: 2.5rem; margin-left: 1.75rem;">
+      Papers, preprints, and technical reports from the Physical AI Laboratory.
+    </p>
+
+    {featured.length > 0 && (
+      <>
+        <h2 style="font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-3); letter-spacing: 0.1em; margin-bottom: 1rem;">
+          FEATURED
+        </h2>
+        <div class="card-grid" style="margin-bottom: 2.5rem;">
+          {featured.map((paper) => <ResearchCard paper={paper} lang={lang} />)}
+        </div>
+      </>
+    )}
+
+    {rest.length > 0 && (
+      <>
+        <h2 style="font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-3); letter-spacing: 0.1em; margin-bottom: 1rem;">
+          ALL PUBLICATIONS
+        </h2>
+        <div class="card-grid">
+          {rest.map((paper) => <ResearchCard paper={paper} lang={lang} />)}
+        </div>
+      </>
+    )}
+
+  </div>
+</BaseLayout>
