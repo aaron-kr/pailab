@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PAI LAB — Physical AI Laboratory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ════════════════════════════════════════════════════════════
+   TOKENS — Navy-teal harmonized palette
+   ════════════════════════════════════════════════════════════ */
+:root {
+  --font-display: 'Oxanium', sans-serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+
+  /* ── Light ── */
+  --bg:         #f3f5f7;
+  --bg-surface: #ffffff;
+  --bg-subtle:  #e8edf2;
+  --bg-deep:    #030a14;
+
+  --text:       #080f1a;
+  --text-2:     #3d5470;
+  --text-3:     #7a9ab8;
+
+  --border:     rgba(8,15,26,.10);
+  --border-2:   rgba(8,15,26,.18);
+
+  /* Electric green — primary brand */
+  --green:      #0a8f7a;
+  --green-2:    #12b89e;
+  --green-glow: #2dd4bf;
+  --green-bg:   #dff6f2;
+  --green-text: #056055;
+
+  /* Electric blue — secondary */
+  --blue:       #0272f1;
+  --blue-2:     #3d92f5;
+  --blue-bg:    #e0eeff;
+  --blue-text:  #083580;
+
+  /* Cyan — highlight glow */
+  --cyan:       #24fffc;
+  --cyan-dim:   rgba(36,255,252,.12);
+
+  /* Electric pink — sparingly */
+  --pink:       #f0127a;
+  --pink-2:     #ff5aa8;
+  --pink-bg:    #fce8f3;
+  --pink-text:  #7a0044;
+
+  --ok-bg:#dff5e6;--ok-text:#1a5e30;
+  --warn-bg:#fef3e2;--warn-text:#7a4a00;
+
+  --nav-h:60px;
+  --max-w:1200px;
+  --r-sm:6px;--r-md:10px;--r-lg:16px;--r-xl:24px;
+}
+
+[data-theme="dark"] {
+  /* Deep navy-teal — unified with all electric accents */
+  --bg:         #040c14;
+  --bg-surface: #081624;
+  --bg-subtle:  #0c1e30;
+  --bg-deep:    #020810;
+
+  --text:       #d0e4f0;
+  --text-2:     #6a9ab8;
+  --text-3:     #355570;
+
+  --border:     rgba(36,200,255,.07);
+  --border-2:   rgba(36,200,255,.14);
+
+  --green:      #2dd4bf;
+  --green-2:    #1dbf9e;
+  --green-glow: #24fffc;
+  --green-bg:   #062018;
+  --green-text: #60e8d8;
+
+  --blue:       #3d92f5;
+  --blue-2:     #70aef8;
+  --blue-bg:    #041430;
+  --blue-text:  #80b8fa;
+
+  --cyan:       #24fffc;
+  --cyan-dim:   rgba(36,255,252,.09);
+
+  --pink:       #ff2d84;
+  --pink-2:     #ff6aaa;
+  --pink-bg:    #2a0420;
+  --pink-text:  #ff90c0;
+
+  --ok-bg:#042010;--ok-text:#3de870;
+  --warn-bg:#1e1200;--warn-text:#fbbf24;
+
+  --border:   rgba(36,180,255,.07);
+  --border-2: rgba(36,180,255,.13);
+}
+
+/* ════════════════════════════════════════════════════════════
+   RESET + BASE
+   ════════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html {
+  font-family:var(--font-body);
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  font-size:clamp(15px,1.4vw,17.5px);
+  scroll-behavior:smooth;
+}
+body{min-height:100vh;transition:background .25s,color .25s}
+h1,h2,h3,h4,h5{
+  font-family:var(--font-display);
+  font-weight:700;line-height:1.1;letter-spacing:-.015em;
+}
+p{line-height:1.75}
+a{color:var(--green);text-decoration:none}
+a:hover{text-decoration:underline}
+img{max-width:100%;display:block}
+code,pre{font-family:var(--font-mono);font-size:.85em}
+
+/* ════════════════════════════════════════════════════════════
+   LAYOUT
+   ════════════════════════════════════════════════════════════ */
+.container{width:100%;max-width:var(--max-w);margin:0 auto;padding:0 2rem}
+.full-bleed{width:100%}
+
+/* ════════════════════════════════════════════════════════════
+   NAV
+   ════════════════════════════════════════════════════════════ */
+nav.site-nav{
+  position:sticky;top:0;z-index:100;
+  background:var(--bg);
+  border-bottom:.5px solid var(--border);
+  height:var(--nav-h);
+  box-shadow:0 1px 0 var(--border),inset 0 1px 0 var(--cyan-dim);
+}
+.nav-inner{
+  display:flex;align-items:center;
+  justify-content:space-between;height:100%;gap:1.5rem;
+}
+.nav-logo{
+  font-family:var(--font-display);font-size:1rem;font-weight:800;
+  letter-spacing:.06em;color:var(--text);text-decoration:none;
+  display:flex;align-items:center;gap:10px;
+}
+.nav-logo-img {
+  display:block;
+  position:relative;
+  max-height: 40px;
+}
+.nav-logo .sub{
+  font-family:var(--font-mono);font-size:.58rem;
+  color:var(--text-3);font-weight:400;letter-spacing:.08em;
+}
+.nav-links{display:flex;list-style:none}
+.nav-links a{
+  font-size:.72rem;font-weight:500;color:var(--text-2);
+  padding:0 .7rem;transition:color .15s;letter-spacing:.02em;
+}
+.nav-links a:hover{color:var(--cyan);text-decoration:none}
+.nav-controls{display:flex;align-items:center;gap:8px}
+.btn-ghost{
+  background:none;border:.5px solid var(--border-2);
+  border-radius:var(--r-sm);padding:4px 11px;
+  cursor:pointer;font-size:.66rem;font-family:var(--font-mono);
+  color:var(--text-2);
+  transition:background .15s,color .15s,border-color .15s;
+}
+.btn-ghost:hover{background:var(--cyan-dim);color:var(--cyan);border-color:var(--cyan)}
+
+/* ════════════════════════════════════════════════════════════
+   SLIDING FILL BUTTON — left-to-right paint on hover
+   ════════════════════════════════════════════════════════════ */
+.btn-slide{
+  display:inline-flex;align-items:center;gap:6px;
+  position:relative;overflow:hidden;
+  border-radius:var(--r-md);
+  padding:11px 24px;
+  font-family:var(--font-display);font-size:.8rem;font-weight:600;
+  letter-spacing:.03em;cursor:pointer;
+  text-decoration:none;transition:color .25s;
+  border:.5px solid var(--border-2);
+  z-index:0;
+}
+.btn-slide::before{
+  content:'';position:absolute;inset:0;
+  transform:translateX(-101%);
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  z-index:-1;
+}
+.btn-slide:hover::before{transform:translateX(0)}
+.btn-slide:hover{text-decoration:none}
+
+/* Green variant */
+.btn-slide-green{color:var(--green);border-color:var(--green)}
+.btn-slide-green::before{background:var(--green)}
+.btn-slide-green:hover{color:#fff}
+
+/* Blue variant */
+.btn-slide-blue{color:var(--blue);border-color:var(--blue)}
+.btn-slide-blue::before{background:var(--blue)}
+.btn-slide-blue:hover{color:#fff}
+
+/* Cyan outline (nav CTA) */
+.btn-slide-cyan{
+  color:var(--cyan);
+  border:.5px solid rgba(36,255,252,.3);
+  background:rgba(36,255,252,.04);
+}
+.btn-slide-cyan::before{background:rgba(36,255,252,.15)}
+.btn-slide-cyan:hover{color:var(--cyan)}
+
+/* Solid primary (hero) */
+.btn-primary{
+  display:inline-flex;align-items:center;gap:6px;
+  background:linear-gradient(135deg,var(--green) 0%,#0aaa92 100%);
+  color:#fff;border:none;border-radius:var(--r-md);
+  padding:12px 26px;font-size:.82rem;font-weight:700;
+  font-family:var(--font-display);letter-spacing:.03em;
+  cursor:pointer;transition:opacity .15s;text-decoration:none;
+}
+.btn-primary:hover{opacity:.88;text-decoration:none;color:#fff}
+
+/* ════════════════════════════════════════════════════════════
+   HERO — capped height, reduced light-mode overlay
+   ════════════════════════════════════════════════════════════ */
+.hero{
+  position:relative;
+  /* Capped: won't exceed 86vh */
+  min-height:min(86vh,800px);
+  max-height:min(90vh,900px);
+  background:var(--bg-deep);
+  overflow:hidden;display:flex;align-items:center;
+}
+.hero-bg{
+  position:absolute;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 65% 70% at 80% 15%,rgba(2,114,241,.28) 0%,transparent 60%),
+    radial-gradient(ellipse 55% 55% at 15% 85%,rgba(13,191,158,.22) 0%,transparent 55%),
+    radial-gradient(ellipse 40% 45% at 60% 65%,rgba(240,18,122,.12) 0%,transparent 50%),
+    radial-gradient(ellipse 50% 35% at 5%  20%,rgba(36,255,252,.08) 0%,transparent 50%);
+  animation:mesh-drift 22s ease-in-out infinite alternate;
+}
+@keyframes mesh-drift{
+  0%  {opacity:1;transform:scale(1) rotate(0)}
+  100%{opacity:.88;transform:scale(1.05) rotate(1.2deg)}
+}
+.hero-grid{
+  position:absolute;inset:0;z-index:1;
+  background-image:
+    linear-gradient(rgba(36,220,255,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(36,220,255,.035) 1px,transparent 1px);
+  background-size:56px 56px;
+}
+/* Light mode: much lighter overlay so hero doesn't wash out */
+.hero-overlay{
+  position:absolute;inset:0;z-index:2;
+  /* Dark mode: minimal — let gradients breathe */
+  background:rgba(2,8,20,.15);
+  transition:background .25s;
+}
+[data-theme="light"] .hero-overlay{
+  /* Light: just a slight gradient so the dark-on-light text still reads */
+  background:linear-gradient(135deg,rgba(3,10,20,.55) 0%,rgba(3,10,20,.35) 60%,rgba(3,10,20,.15) 100%);
+}
+.hero-fade{
+  position:absolute;bottom:0;left:0;right:0;height:120px;z-index:3;
+  background:linear-gradient(to bottom,transparent,var(--bg));
+}
+.hero-inner{
+  position:relative;z-index:4;width:100%;
+  padding:5rem 0 4rem;
+  display:grid;grid-template-columns:1fr 340px;
+  gap:3rem;align-items:center;
+}
+.hero-eyebrow{
+  font-family:var(--font-mono);font-size:.6rem;
+  color:var(--cyan);letter-spacing:.18em;
+  margin-bottom:1.25rem;
+  display:flex;align-items:center;gap:10px;
+}
+.hero-eyebrow::before{
+  content:'';display:inline-block;width:20px;height:1px;
+  background:var(--cyan);
+}
+.hero h1{
+  font-size:clamp(2.8rem,6.5vw,5.5rem);
+  color:#d8ecf8;line-height:1.0;margin-bottom:1.5rem;
+}
+.hero h1 .grad{
+  background:linear-gradient(135deg,var(--green-glow) 0%,var(--cyan) 45%,var(--blue-2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-tagline{
+  font-size:.95rem;color:rgba(208,228,240,.65);
+  max-width:460px;line-height:1.85;
+  margin-bottom:2.5rem;font-weight:300;
+}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+
+/* Hero stat panel */
+.hero-panel{
+  background:rgba(4,12,26,.65);
+  border:.5px solid rgba(36,180,255,.18);
+  border-radius:var(--r-xl);
+  padding:1.5rem;backdrop-filter:blur(14px);
+}
+.stat-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:.875rem 0;border-bottom:.5px solid rgba(36,180,255,.09);
+}
+.stat-row:last-child{border-bottom:none}
+.stat-num{
+  font-family:var(--font-display);font-size:1.9rem;font-weight:800;
+  background:linear-gradient(135deg,var(--green-glow),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.stat-label{
+  font-family:var(--font-mono);font-size:.56rem;
+  color:rgba(106,154,184,.65);letter-spacing:.09em;
+  text-align:right;max-width:110px;line-height:1.4;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PARTNER STRIP
+   ════════════════════════════════════════════════════════════ */
+.partners-strip{
+  padding:1.75rem 0;
+  border-bottom:.5px solid var(--border);
+  background:var(--bg-subtle);
+}
+.partners-label{
+  font-family:var(--font-mono);font-size:.56rem;color:var(--text-3);
+  letter-spacing:.14em;text-align:center;margin-bottom:1.1rem;
+}
+.partners-row{
+  display:flex;align-items:center;justify-content:center;
+  flex-wrap:wrap;gap:8px;
+}
+.partner-pill{
+  display:flex;align-items:center;gap:7px;
+  background:var(--bg-surface);border:.5px solid var(--border-2);
+  border-radius:var(--r-md);padding:.45rem .9rem;
+  transition:border-color .2s,background .2s;text-decoration:none;
+}
+.partner-pill:hover{border-color:var(--green);background:var(--green-bg);text-decoration:none}
+.partner-abbr{font-family:var(--font-mono);font-size:.68rem;font-weight:500;color:var(--blue)}
+.partner-name{font-size:.7rem;color:var(--text-2)}
+
+/* ════════════════════════════════════════════════════════════
+   SECTIONS
+   ════════════════════════════════════════════════════════════ */
+.section{padding:4.5rem 0;border-bottom:.5px solid var(--border)}
+.section:last-of-type{border-bottom:none}
+.section-header{display:flex;align-items:baseline;gap:.75rem;margin-bottom:2.25rem}
+.sec-num{font-family:var(--font-mono);font-size:.58rem;color:var(--cyan);letter-spacing:.08em}
+.section-title{font-size:1.75rem;font-weight:800;letter-spacing:-.02em}
+.section-sub{
+  font-size:.82rem;color:var(--text-2);
+  margin:-.5rem 0 2rem;max-width:560px;line-height:1.65;font-weight:300;
+}
+
+/* Section footer — view-all button row */
+.section-footer{
+  margin-top:2rem;padding-top:1.5rem;
+  border-top:.5px solid var(--border);
+  display:flex;justify-content:flex-end;
+}
+
+/* ════════════════════════════════════════════════════════════
+   TAGS + PILLS
+   ════════════════════════════════════════════════════════════ */
+.tag{
+  display:inline-block;font-size:.58rem;font-family:var(--font-mono);
+  padding:2px 8px;border-radius:4px;
+  border:.5px solid var(--border-2);color:var(--text-2);
+  margin:2px 2px 2px 0;letter-spacing:.04em;
+}
+.tag.green{background:var(--green-bg);color:var(--green-text);border-color:transparent}
+.tag.blue {background:var(--blue-bg); color:var(--blue-text); border-color:transparent}
+.tag.pink {background:var(--pink-bg); color:var(--pink-text); border-color:transparent}
+.tag.ok   {background:var(--ok-bg);   color:var(--ok-text);   border-color:transparent}
+.tag.warn {background:var(--warn-bg); color:var(--warn-text); border-color:transparent}
+.pill{
+  display:inline-block;font-size:.56rem;padding:3px 9px;
+  border-radius:20px;font-family:var(--font-mono);white-space:nowrap;
+  letter-spacing:.04em;
+}
+.pill.ok   {background:var(--ok-bg);   color:var(--ok-text)  }
+.pill.warn {background:var(--warn-bg); color:var(--warn-text)}
+.pill.blue {background:var(--blue-bg); color:var(--blue-text)}
+.pill.green{background:var(--green-bg);color:var(--green-text)}
+.pill.pink {background:var(--pink-bg); color:var(--pink-text)}
+
+/* ════════════════════════════════════════════════════════════
+   RESEARCH AREAS — linked category cards
+   ════════════════════════════════════════════════════════════ */
+.areas-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+  gap:1rem;
+}
+.area-card{
+  background:var(--bg-surface);
+  border:.5px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:1.5rem 1.25rem 1.25rem;
+  transition:border-color .2s,transform .2s;
+  text-decoration:none;display:block;color:inherit;
+  position:relative;overflow:hidden;
+}
+.area-card:hover{
+  border-color:var(--green);transform:translateY(-2px);
+  text-decoration:none;color:inherit;
+}
+/* Subtle colored top bar on hover */
+.area-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--green),var(--cyan));
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .3s ease;
+}
+.area-card:hover::before{transform:scaleX(1)}
+.area-icon{font-size:1.5rem;margin-bottom:.75rem;display:block;line-height:1}
+.area-name{
+  font-family:var(--font-display);font-size:.88rem;font-weight:700;
+  margin-bottom:.35rem;letter-spacing:-.01em;
+}
+.area-desc{font-size:.7rem;color:var(--text-2);line-height:1.55;font-weight:300}
+
+/* ════════════════════════════════════════════════════════════
+   RESEARCH PAPERS — editorial list style (different from projects)
+   ════════════════════════════════════════════════════════════ */
+.papers-list{display:flex;flex-direction:column;gap:0}
+.paper-row{
+  display:grid;
+  grid-template-columns:80px 1fr auto;
+  gap:1.5rem;
+  padding:1.5rem 0;
+  border-top:.5px solid var(--border);
+  align-items:start;
+}
+.paper-year{
+  font-family:var(--font-mono);font-size:.72rem;
+  color:var(--text-3);padding-top:.1rem;
+}
+.paper-venue{
+  font-family:var(--font-mono);font-size:.6rem;
+  color:var(--cyan);letter-spacing:.06em;display:block;
+  margin-bottom:.5rem;
+}
+.paper-title-row{
+  font-family:var(--font-display);font-size:.95rem;font-weight:600;
+  line-height:1.35;margin-bottom:.4rem;
+}
+.paper-title-row a{color:var(--text);transition:color .15s}
+.paper-title-row a:hover{color:var(--green);text-decoration:none}
+.paper-authors{font-size:.72rem;color:var(--text-2);margin-bottom:.625rem;font-weight:300}
+
+/* ════════════════════════════════════════════════════════════
+   PROJECTS — image cards (visually distinct from papers)
+   ════════════════════════════════════════════════════════════ */
+.projects-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;
+}
+.project-card{
+  background:var(--bg-surface);
+  border:.5px solid var(--border);
+  border-radius:var(--r-lg);overflow:hidden;
+  transition:transform .25s,border-color .25s;
+}
+.project-card:hover{transform:translateY(-4px);border-color:var(--green)}
+.project-img{
+  width:100%;aspect-ratio:16/9;
+  position:relative;overflow:hidden;
+  display:flex;align-items:flex-end;padding:12px;
+}
+.proj-g1{background:linear-gradient(135deg,#041a14 0%,#0a9a87 100%)}
+.proj-g2{background:linear-gradient(135deg,#040e28 0%,#0272f1 100%)}
+.proj-g3{background:linear-gradient(135deg,#1a0418 0%,#f0127a 100%)}
+.proj-g4{background:linear-gradient(135deg,#060d20 0%,#2dd4bf 55%,#0272f1 100%)}
+.project-img::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(36,255,252,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(36,255,252,.05) 1px,transparent 1px);
+  background-size:22px 22px;
+}
+.project-icon-badge{
+  position:relative;z-index:1;
+  width:38px;height:38px;border-radius:9px;
+  background:rgba(0,0,0,.45);backdrop-filter:blur(8px);
+  border:.5px solid rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;font-size:1rem;
+}
+.proj-status{position:absolute;top:10px;right:10px;z-index:1}
+.project-body{padding:1.1rem}
+.project-title{
+  font-family:var(--font-display);font-size:.9rem;font-weight:700;
+  margin-bottom:.35rem;letter-spacing:-.01em;
+}
+.project-desc{
+  font-size:.7rem;color:var(--text-2);line-height:1.55;
+  margin-bottom:.625rem;font-weight:300;
+}
+
+/* ════════════════════════════════════════════════════════════
+   CURRICULUM — track cards with colored bars
+   ════════════════════════════════════════════════════════════ */
+.curriculum-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1rem;
+}
+.track-card{
+  background:var(--bg-surface);border:.5px solid var(--border);
+  border-radius:var(--r-lg);padding:1.5rem;
+  transition:border-color .2s,transform .2s;
+  text-decoration:none;color:inherit;display:block;
+}
+.track-card:hover{border-color:var(--blue);transform:translateY(-2px);text-decoration:none;color:inherit}
+.track-bar{height:3px;border-radius:2px;margin-bottom:1rem;width:55%}
+.track-meta{font-family:var(--font-mono);font-size:.56rem;color:var(--text-3);margin-bottom:6px;letter-spacing:.04em}
+.track-title{font-family:var(--font-display);font-size:.95rem;font-weight:700;margin-bottom:5px}
+.track-desc{font-size:.72rem;color:var(--text-2);line-height:1.55;margin-bottom:.75rem;font-weight:300}
+
+/* ════════════════════════════════════════════════════════════
+   MODULES
+   ════════════════════════════════════════════════════════════ */
+.modules-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1rem;
+}
+.module-card{
+  background:var(--bg-subtle);border:.5px solid var(--border);
+  border-radius:var(--r-lg);padding:1.25rem;
+  transition:border-color .2s;
+  text-decoration:none;color:inherit;display:block;
+}
+.module-card:hover{border-color:var(--blue);text-decoration:none;color:inherit}
+.module-course-badge{
+  display:inline-block;font-family:var(--font-mono);font-size:.56rem;
+  padding:2px 8px;border-radius:4px;
+  background:var(--blue-bg);color:var(--blue-text);
+  margin-bottom:.625rem;letter-spacing:.06em;
+}
+.module-title{font-family:var(--font-display);font-size:.9rem;font-weight:700;margin-bottom:5px}
+.module-desc{font-size:.7rem;color:var(--text-2);line-height:1.55;margin-bottom:.625rem;font-weight:300}
+
+/* ════════════════════════════════════════════════════════════
+   NOTES
+   ════════════════════════════════════════════════════════════ */
+.note-row{
+  display:grid;grid-template-columns:110px 1fr;
+  gap:1rem;padding:.875rem 0;
+  border-top:.5px solid var(--border);align-items:baseline;
+}
+.note-title{
+  font-family:var(--font-display);font-size:.9rem;font-weight:600;
+  color:var(--text);transition:color .15s;
+}
+.note-title:hover{color:var(--green);text-decoration:none}
+
+/* ════════════════════════════════════════════════════════════
+   JOIN SECTION
+   ════════════════════════════════════════════════════════════ */
+.join-section{
+  padding:5rem 0;background:var(--bg-deep);
+  position:relative;overflow:hidden;
+}
+.join-section::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 60% 90% at 90% 50%,rgba(2,114,241,.16) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 60% at 10% 50%,rgba(13,191,158,.14) 0%,transparent 55%),
+    /* Pink spark */
+    radial-gradient(ellipse 25% 30% at 50% 90%,rgba(240,18,122,.08) 0%,transparent 60%);
+}
+.join-inner{
+  position:relative;z-index:1;
+  display:grid;grid-template-columns:1fr auto;gap:4rem;align-items:center;
+}
+.join-eyebrow{
+  font-family:var(--font-mono);font-size:.58rem;
+  color:var(--cyan);letter-spacing:.14em;margin-bottom:1rem;
+}
+.join-title{font-size:clamp(1.6rem,3.5vw,2.6rem);color:#d0e4f0;margin-bottom:1rem}
+.join-sub{
+  font-size:.88rem;color:rgba(106,154,184,.75);
+  line-height:1.85;max-width:500px;font-weight:300;
+}
+.join-cta{display:flex;flex-direction:column;gap:10px;min-width:190px}
+
+/* ════════════════════════════════════════════════════════════
+   ABOUT
+   ════════════════════════════════════════════════════════════ */
+.about-grid{
+  display:grid;grid-template-columns:260px 1fr;
+  gap:3rem;align-items:start;
+}
+.about-profile{position:sticky;top:calc(var(--nav-h) + 1.5rem)}
+
+.profile-img-wrap{
+  width:100%;aspect-ratio:3/4;
+  border-radius:var(--r-xl);
+  border:.5px solid var(--border-2);
+  position:relative;overflow:hidden;margin-bottom:1.25rem;
+  background:linear-gradient(160deg,#041a2a 0%,#060d20 50%,#1a041a 100%);
+}
+.profile-img-wrap::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(36,200,255,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(36,200,255,.04) 1px,transparent 1px);
+  background-size:18px 18px;z-index:1;
+}
+.profile-placeholder{
+  position:absolute;inset:0;z-index:2;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:4.5rem;font-weight:800;
+  color:rgba(45,212,191,.18);
+}
+/* Pink accent dot — subtle brand touch */
+.profile-img-wrap::after{
+  content:'';position:absolute;
+  bottom:20%;right:15%;
+  width:60px;height:60px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(240,18,122,.3) 0%,transparent 70%);
+  z-index:3;
+}
+
+.profile-stats{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:8px;margin-bottom:1.25rem;
+}
+.profile-stat{
+  background:var(--bg-subtle);border-radius:var(--r-md);
+  padding:.75rem;text-align:center;
+}
+.profile-stat .num{
+  font-family:var(--font-display);font-size:1.4rem;font-weight:800;
+  color:var(--green);display:block;
+}
+.profile-stat .lbl{
+  font-family:var(--font-mono);font-size:.54rem;
+  color:var(--text-3);letter-spacing:.06em;
+}
+.profile-pi-label{
+  font-family:var(--font-mono);font-size:.58rem;
+  color:var(--cyan);letter-spacing:.1em;
+  margin-bottom:.875rem;
+}
+.profile-links{display:flex;flex-direction:column;gap:7px}
+.pi-link{
+  font-size:.75rem;color:var(--text-2);
+  display:flex;align-items:center;gap:6px;transition:color .15s;
+}
+.pi-link:hover{color:var(--green);text-decoration:none}
+.pi-link::before{content:'↗';font-size:.6rem;color:var(--text-3)}
+
+/* ════════════════════════════════════════════════════════════
+   FOOTER — 3-col, centered logo, full-width border
+   ════════════════════════════════════════════════════════════ */
+.site-footer{
+  background:var(--bg-deep);
+  border-top:.5px solid var(--border-2);
+  box-shadow:0 -1px 0 rgba(36,200,255,.1);
+  padding:4rem 0 2.25rem;
+}
+.footer-top{
+  display:grid;grid-template-columns:1fr 1.1fr 1fr;
+  gap:3rem;margin-bottom:3rem;
+  padding-bottom:3rem;
+  border-bottom:.5px solid var(--border);
+}
+.footer-logo-col{text-align:center}
+.footer-logo{
+  font-family:var(--font-display);font-size:2rem;font-weight:800;
+  letter-spacing:.06em;
+  background:linear-gradient(135deg,var(--green-glow),var(--cyan),var(--blue-2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  display:block;margin-bottom:.5rem;
+}
+.footer-logo-img {
+  display:block;
+  position:relative;
+  max-height: 100px;
+  bottom: 1rem;
+  margin: 0 auto;
+  text-align: center;
+}
+.footer-logo-sub{
+  font-family:var(--font-mono);font-size:.56rem;
+  color:rgba(106,154,184,.45);letter-spacing:.12em;
+}
+.footer-logo-desc{
+  font-size:.72rem;color:rgba(106,154,184,.5);
+  line-height:1.65;margin-top:.875rem;font-weight:300;
+}
+/* Pink accent on footer logo — single pixel line beneath */
+.footer-logo-col::after{
+  content:'';display:block;
+  width:32px;height:1px;margin:1rem auto 0;
+  background:var(--pink);opacity:.5;
+}
+.footer-col h4{
+  font-family:var(--font-mono);font-size:.56rem;
+  color:rgba(36,200,255,.4);letter-spacing:.12em;margin-bottom:1rem;
+}
+.footer-links-col{list-style:none;display:flex;flex-direction:column;gap:9px}
+.footer-links-col a{
+  font-size:.75rem;color:rgba(106,154,184,.55);transition:color .15s;
+}
+.footer-links-col a:hover{color:var(--green);text-decoration:none}
+.footer-bottom{
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:.75rem;
+}
+.footer-copy{font-family:var(--font-mono);font-size:.58rem;color:rgba(106,154,184,.35)}
+.footer-social{display:flex;gap:1.25rem}
+.footer-social a{
+  font-family:var(--font-mono);font-size:.6rem;
+  color:rgba(106,154,184,.4);transition:color .15s;
+}
+.footer-social a:hover{color:var(--cyan);text-decoration:none}
+
+/* ════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════════════════════════════ */
+@media(max-width:1024px){
+  .projects-grid{grid-template-columns:repeat(2,1fr)}
+  .about-grid{grid-template-columns:220px 1fr;gap:2.25rem}
+  .about-profile{position:static}
+  .join-inner{grid-template-columns:1fr;gap:2rem}
+  .footer-top{grid-template-columns:1fr 1fr;gap:2rem}
+  .footer-logo-col{order:-1;grid-column:1/-1}
+}
+@media(max-width:768px){
+  .hero-inner{grid-template-columns:1fr;padding:3.5rem 0 2.5rem}
+  .hero h1{font-size:2.8rem}
+  .projects-grid{grid-template-columns:repeat(2,1fr)}
+  .about-grid{grid-template-columns:1fr}
+  .paper-row{grid-template-columns:60px 1fr;gap:1rem}
+  .paper-row .pill{display:none}
+}
+@media(max-width:640px){
+  .nav-links{display:none}
+  html{font-size:14.5px}
+  .hero h1{font-size:2.2rem}
+  .projects-grid{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr}
+  .note-row{grid-template-columns:1fr;gap:.25rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ NAV ══════════════════════════════════════════════════ -->
+<nav class="site-nav">
+  <div class="container nav-inner">
+    <a href="/" class="nav-logo">
+      <!-- PAI LAB -->
+      <img src="./public/logo-horz2.png" alt="PAI Lab Logo" class="nav-logo-img">
+      <span class="sub">PHYSICAL AI LABORATORY</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#areas">Areas</a></li>
+      <li><a href="#research">Papers</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#curriculum">Curriculum</a></li>
+      <li><a href="#modules">Modules</a></li>
+      <li><a href="#notes">Notes</a></li>
+      <li><a href="#join">Join</a></li>
+      <li><a href="#about">About</a></li>
+    </ul>
+    <div class="nav-controls">
+      <a href="/ko/" class="btn-ghost">한국어</a>
+      <div style="width:.5px;height:16px;background:var(--border-2)"></div>
+      <button id="theme-btn" class="btn-ghost" style="padding:4px 8px;font-size:.8rem">☀</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ HERO ══════════════════════════════════════════════════ -->
+<div class="hero full-bleed">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-fade"></div>
+  <div class="container">
+    <div class="hero-inner">
+      <div>
+        <p class="hero-eyebrow">JEONJU · KOREA · EST. 2026</p>
+        <h1><span class="grad">Physical</span><br>AI Lab</h1>
+        <p class="hero-tagline">
+          Bridging machine intelligence and the physical world —
+          embedded systems, autonomous robotics, and real-time AI
+          at the edge.
+        </p>
+        <div class="hero-cta">
+          <a href="#research" class="btn-primary">View research →</a>
+          <a href="#join" class="btn-slide btn-slide-cyan">Research opportunities</a>
+        </div>
+      </div>
+      <div class="hero-panel">
+        <div class="stat-row">
+          <div class="stat-num">3+</div>
+          <div class="stat-label">PUBLICATIONS & PREPRINTS</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-num">5</div>
+          <div class="stat-label">PARTNER UNIVERSITIES</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-num">4</div>
+          <div class="stat-label">OPEN DATASETS</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-num">1</div>
+          <div class="stat-label">ACADEMIC SOCIETY FOUNDED</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PARTNERS ══════════════════════════════════════════════ -->
+<div class="partners-strip full-bleed">
+  <div class="container">
+    <p class="partners-label">AFFILIATED INSTITUTIONS</p>
+    <div class="partners-row">
+      <a href="https://www.jbnu.ac.kr" class="partner-pill" target="_blank"><span class="partner-abbr">JBNU</span><span class="partner-name">전북대학교</span></a>
+      <a href="https://www.ut.ac.kr"   class="partner-pill" target="_blank"><span class="partner-abbr">UT</span><span class="partner-name">한국교통대</span></a>
+      <a href="https://www.hanbat.ac.kr" class="partner-pill" target="_blank"><span class="partner-abbr">HBU</span><span class="partner-name">한밭대학교</span></a>
+      <a href="https://www.wku.ac.kr"  class="partner-pill" target="_blank"><span class="partner-abbr">WKU</span><span class="partner-name">원광대학교</span></a>
+      <a href="https://www.jnue.kr"    class="partner-pill" target="_blank"><span class="partner-abbr">JNUE</span><span class="partner-name">전주교육대</span></a>
+      <a href="https://kspai.org"      class="partner-pill" target="_blank">
+        <span class="partner-abbr" style="color:var(--green)">KSPAI</span>
+        <span class="partner-name">한국피지컬AI학회</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 00 RESEARCH AREAS ═════════════════════════════════════ -->
+<section class="section" id="areas">
+  <div class="container">
+    <div class="section-header">
+      <span class="sec-num">00</span>
+      <h2 class="section-title">Research Areas</h2>
+    </div>
+    <div class="areas-grid">
+      <a href="/areas/embodied-intelligence" class="area-card">
+        <span class="area-icon">🤖</span>
+        <p class="area-name">Embodied Intelligence</p>
+        <p class="area-desc">AI that learns through physical interaction and sensorimotor feedback loops.</p>
+      </a>
+      <a href="/areas/autonomous-robotics" class="area-card">
+        <span class="area-icon">🦾</span>
+        <p class="area-name">Autonomous Robotics</p>
+        <p class="area-desc">Gesture-controlled arms, ROS 2 systems, and full autonomy pipelines.</p>
+      </a>
+      <a href="/areas/digital-twin" class="area-card">
+        <span class="area-icon">🌐</span>
+        <p class="area-name">Digital Twin & Simulation</p>
+        <p class="area-desc">Sim-to-real transfer, Isaac Sim, and virtual testbeds for rapid prototyping.</p>
+      </a>
+      <a href="/areas/sensor-fusion" class="area-card">
+        <span class="area-icon">📡</span>
+        <p class="area-name">Sensor Fusion & Perception</p>
+        <p class="area-desc">Kalman filters, multi-modal sensing, depth cameras, and vision pipelines.</p>
+      </a>
+      <a href="/areas/industrial" class="area-card">
+        <span class="area-icon">⚙️</span>
+        <p class="area-name">Industrial Applications</p>
+        <p class="area-desc">Physical AI in manufacturing, inspection, power electronics, and energy systems.</p>
+      </a>
+      <a href="/areas/safety-ethics" class="area-card">
+        <span class="area-icon">🔒</span>
+        <p class="area-name">Safety & Ethics</p>
+        <p class="area-desc">Fail-safe design, interpretable edge models, and responsible autonomy.</p>
+      </a>
+      <a href="/areas/edge-ai" class="area-card">
+        <span class="area-icon">⚡</span>
+        <p class="area-name">Edge AI & TinyML</p>
+        <p class="area-desc">Sub-milliwatt inference — FPGA acceleration, TFLite Micro, bare-metal deployment.</p>
+      </a>
+      <a href="/curriculum" class="area-card">
+        <span class="area-icon">📖</span>
+        <p class="area-name">Open Curriculum</p>
+        <p class="area-desc">Bilingual Physical AI education — undergraduate modules and full research tracks.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 01 RESEARCH PAPERS (editorial list) ══════════════════ -->
+<section class="section" id="research">
+  <div class="container">
+    <div class="section-header">
+      <span class="sec-num">01</span>
+      <h2 class="section-title">Research</h2>
+    </div>
+    <div class="papers-list">
+
+      <div class="paper-row">
+        <div>
+          <span class="paper-year">2025</span>
+        </div>
+        <div>
+          <span class="paper-venue">KORCOS</span>
+          <p class="paper-title-row">
+            <a href="/research/cross-cultural-perspectives-ai-in-education">Cross-Cultural Perceptions of AI in Education : Comparing Korean and International Students in Korea’s Glocal University Era</a>
+          </p>
+          <p class="paper-authors">A. D. Snowberger, K. S. You</p>
+          <div><span class="tag green">AI</span><span class="tag">Glocal</span><span class="tag">Education</span></div>
+        </div>
+        <span class="pill ok">Published</span>
+      </div>
+
+      <div class="paper-row">
+        <div>
+          <span class="paper-year">2025</span>
+        </div>
+        <div>
+          <span class="paper-venue">JPEE</span>
+          <p class="paper-title-row">
+            <a href="/research/github-classroom-google-colab-ml-team-projects">Leveraging GitHub Classroom and Google Colab for Short-Term Student Machine Learning Team Projects</a>
+          </p>
+          <p class="paper-authors">A. Snowberger, K. S. You</p>
+          <div><span class="tag blue">ML</span><span class="tag">GitHub Classroom</span><span class="tag">Google Colab</span><span class="tag">Education</span></div>
+        </div>
+        <span class="pill ok">Published</span>
+      </div>
+
+      <div class="paper-row">
+        <div>
+          <span class="paper-year">2024</span>
+        </div>
+        <div>
+          <span class="paper-venue">JPEE</span>
+          <p class="paper-title-row">
+            <a href="/research/github-classroom-codespaces-standardization">Creating a Standardized Environment for Efficient Learning Management using GitHub Codespaces and GitHub Classroom</a>
+          </p>
+          <p class="paper-authors">A. Snowberger, K. S. You</p>
+          <div><span class="tag blue">IDE</span><span class="tag">GitHub Classroom</span><span class="tag">GitHub Codespaces</span><span class="tag">Education</span></div>
+        </div>
+        <span class="pill ok">Published</span>
+      </div>
+
+      <div class="paper-row">
+        <div>
+          <span class="paper-year">2024</span>
+        </div>
+        <div>
+          <span class="paper-venue">JICCE</span>
+          <p class="paper-title-row">
+            <a href="/research/manchu-script-dataset-creation">Manchu Script Letters Dataset Creation and Labeling</a>
+          </p>
+          <p class="paper-authors">A. Snowberger, C. H. Lee</p>
+          <div><span class="tag pink">Dataset</span><span class="tag blue">Script OCR</span><span class="tag green">Vision</span></div>
+        </div>
+        <span class="pill ok">Published</span>
+      </div>
+
+      <div class="paper-row">
+        <div>
+          <span class="paper-year">2024</span>
+        </div>
+        <div>
+          <span class="paper-venue">JPEE</span>
+          <p class="paper-title-row">
+            <a href="/research/web-programming-education">Analysis and Application of Front-end Code Playground Tools for Web Programming Education</a>
+          </p>
+          <p class="paper-authors">A. Snowberger, S. M. Kim, S. H. Woo</p>
+          <div><span class="tag blue">IDE</span><span class="tag">Front-end</span><span class="tag">Education</span></div>
+        </div>
+        <span class="pill ok">Published</span>
+      </div>
+
+      <div class="paper-row">
+        <div>
+          <span class="paper-year">2023</span>
+        </div>
+        <div>
+          <span class="paper-venue">JPEE</span>
+          <p class="paper-title-row">
+            <a href="/research/github-pages-classroom-workflow">A Workflow for Practical Programming Class Management Using GitHub Pages and GitHub Classroom</a>
+          </p>
+          <p class="paper-authors">A. Snowberger, C. H. Lee</p>
+          <div><span class="tag blue">GitHub Pages</span><span class="tag">GitHub Classroom</span><span class="tag">Education</span></div>
+        </div>
+        <span class="pill ok">Published</span>
+      </div>
+
+      <div class="paper-row">
+        <div>
+          <span class="paper-year">2023</span>
+        </div>
+        <div>
+          <span class="paper-venue">KLIFE</span>
+          <p class="paper-title-row">
+            <a href="/research/fpga-inference">A Systematic Review of Handwritten Hangul OCR Techniques and Datasets</a>
+          </p>
+          <p class="paper-authors">A. Snowberger, C. H. Lee</p>
+          <div><span class="tag pink">Dataset</span><span class="tag blue">Script OCR</span><span class="tag blue">Review</span></div>
+        </div>
+        <span class="pill ok">Published</span>
+      </div>
+
+      <div class="paper-row">
+        <div>
+          <span class="paper-year">2023</span>
+        </div>
+        <div>
+          <span class="paper-venue">JICCE</span>
+          <p class="paper-title-row">
+            <a href="/research/fpga-inference">Handwritten Hangul Graphemes Classification Using Three Artificial Neural Networks</a>
+          </p>
+          <p class="paper-authors">A. Snowberger, C. H. Lee</p>
+          <div><span class="tag pink">Dataset</span><span class="tag blue">Script OCR</span><span class="tag green">Vision</span></div>
+        </div>
+        <span class="pill ok">Published</span>
+      </div>
+
+    </div>
+    <div class="section-footer">
+      <a href="/research" class="btn-slide btn-slide-green">All publications →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 02 PROJECTS (image cards — visually distinct) ═════════ -->
+<section class="section" id="projects">
+  <div class="container">
+    <div class="section-header">
+      <span class="sec-num">02</span>
+      <h2 class="section-title">Projects</h2>
+    </div>
+    <div class="projects-grid">
+      <div class="project-card">
+        <div class="project-img proj-g1">
+          <div class="project-icon-badge">🦾</div>
+          <div class="proj-status"><span class="pill ok">Active</span></div>
+        </div>
+        <div class="project-body">
+          <p class="project-title">Gesture-controlled robot arm</p>
+          <p class="project-desc">On-device MobileNet classifier drives a 4-DOF Arduino arm with no PC required.</p>
+          <div><span class="tag green">Physical AI</span><span class="tag">Arduino</span></div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-img proj-g2">
+          <div class="project-icon-badge">📜</div>
+          <div class="proj-status"><span class="pill blue">Published</span></div>
+        </div>
+        <div class="project-body">
+          <p class="project-title">Korean ancient script OCR (KASD-1k)</p>
+          <p class="project-desc">3,400 annotated Hunminjeongeum glyphs, CC-BY 4.0, EfficientNet-B0 baseline.</p>
+          <div><span class="tag blue">Dataset</span><span class="tag">Vision</span></div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-img proj-g3">
+          <div class="project-icon-badge">📊</div>
+          <div class="proj-status"><span class="pill warn">Planned</span></div>
+        </div>
+        <div class="project-body">
+          <p class="project-title">Edge inference benchmark (EPIB)</p>
+          <p class="project-desc">Latency, accuracy, power benchmarks across 5 boards and 12 TFLite models.</p>
+          <div><span class="tag">Benchmark</span><span class="tag green">Edge AI</span></div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-img proj-g4">
+          <div class="project-icon-badge">🇰🇷</div>
+          <div class="proj-status"><span class="pill ok">Active</span></div>
+        </div>
+        <div class="project-body">
+          <p class="project-title">KSPAI — Korean Society for Physical AI</p>
+          <p class="project-desc">Founding the first Korean academic society for Physical AI research.</p>
+          <div><span class="tag">Society</span><span class="tag blue">Community</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="section-footer">
+      <a href="/projects" class="btn-slide btn-slide-green">All projects →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 03 CURRICULUM ═════════════════════════════════════════ -->
+<section class="section" id="curriculum">
+  <div class="container">
+    <div class="section-header">
+      <span class="sec-num">03</span>
+      <h2 class="section-title">Curriculum</h2>
+    </div>
+    <p class="section-sub">Four structured tracks from first principles to advanced robotics. Fully bilingual EN / 한국어.</p>
+    <div class="curriculum-grid">
+      <a href="/curriculum/track-01" class="track-card">
+        <div class="track-bar" style="background:linear-gradient(90deg,var(--green),var(--cyan))"></div>
+        <div class="track-meta">TRACK 01 · BEGINNER</div>
+        <p class="track-title">Foundations of Physical AI</p>
+        <p class="track-desc">Sensors, actuators, and the full AI stack from first principles.</p>
+        <span class="tag">8 units</span><span class="tag green">EN · 한국어</span>
+      </a>
+      <a href="/curriculum/track-02" class="track-card">
+        <div class="track-bar" style="background:linear-gradient(90deg,var(--blue),var(--cyan))"></div>
+        <div class="track-meta">TRACK 02 · INTERMEDIATE</div>
+        <p class="track-title">Edge AI & Embedded Systems</p>
+        <p class="track-desc">TinyML, RTOS, and real-time inference on constrained hardware.</p>
+        <span class="tag">10 units</span><span class="tag green">EN · 한국어</span>
+      </a>
+      <a href="/curriculum/track-03" class="track-card">
+        <div class="track-bar" style="background:linear-gradient(90deg,var(--blue-2),var(--green))"></div>
+        <div class="track-meta">TRACK 03 · ADVANCED</div>
+        <p class="track-title">Robotic Systems & Control</p>
+        <p class="track-desc">Kinematics, ROS 2, and perception–action loops. Build real robots.</p>
+        <span class="tag">12 units</span><span class="tag green">EN · 한국어</span>
+      </a>
+      <a href="/curriculum/datasets" class="track-card">
+        <div class="track-bar" style="background:linear-gradient(90deg,var(--cyan),var(--green))"></div>
+        <div class="track-meta">DATASETS · OPEN</div>
+        <p class="track-title">Lab Datasets & Benchmarks</p>
+        <p class="track-desc">Open benchmarks for Physical AI research. All CC-BY 4.0.</p>
+        <span class="tag ok">3 datasets</span><span class="tag">CC-BY 4.0</span>
+      </a>
+    </div>
+    <div class="section-footer">
+      <a href="/curriculum" class="btn-slide btn-slide-blue">Full curriculum →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 04 MODULES ════════════════════════════════════════════ -->
+<section class="section" id="modules">
+  <div class="container">
+    <div class="section-header">
+      <span class="sec-num">04</span>
+      <h2 class="section-title">Course plug-in modules</h2>
+    </div>
+    <p class="section-sub">Physical AI add-ons for courses not primarily focused on AI — drop into any syllabus in 1–3 weeks.</p>
+    <div class="modules-grid">
+      <a href="/modules/cpp-memory" class="module-card">
+        <div class="module-course-badge">C++ PROGRAMMING</div>
+        <p class="module-title">AI-aware memory management</p>
+        <p class="module-desc">Efficient patterns for inference workloads on bare-metal targets.</p>
+        <span class="tag">3 weeks</span>
+      </a>
+      <a href="/modules/iot-sensor-fusion" class="module-card">
+        <div class="module-course-badge">IoT / EMBEDDED</div>
+        <p class="module-title">Sensor fusion fundamentals</p>
+        <p class="module-desc">Kalman filters and multi-sensor pipelines for any IoT course.</p>
+        <span class="tag">2 weeks</span>
+      </a>
+      <a href="/modules/db-timeseries" class="module-card">
+        <div class="module-course-badge">DATABASE</div>
+        <p class="module-title">Time-series data for physical systems</p>
+        <p class="module-desc">InfluxDB and real-time sensor logging for DB courses.</p>
+        <span class="tag">2 weeks</span>
+      </a>
+      <a href="/modules/circuits-nn" class="module-card">
+        <div class="module-course-badge">CIRCUIT THEORY</div>
+        <p class="module-title">Neural network hardware mappings</p>
+        <p class="module-desc">How circuit theory underlies Physical AI acceleration chips.</p>
+        <span class="tag">1 week</span>
+      </a>
+    </div>
+    <div class="section-footer">
+      <a href="/modules" class="btn-slide btn-slide-blue">All modules →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 05 NOTES ═══════════════════════════════════════════════ -->
+<section class="section" id="notes">
+  <div class="container">
+    <div class="section-header">
+      <span class="sec-num">05</span>
+      <h2 class="section-title">Notes</h2>
+    </div>
+    <div>
+      <div class="note-row">
+        <span style="font-family:var(--font-mono);font-size:.58rem;color:var(--text-3)">2025-03-15</span>
+        <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+          <a class="note-title" href="/notes/what-is-physical-ai">What is Physical AI? A working definition for educators</a>
+          <span class="tag green" style="font-size:.55rem">EN · 한국어</span>
+        </div>
+      </div>
+      <div class="note-row">
+        <span style="font-family:var(--font-mono);font-size:.58rem;color:var(--text-3)">2025-02-28</span>
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <a class="note-title" href="/notes/tinyml-apple-silicon">Setting up a TinyML dev environment on Apple Silicon</a>
+          <span class="tag" style="font-size:.55rem">EN</span>
+        </div>
+      </div>
+      <div class="note-row">
+        <span style="font-family:var(--font-mono);font-size:.58rem;color:var(--text-3)">2025-01-10</span>
+        <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+          <a class="note-title" href="/notes/arduino-to-ros2">Arduino to ROS 2: bridging hobbyist hardware and research software</a>
+          <span class="tag green" style="font-size:.55rem">EN · 한국어</span>
+        </div>
+      </div>
+      <div class="note-row">
+        <span style="font-family:var(--font-mono);font-size:.58rem;color:var(--text-3)">2024-12-04</span>
+        <div>
+          <a class="note-title" href="/notes/capstone-publishable">학생 캡스톤 프로젝트를 논문으로 만들기</a>
+          <span class="tag" style="font-size:.55rem;margin-left:8px">한국어</span>
+        </div>
+      </div>
+    </div>
+    <div class="section-footer">
+      <a href="/notes" class="btn-slide btn-slide-green">All notes →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ JOIN ═══════════════════════════════════════════════════ -->
+<div class="join-section full-bleed" id="join">
+  <div class="container">
+    <div class="join-inner">
+      <div>
+        <p class="join-eyebrow">RESEARCH OPPORTUNITIES</p>
+        <h2 class="join-title">Work with the lab</h2>
+        <p class="join-sub">
+          I work with motivated undergraduates on conference papers, open datasets,
+          and Physical AI projects — Arduino robotics, edge ML, embedded systems.
+          No prior AI background required. If you have a capstone project with
+          potential, or just want to learn by building something real, reach out.
+        </p>
+      </div>
+      <div class="join-cta">
+        <a href="https://aaronsnowberger.com" class="btn-primary">Get in touch →</a>
+        <a href="#about" class="btn-slide btn-slide-cyan" style="text-align:center">About the lab</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 06 ABOUT ═══════════════════════════════════════════════ -->
+<section class="section" id="about">
+  <div class="container">
+    <div class="section-header">
+      <span class="sec-num">06</span>
+      <h2 class="section-title">About</h2>
+    </div>
+    <div class="about-grid">
+
+      <div class="about-profile">
+        <div class="profile-img-wrap">
+          <img src="https://avatars.githubusercontent.com/u/6644259?v=4" alt="Aaron Snowberger"
+              style="position:absolute;inset:0;width:100%;height:100%;
+                     object-fit:cover;z-index:2;border-radius:inherit">
+          <!-- <div class="profile-placeholder">AS</div> -->
+          <!--
+            Replace with your photo:
+            <img src="/profile.jpg" alt="Aaron Snowberger"
+              style="position:absolute;inset:0;width:100%;height:100%;
+                     object-fit:cover;z-index:2;border-radius:inherit">
+          -->
+        </div>
+        <!-- <div class="profile-stats">
+          <div class="profile-stat"><span class="num">5</span><span class="lbl">UNIVERSITIES</span></div>
+          <div class="profile-stat"><span class="num">3+</span><span class="lbl">PAPERS</span></div>
+          <div class="profile-stat"><span class="num">4</span><span class="lbl">DATASETS</span></div>
+          <div class="profile-stat"><span class="num">1</span><span class="lbl">SOCIETY</span></div>
+        </div> -->
+        <p class="profile-pi-label">PRINCIPAL INVESTIGATOR</p>
+        <div class="profile-links">
+          <a class="pi-link" href="https://aaron.kr">aaron.kr — blog &amp; hub</a>
+          <a class="pi-link" href="https://aaronsnowberger.com">aaronsnowberger.com</a>
+          <a class="pi-link" href="https://kspai.org">kspai.org — KSPAI society</a>
+          <a class="pi-link" href="https://aaronkr-courses.github.io/courses/">courses.aaron.kr</a>
+          <a class="pi-link" href="https://blog.naver.com/aaron_kr">Naver blog (한국어)</a>
+        </div>
+      </div>
+
+      <div>
+        <p style="font-size:1rem;line-height:1.9;margin-bottom:1.25rem;font-weight:300">
+          The <strong style="font-weight:600;font-family:var(--font-display)">Physical AI Laboratory</strong>
+          is a research group based in Jeonju, Korea, working at the intersection
+          of machine learning, embedded hardware, and physical systems.
+        </p>
+        <p style="font-size:1rem;line-height:1.9;margin-bottom:1.25rem;font-weight:300">
+          I teach across five Korean universities and run an open research practice —
+          papers, datasets, and code are published wherever possible. I'm also a founding
+          organiser of <a href="https://kspai.org" style="color:var(--green)">KSPAI</a>
+          (한국피지컬AI학회), the Korean Society for Physical AI.
+        </p>
+        <p style="font-size:1rem;line-height:1.9;margin-bottom:2rem;font-weight:300;font-style:italic;color:var(--text-2)">
+          Wyoming native. Laid back. Will talk robotics over coffee.
+        </p>
+
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:2.5rem">
+          <span class="tag green">Physical AI</span>
+          <span class="tag">Embedded Systems</span>
+          <span class="tag blue">Edge ML</span>
+          <span class="tag">Robotics</span>
+          <span class="tag ok">Open Research</span>
+          <!-- Pink: used sparingly — just one instance -->
+          <span class="tag pink">Korea</span>
+        </div>
+
+        <div style="border-top:.5px solid var(--border);padding-top:1.5rem">
+          <p style="font-family:var(--font-mono);font-size:.56rem;color:var(--text-3);letter-spacing:.1em;margin-bottom:1rem">AFFILIATED INSTITUTIONS</p>
+          <div>
+            <div style="display:grid;grid-template-columns:58px 1fr 1fr;gap:1rem;padding:.6rem 0;border-top:.5px solid var(--border);align-items:center">
+              <span style="font-family:var(--font-mono);font-size:.6rem;color:var(--blue)">JBNU</span>
+              <span style="font-size:.8rem">Jeonbuk National University</span>
+              <span style="font-size:.8rem;color:var(--text-2)">전북대학교</span>
+            </div>
+            <div style="display:grid;grid-template-columns:58px 1fr 1fr;gap:1rem;padding:.6rem 0;border-top:.5px solid var(--border);align-items:center">
+              <span style="font-family:var(--font-mono);font-size:.6rem;color:var(--blue)">UT</span>
+              <span style="font-size:.8rem">Korea National Univ. of Transportation</span>
+              <span style="font-size:.8rem;color:var(--text-2)">한국교통대</span>
+            </div>
+            <div style="display:grid;grid-template-columns:58px 1fr 1fr;gap:1rem;padding:.6rem 0;border-top:.5px solid var(--border);align-items:center">
+              <span style="font-family:var(--font-mono);font-size:.6rem;color:var(--blue)">HBU</span>
+              <span style="font-size:.8rem">Hanbat National University</span>
+              <span style="font-size:.8rem;color:var(--text-2)">한밭대학교</span>
+            </div>
+            <div style="display:grid;grid-template-columns:58px 1fr 1fr;gap:1rem;padding:.6rem 0;border-top:.5px solid var(--border);align-items:center">
+              <span style="font-family:var(--font-mono);font-size:.6rem;color:var(--blue)">WKU</span>
+              <span style="font-size:.8rem">Wonkwang University</span>
+              <span style="font-size:.8rem;color:var(--text-2)">원광대학교</span>
+            </div>
+            <div style="display:grid;grid-template-columns:58px 1fr 1fr;gap:1rem;padding:.6rem 0;border-top:.5px solid var(--border);align-items:center">
+              <span style="font-family:var(--font-mono);font-size:.6rem;color:var(--green)">KSPAI</span>
+              <span style="font-size:.8rem">Korean Society for Physical AI</span>
+              <span style="font-size:.8rem;color:var(--text-2)">한국피지컬AI학회</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════ -->
+<footer class="site-footer full-bleed">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-col">
+        <h4>SITE</h4>
+        <ul class="footer-links-col">
+          <li><a href="#areas">Research Areas</a></li>
+          <li><a href="#research">Papers</a></li>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="#curriculum">Curriculum</a></li>
+          <li><a href="#modules">Course Modules</a></li>
+          <li><a href="#notes">Notes</a></li>
+          <li><a href="#join">Research Opportunities</a></li>
+          <li><a href="#about">About</a></li>
+        </ul>
+      </div>
+      <div class="footer-logo-col">
+        <img src="./public/logo2.png" alt="PAI LAB logo" class="footer-logo-img">
+        <!-- <span class="footer-logo">PAI LAB</span> -->
+        <span class="footer-logo-sub">PHYSICAL AI LABORATORY</span>
+        <p class="footer-logo-desc">
+          Open research at the intersection of<br>
+          machine intelligence and the physical world.<br>
+          Jeonju, Korea · Est. 2025
+        </p>
+      </div>
+      <div class="footer-col" style="text-align:right">
+        <h4>CONNECT</h4>
+        <ul class="footer-links-col" style="align-items:flex-end">
+          <li><a href="https://aaron.kr">aaron.kr</a></li>
+          <li><a href="https://aaronsnowberger.com">aaronsnowberger.com</a></li>
+          <li><a href="https://kspai.org">kspai.org</a></li>
+          <li><a href="https://aaronkr-courses.github.io/courses/">courses.aaron.kr</a></li>
+          <li><a href="https://keytokorean.com">keytokorean.com</a></li>
+          <li><a href="https://blog.naver.com/aaron_kr">Naver Blog (한국어)</a></li>
+          <li><a href="https://github.com/aaronkr-classroom">GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2025 Aaron Snowberger · PAI LAB · physai.org</span>
+      <div class="footer-social">
+        <a href="https://github.com/aaronkr-classroom">GitHub</a>
+        <a href="https://kspai.org">KSPAI</a>
+        <a href="/ko/">한국어</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-btn');
+const html = document.documentElement;
+const saved = localStorage.getItem('pailab-theme') || 'dark';
+html.setAttribute('data-theme', saved);
+btn.textContent = saved === 'dark' ? '☀' : '☾';
+btn.addEventListener('click', () => {
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('pailab-theme', next);
+  btn.textContent = next === 'dark' ? '☀' : '☾';
+});
+</script>
+</body>
+</html>
