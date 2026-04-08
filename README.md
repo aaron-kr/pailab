@@ -1,6 +1,6 @@
 # PAI LAB — Physical AI Laboratory
 
-> **physicalai.kr** (or pailab.dev / physicalai.dev — update `astro.config.mjs` once domain is confirmed)
+> **`pailab.io` v3** (update `astro.config.mjs` once domain is confirmed)
 
 A bilingual (EN / 한국어) academic lab website for the Physical AI Laboratory.
 Built with [Astro](https://astro.build) v4, deployed on [Vercel](https://vercel.com) or

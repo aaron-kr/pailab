@@ -1,0 +1,40 @@
+---
+// src/components/PartnerStrip.astro
+import { type Lang } from "@/i18n/translations";
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+---
+
+<div class="partners-strip full-bleed">
+  <div class="container">
+    <p class="partners-label">
+      {lang === "ko" ? "협력 기관" : "AFFILIATED INSTITUTIONS"}
+    </p>
+    <div class="partners-row">
+      <a href="https://www.jbnu.ac.kr" class="partner-pill" target="_blank" rel="noopener">
+        <span class="partner-abbr">JBNU</span>
+        <span class="partner-name">전북대학교</span>
+      </a>
+      <a href="https://www.ut.ac.kr" class="partner-pill" target="_blank" rel="noopener">
+        <span class="partner-abbr">UT</span>
+        <span class="partner-name">한국교통대</span>
+      </a>
+      <a href="https://www.hanbat.ac.kr" class="partner-pill" target="_blank" rel="noopener">
+        <span class="partner-abbr">HBU</span>
+        <span class="partner-name">한밭대학교</span>
+      </a>
+      <a href="https://www.wku.ac.kr" class="partner-pill" target="_blank" rel="noopener">
+        <span class="partner-abbr">WKU</span>
+        <span class="partner-name">원광대학교</span>
+      </a>
+      <a href="https://www.jnue.kr" class="partner-pill" target="_blank" rel="noopener">
+        <span class="partner-abbr">JNUE</span>
+        <span class="partner-name">전주교육대</span>
+      </a>
+      <a href="https://kspai.org" class="partner-pill" target="_blank" rel="noopener">
+        <span class="partner-abbr" style="color:var(--green)">KSPAI</span>
+        <span class="partner-name">한국피지컬AI학회</span>
+      </a>
+    </div>
+  </div>
+</div>

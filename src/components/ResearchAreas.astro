@@ -1,0 +1,51 @@
+---
+// src/components/ResearchAreas.astro
+// Uses areas-index layout (4×2 grid with number, icon, title, desc).
+// Link each item to /areas/[slug] — create those pages later as research grows.
+import { type Lang } from "@/i18n/translations";
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const areas = [
+  { num:"01", icon:"🤖", slug:"embodied-intelligence",
+    en:["Embodied Intelligence",   "AI that learns through physical interaction and sensorimotor feedback loops."],
+    ko:["구현 지능",                "물리적 상호작용과 감각운동 피드백을 통해 학습하는 AI."] },
+  { num:"02", icon:"🦾", slug:"autonomous-robotics",
+    en:["Autonomous Robotics",     "Robots that can operate independently in complex environments."],
+    ko:["자율 로보틱스",            "복잡한 환경에서 독립적으로 작동할 수 있는 로봇."] },
+  { num:"03", icon:"🌐", slug:"digital-twin",
+    en:["Digital Twin & Simulation","Virtual replicas of physical systems for analysis and optimization."],
+    ko:["디지털 트윈 & 시뮬레이션","분석 및 최적화를 위한 물리적 시스템의 가상 복제본."] },
+  { num:"04", icon:"📡", slug:"sensor-fusion",
+    en:["Sensor Fusion & Perception","Integrating data from multiple sensors to improve perception accuracy."],
+    ko:["센서 융합 & 지각",         "지각 정확도를 향상시키기 위한 다중 센서 데이터 통합."] },
+  { num:"05", icon:"⚙️", slug:"industrial",
+    en:["Industrial Applications", "Applications of AI in industrial settings for automation and optimization."],
+    ko:["산업 응용",                "자동화 및 최적화를 위한 산업 환경에서의 AI 적용."] },
+  { num:"06", icon:"🔒", slug:"safety-ethics",
+    en:["Safety & Ethics",         "Ensuring the safe and ethical deployment of AI systems."],
+    ko:["안전 & 윤리",              "AI 시스템의 안전하고 윤리적인 배포 보장."] },
+  { num:"07", icon:"⚡", slug:"edge-ai",
+    en:["Edge AI & TinyML",        "Deploying machine learning models on edge devices for real-time inference."],
+    ko:["엣지 AI & TinyML",        "실시간 추론을 위한 엣지 디바이스에서의 ML 모델 배포."] },
+  { num:"08", icon:"📖", slug:"curriculum",
+    en:["Open Curriculum",         "Accessible educational resources for learning about AI and robotics."],
+    ko:["오픈 커리큘럼",            "AI 및 로봇공학 학습을 위한 접근 가능한 교육 리소스."] },
+];
+const prefix = lang === "ko" ? "/ko" : "";
+---
+
+<div class="areas-index">
+  {areas.map(({ num, icon, slug, en, ko }) => {
+    const [title, desc] = lang === "ko" ? ko : en;
+    const href = slug === "curriculum" ? `${prefix}/curriculum` : `/areas/${slug}`;
+    return (
+      <a href={href} class="area-index-item">
+        <p class="ain">{num}</p>
+        <span>{icon}</span>
+        <p class="ait">{title}</p>
+        <p class="area-desc">{desc}</p>
+      </a>
+    );
+  })}
+</div>

@@ -2,212 +2,240 @@
 // src/pages/index.astro
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Hero from "@/components/Hero.astro";
-import ResearchCard from "@/components/ResearchCard.astro";
+import PartnerStrip from "@/components/PartnerStrip.astro";
+import ResearchAreas from "@/components/ResearchAreas.astro";
+import PaperRow from "@/components/PaperRow.astro";
 import ProjectRow from "@/components/ProjectRow.astro";
 import NoteRow from "@/components/NoteRow.astro";
+import JoinSection from "@/components/JoinSection.astro";
 import { getCollection } from "astro:content";
-import { t } from "@/i18n/translations";
 
-const lang = "en";
+const lang = "en" as const;
+const research   = (await getCollection("research")).sort((a,b) => b.data.year - a.data.year);
+const curriculum = (await getCollection("curriculum")).sort((a,b) => a.data.order - b.data.order);
+const projects   = (await getCollection("projects")).sort((a,b) => a.data.order - b.data.order).slice(0,4);
+const modules    = (await getCollection("modules")).sort((a,b) => a.data.order - b.data.order);
+const notes      = (await getCollection("notes")).sort((a,b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()).slice(0,5);
 
-const research   = (await getCollection("research")).sort((a, b) => b.data.year - a.data.year);
-const curriculum = (await getCollection("curriculum")).sort((a, b) => a.data.order - b.data.order);
-const projects   = (await getCollection("projects")).sort((a, b) => a.data.order - b.data.order);
-const modules    = (await getCollection("modules")).sort((a, b) => a.data.order - b.data.order);
-const notes      = (await getCollection("notes"))
-                    .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
-                    .slice(0, 5);
+const trackColors = [
+  "linear-gradient(90deg,var(--green),var(--cyan))",
+  "linear-gradient(90deg,var(--blue),var(--cyan))",
+  "linear-gradient(90deg,var(--blue-2),var(--green))",
+  "linear-gradient(90deg,var(--cyan),var(--green))",
+];
 
-const levelLabel: Record<string, string> = {
-  beginner:     "Beginner",
-  intermediate: "Intermediate",
-  advanced:     "Advanced",
-  open:         "Open data",
-};
+const projGradients = ["proj-g1","proj-g2","proj-g3","proj-g4"];
+const projIcons = { "gesture-robot-arm":"🦾","kasd-dataset":"📜","epib-benchmark":"📊","kspai-society":"🇰🇷" };
 ---
 
 <BaseLayout lang={lang}>
-
-  <!-- ── Hero ─────────────────────────────────────────────── -->
   <Hero lang={lang} />
+  <PartnerStrip lang={lang} />
 
-  <!-- ── 01 Research ──────────────────────────────────────── -->
+  <!-- 00 Research Areas -->
+  <section class="section" id="areas">
+    <div class="container">
+      <div class="section-header">
+        <span class="sec-num">00</span>
+        <h2 class="section-title">Research Areas</h2>
+      </div>
+      <ResearchAreas lang={lang} />
+    </div>
+  </section>
+
+  <!-- 01 Research Papers -->
   <section class="section" id="research">
-    <div class="section-header">
-      <span class="sec-num">01</span>
-      <h2>{t(lang, "sec_research")}</h2>
-    </div>
-
-    <div class="card-grid">
-      {research.map((paper) => <ResearchCard paper={paper} lang={lang} />)}
-    </div>
-
-    <div style="margin-top: 1rem; text-align: right;">
-      <a href="/research" style="font-size: 0.8rem; color: var(--text-2);">
-        {t(lang, "view_all")} →
-      </a>
+    <div class="container">
+      <div class="section-header">
+        <span class="sec-num">01</span>
+        <h2 class="section-title">Research</h2>
+      </div>
+      <div class="papers-list">
+        {research.slice(0,6).map((paper) => <PaperRow paper={paper} lang={lang} />)}
+      </div>
+      <div class="section-footer">
+        <a href="/research" class="btn-slide btn-slide-green">All publications →</a>
+      </div>
     </div>
   </section>
 
-  <!-- ── 02 Curriculum ────────────────────────────────────── -->
-  <section class="section" id="curriculum">
-    <div class="section-header">
-      <span class="sec-num">02</span>
-      <h2>{t(lang, "sec_curriculum")}</h2>
-    </div>
-
-    <div class="card-grid">
-      {curriculum.map((track) => (
-        <div class="card">
-          <div style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-3); margin-bottom: 0.5rem;">
-            TRACK {track.data.track} · {levelLabel[track.data.level].toUpperCase()}
-          </div>
-          <h3 style="font-size: 0.875rem; margin-bottom: 0.375rem;">{track.data.title}</h3>
-          <p style="font-size: 0.78rem; color: var(--text-2); margin-bottom: 0.75rem; line-height: 1.55;">
-            {track.data.description}
-          </p>
-          <span class="tag">{track.data.units} units</span>
-          {track.data.bilingual && <span class="tag accent">EN · 한국어</span>}
-        </div>
-      ))}
-    </div>
-  </section>
-
-  <!-- ── 03 Projects ──────────────────────────────────────── -->
+  <!-- 02 Projects -->
   <section class="section" id="projects">
-    <div class="section-header">
-      <span class="sec-num">03</span>
-      <h2>{t(lang, "sec_projects")}</h2>
-    </div>
-
-    <div class="row-list">
-      {projects.map((project) => <ProjectRow project={project} lang={lang} />)}
+    <div class="container">
+      <div class="section-header">
+        <span class="sec-num">02</span>
+        <h2 class="section-title">Projects</h2>
+      </div>
+      <div class="projects-grid">
+        {projects.map((proj, i) => {
+          const icon = projIcons[proj.slug as keyof typeof projIcons] ?? "🔬";
+          const gradClass = projGradients[i % 4];
+          const pillCls = proj.data.status === "active" ? "ok" : proj.data.status === "published" ? "blue" : "warn";
+          const pillLbl = proj.data.status === "active" ? "Active" : proj.data.status === "published" ? "Published" : "Planned";
+          return (
+            <div class="project-card">
+              <div class={`project-img ${gradClass}`}>
+                <div class="project-icon-badge">{icon}</div>
+                <div class="proj-status"><span class={`pill ${pillCls}`}>{pillLbl}</span></div>
+              </div>
+              <div class="project-body">
+                <p class="project-title">{proj.data.title}</p>
+                <p class="project-desc">{proj.body.slice(0, 120).trim()}...</p>
+                <div>
+                  {proj.data.tags.map((tag) => (
+                    <span class={`tag${tag === "Physical AI" ? " green" : tag === "Dataset" ? " blue" : ""}`}>{tag}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div class="section-footer">
+        <a href="/projects" class="btn-slide btn-slide-green">All projects →</a>
+      </div>
     </div>
   </section>
 
-  <!-- ── 04 Modules ───────────────────────────────────────── -->
+  <!-- 03 Curriculum -->
+  <section class="section" id="curriculum">
+    <div class="container">
+      <div class="section-header">
+        <span class="sec-num">03</span>
+        <h2 class="section-title">Curriculum</h2>
+      </div>
+      <p class="section-sub">Four structured tracks from first principles to advanced robotics. Fully bilingual EN / 한국어.</p>
+      <div class="curriculum-grid">
+        {curriculum.map((track, i) => (
+          <a href={`/curriculum/${track.slug}`} class="track-card">
+            <div class="track-bar" style={`background:${trackColors[i % 4]}`}></div>
+            <div class="track-meta">TRACK {track.data.track} · {track.data.level.toUpperCase()}</div>
+            <p class="track-title">{track.data.title}</p>
+            <p class="track-desc">{track.data.description}</p>
+            <span class="tag">{track.data.units} units</span>
+            {track.data.bilingual && <span class="tag green">EN · 한국어</span>}
+          </a>
+        ))}
+      </div>
+      <div class="section-footer">
+        <a href="/curriculum" class="btn-slide btn-slide-blue">Full curriculum →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 Modules -->
   <section class="section" id="modules">
-    <div class="section-header">
-      <span class="sec-num">04</span>
-      <h2>{t(lang, "sec_modules")}</h2>
-    </div>
-    <p style="font-size: 0.78rem; color: var(--text-2); margin: -1rem 0 1.75rem 1.75rem;">
-      {t(lang, "sec_modules_sub")}
-    </p>
-
-    <div class="card-grid">
-      {modules.map((mod) => (
-        <div class="card">
-          <div style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-3); margin-bottom: 0.5rem;">
-            MODULE · {mod.data.course_tag.toUpperCase()}
-          </div>
-          <h3 style="font-size: 0.875rem; margin-bottom: 0.375rem;">{mod.data.title}</h3>
-          <p style="font-size: 0.78rem; color: var(--text-2); margin-bottom: 0.75rem; line-height: 1.55;">
-            {mod.data.description}
-          </p>
-          <span class="tag">{mod.data.course_tag}</span>
-          <span class="tag">{mod.data.duration}</span>
-        </div>
-      ))}
+    <div class="container">
+      <div class="section-header">
+        <span class="sec-num">04</span>
+        <h2 class="section-title">Course plug-in modules</h2>
+      </div>
+      <p class="section-sub">Physical AI add-ons for courses not primarily focused on AI — drop into any syllabus in 1–3 weeks.</p>
+      <div class="modules-grid">
+        {modules.map((mod) => (
+          <a href={`/modules/${mod.slug}`} class="module-card">
+            <div class="module-course-badge">{mod.data.course_tag.toUpperCase()}</div>
+            <p class="module-title">{mod.data.title}</p>
+            <p class="module-desc">{mod.data.description}</p>
+            <span class="tag">{mod.data.duration}</span>
+          </a>
+        ))}
+      </div>
+      <div class="section-footer">
+        <a href="/modules" class="btn-slide btn-slide-blue">All modules →</a>
+      </div>
     </div>
   </section>
 
-  <!-- ── 05 Notes ─────────────────────────────────────────── -->
+  <!-- 05 Notes -->
   <section class="section" id="notes">
-    <div class="section-header">
-      <span class="sec-num">05</span>
-      <h2>{t(lang, "sec_notes")}</h2>
-    </div>
-
-    <div class="row-list">
-      {notes.map((note) => <NoteRow note={note} lang={lang} />)}
-    </div>
-
-    <div style="margin-top: 1rem; text-align: right;">
-      <a href="/notes" style="font-size: 0.8rem; color: var(--text-2);">
-        {t(lang, "view_all")} →
-      </a>
+    <div class="container">
+      <div class="section-header">
+        <span class="sec-num">05</span>
+        <h2 class="section-title">Notes</h2>
+      </div>
+      <div>
+        {notes.map((note) => <NoteRow note={note} lang={lang} />)}
+      </div>
+      <div class="section-footer">
+        <a href="/notes" class="btn-slide btn-slide-green">All notes →</a>
+      </div>
     </div>
   </section>
 
-  <!-- ── 06 About ─────────────────────────────────────────── -->
+  <!-- Join -->
+  <JoinSection lang={lang} />
+
+  <!-- 06 About -->
   <section class="section" id="about">
-    <div class="section-header">
-      <span class="sec-num">06</span>
-      <h2>{t(lang, "sec_about")}</h2>
-    </div>
-
-    <div class="about-grid">
-      <!-- PI Card -->
-      <div class="card" style="text-align: center;">
-        <div class="avatar" style="margin: 0 auto 1rem;">AS</div>
-        <p style="font-size: 0.9rem; font-weight: 500; margin-bottom: 2px;">Aaron Snowberger</p>
-        <p style="font-size: 0.75rem; color: var(--text-2); margin-bottom: 1rem;">
-          {t(lang, "about_pi_role")}
-        </p>
-        <div style="border-top: 0.5px solid var(--border); padding-top: 0.875rem; text-align: left; display: flex; flex-direction: column; gap: 6px;">
-          <a href="https://aaron.kr"             class="pi-link">aaron.kr</a>
-          <a href="https://aaronsnowberger.com"  class="pi-link">aaronsnowberger.com</a>
-          <a href="https://kspai.org"            class="pi-link">kspai.org</a>
-          <a href="https://aaronkr-courses.github.io/courses/"
-             class="pi-link" style="font-family: var(--font-mono); font-size: 0.72rem;">
-            courses.aaron.kr
-          </a>
-          <a href="https://blog.naver.com/aaron_kr" class="pi-link">
-            {t(lang, "about_naver")}
-          </a>
-        </div>
+    <div class="container">
+      <div class="section-header">
+        <span class="sec-num">06</span>
+        <h2 class="section-title">About</h2>
       </div>
-
-      <!-- About text -->
-      <div>
-        <p style="font-size: 0.9rem; line-height: 1.8; margin-bottom: 1rem;">
-          {t(lang, "about_body")}
-        </p>
-
-        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem;">
-          <span class="tag accent">Physical AI</span>
-          <span class="tag">Embedded Systems</span>
-          <span class="tag">Edge ML</span>
-          <span class="tag">Robotics</span>
-          <span class="tag ok">Open research</span>
+      <div class="about-grid">
+        <div class="about-profile">
+          <div class="profile-img-wrap">
+            <img src="https://avatars.githubusercontent.com/u/6644259?v=4" alt="Aaron Snowberger"
+              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;border-radius:inherit">
+          </div>
+          <!-- <div class="profile-stats">
+            <div class="profile-stat"><span class="num">5</span><span class="lbl">UNIVERSITIES</span></div>
+            <div class="profile-stat"><span class="num">8+</span><span class="lbl">PAPERS</span></div>
+            <div class="profile-stat"><span class="num">4</span><span class="lbl">DATASETS</span></div>
+            <div class="profile-stat"><span class="num">1</span><span class="lbl">SOCIETY</span></div>
+          </div> -->
+          <p class="profile-pi-label">PRINCIPAL INVESTIGATOR</p>
+          <div class="profile-links">
+            <a class="pi-link" href="https://aaron.kr">aaron.kr — blog & hub</a>
+            <a class="pi-link" href="https://aaronsnowberger.com">aaronsnowberger.com</a>
+            <a class="pi-link" href="https://kspai.org">kspai.org — KSPAI society</a>
+            <a class="pi-link" href="https://aaronkr-courses.github.io/courses/">courses.aaron.kr</a>
+            <a class="pi-link" href="https://blog.naver.com/aaron_kr">Naver blog (한국어)</a>
+          </div>
         </div>
-
-        <div style="border-top: 0.5px solid var(--border); padding-top: 1.25rem;">
-          <p style="font-size: 0.72rem; color: var(--text-2); margin-bottom: 0.5rem;">
-            {t(lang, "about_affiliated")}
+        <div>
+          <p style="font-size:1rem;line-height:1.9;margin-bottom:1.25rem;font-weight:300">
+            The <strong style="font-weight:600;font-family:var(--font-display)">Physical AI Lab</strong>
+            is a research group based in Jeonju, Korea, working at the intersection
+            of machine learning, embedded hardware, and physical systems.
           </p>
-          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-            <span class="tag">전북대학교 JBNU</span>
-            <span class="tag">한국교통대 UT</span>
-            <span class="tag">한밭대학교 HBU</span>
-            <span class="tag">원광대학교 WKU</span>
-            <span class="tag">전주교육대 JNUE</span>
-            <span class="tag accent">KSPAI</span>
+          <p style="font-size:1rem;line-height:1.9;margin-bottom:1.25rem;font-weight:300">
+            I teach across five Korean universities and run an open research practice —
+            papers, datasets, and code are published wherever possible. I'm also a founding
+            organiser of <a href="https://kspai.org" style="color:var(--green)">KSPAI</a>
+            (한국피지컬AI학회), the Korean Society for Physical AI.
+          </p>
+          <p style="font-size:1rem;line-height:1.9;margin-bottom:2rem;font-weight:300;font-style:italic;color:var(--text-2)">
+            Wyoming native. Laid back. Will talk robotics over coffee.
+          </p>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:2.5rem">
+            <span class="tag green">Physical AI</span>
+            <span class="tag">Embedded Systems</span>
+            <span class="tag blue">Edge ML</span>
+            <span class="tag">Robotics</span>
+            <span class="tag ok">Open Research</span>
+            <span class="tag pink">Korea</span>
+          </div>
+          <div style="border-top:.5px solid var(--border);padding-top:1.5rem">
+            <p style="font-family:var(--font-mono);font-size:.56rem;color:var(--text-3);letter-spacing:.1em;margin-bottom:1rem">AFFILIATED INSTITUTIONS</p>
+            {[
+              ["JBNU","Jeonbuk National University","전북대학교","blue"],
+              ["UT",  "Korea National Univ. of Transportation","한국교통대","blue"],
+              ["HBU", "Hanbat National University","한밭대학교","blue"],
+              ["WKU", "Wonkwang University","원광대학교","blue"],
+              ["JNUE","Jeonju National Univ. of Education","전주교육대","blue"],
+              ["KSPAI","Korean Society for Physical AI","한국피지컬AI학회","green"],
+            ].map(([abbr, en, ko, color]) => (
+              <div style="display:grid;grid-template-columns:58px 1fr 1fr;gap:1rem;padding:.6rem 0;border-top:.5px solid var(--border);align-items:center">
+                <span style={`font-family:var(--font-mono);font-size:.6rem;color:var(--${color})`}>{abbr}</span>
+                <span style="font-size:.8rem">{en}</span>
+                <span style="font-size:.8rem;color:var(--text-2)">{ko}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
     </div>
   </section>
-
 </BaseLayout>
-
-<style>
-.about-grid {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 2.5rem;
-  align-items: start;
-}
-
-.pi-link {
-  font-size: 0.78rem;
-  color: var(--accent);
-  text-decoration: none;
-}
-.pi-link:hover { text-decoration: underline; }
-
-@media (max-width: 640px) {
-  .about-grid { grid-template-columns: 1fr; }
-}
-</style>

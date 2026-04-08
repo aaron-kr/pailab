@@ -1,172 +1,166 @@
 ---
-// src/pages/ko/index.astro
-// Mirrors the EN homepage but with lang="ko".
-// Content from collections is already bilingual via title_ko / description_ko fields.
-
+// src/pages/ko/index.astro — Korean mirror of homepage
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Hero from "@/components/Hero.astro";
-import ResearchCard from "@/components/ResearchCard.astro";
-import ProjectRow from "@/components/ProjectRow.astro";
+import PartnerStrip from "@/components/PartnerStrip.astro";
+import ResearchAreas from "@/components/ResearchAreas.astro";
+import PaperRow from "@/components/PaperRow.astro";
 import NoteRow from "@/components/NoteRow.astro";
+import JoinSection from "@/components/JoinSection.astro";
 import { getCollection } from "astro:content";
-import { t } from "@/i18n/translations";
 
 const lang = "ko" as const;
+const research   = (await getCollection("research")).sort((a,b) => b.data.year - a.data.year);
+const curriculum = (await getCollection("curriculum")).sort((a,b) => a.data.order - b.data.order);
+const projects   = (await getCollection("projects")).sort((a,b) => a.data.order - b.data.order).slice(0,4);
+const modules    = (await getCollection("modules")).sort((a,b) => a.data.order - b.data.order);
+const notes      = (await getCollection("notes")).sort((a,b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()).slice(0,5);
 
-const research   = (await getCollection("research")).sort((a, b) => b.data.year - a.data.year);
-const curriculum = (await getCollection("curriculum")).sort((a, b) => a.data.order - b.data.order);
-const projects   = (await getCollection("projects")).sort((a, b) => a.data.order - b.data.order);
-const modules    = (await getCollection("modules")).sort((a, b) => a.data.order - b.data.order);
-const notes      = (await getCollection("notes"))
-                    .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
-                    .slice(0, 5);
-
-const levelLabel: Record<string, string> = {
-  beginner:     "입문",
-  intermediate: "중급",
-  advanced:     "고급",
-  open:         "오픈 데이터",
-};
+const trackColors = [
+  "linear-gradient(90deg,var(--green),var(--cyan))",
+  "linear-gradient(90deg,var(--blue),var(--cyan))",
+  "linear-gradient(90deg,var(--blue-2),var(--green))",
+  "linear-gradient(90deg,var(--cyan),var(--green))",
+];
+const projGradients = ["proj-g1","proj-g2","proj-g3","proj-g4"];
 ---
 
 <BaseLayout lang={lang} title="피지컬 AI 연구소">
-
   <Hero lang={lang} />
+  <PartnerStrip lang={lang} />
 
-  <section class="section" id="research">
-    <div class="section-header">
-      <span class="sec-num">01</span>
-      <h2>{t(lang, "sec_research")}</h2>
-    </div>
-    <div class="card-grid">
-      {research.map((paper) => <ResearchCard paper={paper} lang={lang} />)}
-    </div>
-    <div style="margin-top: 1rem; text-align: right;">
-      <a href="/ko/research" style="font-size: 0.8rem; color: var(--text-2);">{t(lang, "view_all")} →</a>
+  <section class="section" id="areas">
+    <div class="container">
+      <div class="section-header"><span class="sec-num">00</span><h2 class="section-title">연구 분야</h2></div>
+      <ResearchAreas lang={lang} />
     </div>
   </section>
 
-  <section class="section" id="curriculum">
-    <div class="section-header">
-      <span class="sec-num">02</span>
-      <h2>{t(lang, "sec_curriculum")}</h2>
-    </div>
-    <div class="card-grid">
-      {curriculum.map((track) => (
-        <div class="card">
-          <div style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-3); margin-bottom: 0.5rem;">
-            TRACK {track.data.track} · {levelLabel[track.data.level]}
-          </div>
-          <h3 style="font-size: 0.875rem; margin-bottom: 0.375rem;">
-            {track.data.title_ko ?? track.data.title}
-          </h3>
-          <p style="font-size: 0.78rem; color: var(--text-2); margin-bottom: 0.75rem; line-height: 1.55;">
-            {track.data.description_ko ?? track.data.description}
-          </p>
-          <span class="tag">{track.data.units}개 단원</span>
-          {track.data.bilingual && <span class="tag accent">EN · 한국어</span>}
-        </div>
-      ))}
+  <section class="section" id="research">
+    <div class="container">
+      <div class="section-header"><span class="sec-num">01</span><h2 class="section-title">연구</h2></div>
+      <div class="papers-list">
+        {research.slice(0,6).map((paper) => <PaperRow paper={paper} lang={lang} />)}
+      </div>
+      <div class="section-footer"><a href="/ko/research" class="btn-slide btn-slide-green">전체 논문 →</a></div>
     </div>
   </section>
 
   <section class="section" id="projects">
-    <div class="section-header">
-      <span class="sec-num">03</span>
-      <h2>{t(lang, "sec_projects")}</h2>
+    <div class="container">
+      <div class="section-header"><span class="sec-num">02</span><h2 class="section-title">프로젝트</h2></div>
+      <div class="projects-grid">
+        {projects.map((proj, i) => {
+          const icon = ["🦾","📜","📊","🇰🇷"][i] ?? "🔬";
+          const pillCls = proj.data.status === "active" ? "ok" : proj.data.status === "published" ? "blue" : "warn";
+          const pillLbl = proj.data.status === "active" ? "진행 중" : proj.data.status === "published" ? "게시됨" : "예정";
+          return (
+            <div class="project-card">
+              <div class={`project-img ${projGradients[i % 4]}`}>
+                <div class="project-icon-badge">{icon}</div>
+                <div class="proj-status"><span class={`pill ${pillCls}`}>{pillLbl}</span></div>
+              </div>
+              <div class="project-body">
+                <p class="project-title">{proj.data.title_ko ?? proj.data.title}</p>
+                <p class="project-desc">{proj.body.slice(0, 100).trim()}...</p>
+                <div>{proj.data.tags.map((t) => <span class="tag">{t}</span>)}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div class="section-footer"><a href="/ko/research" class="btn-slide btn-slide-green">전체 프로젝트 →</a></div>
     </div>
-    <div class="row-list">
-      {projects.map((project) => <ProjectRow project={project} lang={lang} />)}
+  </section>
+
+  <section class="section" id="curriculum">
+    <div class="container">
+      <div class="section-header"><span class="sec-num">03</span><h2 class="section-title">커리큘럼</h2></div>
+      <p class="section-sub">기초부터 고급 로보틱스까지 4개 트랙. 완전 이중 언어 EN / 한국어.</p>
+      <div class="curriculum-grid">
+        {curriculum.map((track, i) => (
+          <a href={`/ko/curriculum/${track.slug}`} class="track-card">
+            <div class="track-bar" style={`background:${trackColors[i % 4]}`}></div>
+            <div class="track-meta">TRACK {track.data.track} · {track.data.level.toUpperCase()}</div>
+            <p class="track-title">{track.data.title_ko ?? track.data.title}</p>
+            <p class="track-desc">{track.data.description_ko ?? track.data.description}</p>
+            <span class="tag">{track.data.units}개 단원</span>
+            {track.data.bilingual && <span class="tag green">EN · 한국어</span>}
+          </a>
+        ))}
+      </div>
+      <div class="section-footer"><a href="/curriculum" class="btn-slide btn-slide-blue">전체 커리큘럼 →</a></div>
     </div>
   </section>
 
   <section class="section" id="modules">
-    <div class="section-header">
-      <span class="sec-num">04</span>
-      <h2>{t(lang, "sec_modules")}</h2>
-    </div>
-    <p style="font-size: 0.78rem; color: var(--text-2); margin: -1rem 0 1.75rem 1.75rem;">
-      {t(lang, "sec_modules_sub")}
-    </p>
-    <div class="card-grid">
-      {modules.map((mod) => (
-        <div class="card">
-          <div style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-3); margin-bottom: 0.5rem;">
-            MODULE · {mod.data.course_tag.toUpperCase()}
-          </div>
-          <h3 style="font-size: 0.875rem; margin-bottom: 0.375rem;">
-            {mod.data.title_ko ?? mod.data.title}
-          </h3>
-          <p style="font-size: 0.78rem; color: var(--text-2); margin-bottom: 0.75rem; line-height: 1.55;">
-            {mod.data.description_ko ?? mod.data.description}
-          </p>
-          <span class="tag">{mod.data.course_tag}</span>
-          <span class="tag">{mod.data.duration}</span>
-        </div>
-      ))}
+    <div class="container">
+      <div class="section-header"><span class="sec-num">04</span><h2 class="section-title">코스 플러그인 모듈</h2></div>
+      <p class="section-sub">AI 중심이 아닌 과목에 바로 적용할 수 있는 피지컬 AI 모듈 — 1~3주 분량.</p>
+      <div class="modules-grid">
+        {modules.map((mod) => (
+          <a href={`/modules/${mod.slug}`} class="module-card">
+            <div class="module-course-badge">{mod.data.course_tag.toUpperCase()}</div>
+            <p class="module-title">{mod.data.title_ko ?? mod.data.title}</p>
+            <p class="module-desc">{mod.data.description_ko ?? mod.data.description}</p>
+            <span class="tag">{mod.data.duration}</span>
+          </a>
+        ))}
+      </div>
+      <div class="section-footer"><a href="/modules" class="btn-slide btn-slide-blue">전체 모듈 →</a></div>
     </div>
   </section>
 
   <section class="section" id="notes">
-    <div class="section-header">
-      <span class="sec-num">05</span>
-      <h2>{t(lang, "sec_notes")}</h2>
-    </div>
-    <div class="row-list">
-      {notes.map((note) => <NoteRow note={note} lang={lang} />)}
-    </div>
-    <div style="margin-top: 1rem; text-align: right;">
-      <a href="/ko/notes" style="font-size: 0.8rem; color: var(--text-2);">{t(lang, "view_all")} →</a>
+    <div class="container">
+      <div class="section-header"><span class="sec-num">05</span><h2 class="section-title">노트</h2></div>
+      <div>{notes.map((note) => <NoteRow note={note} lang={lang} />)}</div>
+      <div class="section-footer"><a href="/ko/notes" class="btn-slide btn-slide-green">전체 노트 →</a></div>
     </div>
   </section>
 
+  <JoinSection lang={lang} />
+
   <section class="section" id="about">
-    <div class="section-header">
-      <span class="sec-num">06</span>
-      <h2>{t(lang, "sec_about")}</h2>
-    </div>
-    <div class="about-grid">
-      <div class="card" style="text-align: center;">
-        <div class="avatar" style="margin: 0 auto 1rem;">AS</div>
-        <p style="font-size: 0.9rem; font-weight: 500; margin-bottom: 2px;">Aaron Snowberger</p>
-        <p style="font-size: 0.75rem; color: var(--text-2); margin-bottom: 1rem;">{t(lang, "about_pi_role")}</p>
-        <div style="border-top: 0.5px solid var(--border); padding-top: 0.875rem; text-align: left; display: flex; flex-direction: column; gap: 6px;">
-          <a href="https://aaron.kr" class="pi-link">aaron.kr</a>
-          <a href="https://aaronsnowberger.com" class="pi-link">aaronsnowberger.com</a>
-          <a href="https://kspai.org" class="pi-link">kspai.org</a>
-          <a href="https://aaronkr-courses.github.io/courses/" class="pi-link" style="font-family: var(--font-mono); font-size: 0.72rem;">courses.aaron.kr</a>
-          <a href="https://blog.naver.com/aaron_kr" class="pi-link">{t(lang, "about_naver")}</a>
+    <div class="container">
+      <div class="section-header"><span class="sec-num">06</span><h2 class="section-title">소개</h2></div>
+      <div class="about-grid">
+        <div class="about-profile">
+          <div class="profile-img-wrap"><div class="profile-placeholder">AS</div></div>
+          <div class="profile-stats">
+            <div class="profile-stat"><span class="num">5</span><span class="lbl">대학교</span></div>
+            <div class="profile-stat"><span class="num">8+</span><span class="lbl">논문</span></div>
+            <div class="profile-stat"><span class="num">4</span><span class="lbl">데이터셋</span></div>
+            <div class="profile-stat"><span class="num">1</span><span class="lbl">학회</span></div>
+          </div>
+          <p class="profile-pi-label">책임 연구원</p>
+          <div class="profile-links">
+            <a class="pi-link" href="https://aaron.kr">aaron.kr</a>
+            <a class="pi-link" href="https://aaronsnowberger.com">aaronsnowberger.com</a>
+            <a class="pi-link" href="https://kspai.org">kspai.org — KSPAI</a>
+            <a class="pi-link" href="https://blog.naver.com/aaron_kr">네이버 블로그</a>
+          </div>
         </div>
-      </div>
-      <div>
-        <p style="font-size: 0.9rem; line-height: 1.8; margin-bottom: 1rem;">{t(lang, "about_body")}</p>
-        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem;">
-          <span class="tag accent">피지컬 AI</span>
-          <span class="tag">임베디드 시스템</span>
-          <span class="tag">엣지 ML</span>
-          <span class="tag">로보틱스</span>
-          <span class="tag ok">오픈 연구</span>
-        </div>
-        <div style="border-top: 0.5px solid var(--border); padding-top: 1.25rem;">
-          <p style="font-size: 0.72rem; color: var(--text-2); margin-bottom: 0.5rem;">{t(lang, "about_affiliated")}</p>
-          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-            <span class="tag">전북대학교</span>
-            <span class="tag">한국교통대</span>
-            <span class="tag">한밭대학교</span>
-            <span class="tag">원광대학교</span>
-            <span class="tag">전주교육대</span>
-            <span class="tag accent">KSPAI</span>
+        <div>
+          <p style="font-size:1rem;line-height:1.9;margin-bottom:1.25rem;font-weight:300">
+            <strong style="font-weight:600;font-family:var(--font-display)">피지컬 AI 연구소</strong>는 전주에 기반을 두고 기계 학습, 임베디드 하드웨어, 물리 시스템의 교차점을 연구하는 그룹입니다.
+          </p>
+          <p style="font-size:1rem;line-height:1.9;margin-bottom:1.25rem;font-weight:300">
+            다섯 개 한국 대학에서 강의하며 오픈 연구를 수행합니다. <a href="https://kspai.org" style="color:var(--green)">KSPAI</a>(한국피지컬AI학회) 창립 멤버이기도 합니다.
+          </p>
+          <p style="font-size:1rem;line-height:1.9;margin-bottom:2rem;font-weight:300;font-style:italic;color:var(--text-2)">
+            와이오밍 출신. 편안한 교수. 커피 마시며 로보틱스 이야기 환영.
+          </p>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span class="tag green">피지컬 AI</span>
+            <span class="tag">임베디드 시스템</span>
+            <span class="tag blue">엣지 ML</span>
+            <span class="tag">로보틱스</span>
+            <span class="tag ok">오픈 연구</span>
+            <span class="tag pink">한국</span>
           </div>
         </div>
       </div>
     </div>
   </section>
-
 </BaseLayout>
-
-<style>
-.about-grid { display: grid; grid-template-columns: 200px 1fr; gap: 2.5rem; align-items: start; }
-.pi-link { font-size: 0.78rem; color: var(--accent); text-decoration: none; }
-.pi-link:hover { text-decoration: underline; }
-@media (max-width: 640px) { .about-grid { grid-template-columns: 1fr; } }
-</style>

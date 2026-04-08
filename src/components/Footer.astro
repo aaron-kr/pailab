@@ -1,10 +1,58 @@
 ---
 // src/components/Footer.astro
-import { t, type Lang } from "@/i18n/translations";
-
-interface Props { lang: Lang; }
+import { type Lang } from "@/i18n/translations";
+interface Props { lang: Lang }
 const { lang } = Astro.props;
+const prefix = lang === "ko" ? "/ko" : "";
 ---
 
-<span class="footer-mono">{t(lang, "footer_copy")}</span>
-<span class="footer-mono">physicalai.kr</span>
+<div class="footer-top">
+  <!-- Left: site nav -->
+  <div class="footer-col">
+    <h4>SITE</h4>
+    <ul class="footer-links-col">
+      <li><a href={`${prefix}/#areas`}>{lang === "ko" ? "연구 분야" : "Research Areas"}</a></li>
+      <li><a href={`${prefix}/#research`}>{lang === "ko" ? "논문" : "Papers"}</a></li>
+      <li><a href={`${prefix}/#projects`}>{lang === "ko" ? "프로젝트" : "Projects"}</a></li>
+      <li><a href={`${prefix}/#curriculum`}>{lang === "ko" ? "커리큘럼" : "Curriculum"}</a></li>
+      <li><a href={`${prefix}/#modules`}>{lang === "ko" ? "코스 모듈" : "Course Modules"}</a></li>
+      <li><a href={`${prefix}/notes`}>{lang === "ko" ? "노트" : "Notes"}</a></li>
+      <li><a href={`${prefix}/#join`}>{lang === "ko" ? "연구 기회" : "Research Opportunities"}</a></li>
+      <li><a href={`${prefix}/#about`}>{lang === "ko" ? "소개" : "About"}</a></li>
+    </ul>
+  </div>
+
+  <!-- Center: logo -->
+  <div class="footer-logo-col">
+    <img src="/logo2.png" alt="PAI LAB" class="footer-logo-img" />
+    <span class="footer-logo-sub">PHYSICAL AI LAB</span>
+    <p class="footer-logo-desc">
+      {lang === "ko"
+        ? "기계 지능과 물리적 세계의 교차점에서\n오픈 연구를 수행합니다.\n전주, 대한민국 · 설립 2025"
+        : "Open research at the intersection of\nmachine intelligence and the physical world.\nJeonju, Korea · Est. 2025"}
+    </p>
+  </div>
+
+  <!-- Right: external links -->
+  <div class="footer-col" style="text-align:right">
+    <h4>CONNECT</h4>
+    <ul class="footer-links-col" style="align-items:flex-end">
+      <li><a href="https://aaron.kr">aaron.kr</a></li>
+      <li><a href="https://aaronsnowberger.com">aaronsnowberger.com</a></li>
+      <li><a href="https://kspai.org">kspai.org</a></li>
+      <li><a href="https://aaronkr-courses.github.io/courses/">courses.aaron.kr</a></li>
+      <li><a href="https://keytokorean.com">keytokorean.com</a></li>
+      <li><a href="https://blog.naver.com/aaron_kr">{lang === "ko" ? "네이버 블로그" : "Naver Blog (한국어)"}</a></li>
+      <li><a href="https://github.com/aaronkr-classroom">GitHub</a></li>
+    </ul>
+  </div>
+</div>
+
+<div class="footer-bottom">
+  <span class="footer-copy">© 2025 Aaron Snowberger · PAI LAB · physai.org</span>
+  <div class="footer-social">
+    <a href="https://github.com/aaronkr-classroom">GitHub</a>
+    <a href="https://kspai.org">KSPAI</a>
+    <a href={lang === "en" ? "/ko/" : "/"} >{lang === "en" ? "한국어" : "English"}</a>
+  </div>
+</div>

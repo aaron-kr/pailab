@@ -6,52 +6,35 @@ interface Props {
   lang: Lang;
   currentPath: string;
 }
-
 const { lang, currentPath } = Astro.props;
 const altUrl = altLangUrl(currentPath, lang);
-
 const prefix = lang === "ko" ? "/ko" : "";
 ---
 
-<nav class="nav">
+<nav class="site-nav">
   <div class="nav-inner container">
-
-    <!-- Logo -->
     <a href={`${prefix}/`} class="nav-logo">
-      PAI LAB
-      <span>{t(lang, "nav_subtitle")}</span>
+      <img src="/logo-horz.png" alt="PAI LAB" class="nav-logo-img" />
+      <span class="sub">{t(lang, "nav_subtitle")}</span>
     </a>
 
-    <!-- Links (hidden on mobile via CSS) -->
     <ul class="nav-links">
-      <li><a href={`${prefix}/#research`}>{t(lang, "nav_research")}</a></li>
-      <li><a href={`${prefix}/#curriculum`}>{t(lang, "nav_curriculum")}</a></li>
+      <li><a href={`${prefix}/#areas`}>{t(lang, "nav_research")}</a></li>
+      <li><a href={`${prefix}/#research`}>Papers</a></li>
       <li><a href={`${prefix}/#projects`}>{t(lang, "nav_projects")}</a></li>
+      <li><a href={`${prefix}/#curriculum`}>{t(lang, "nav_curriculum")}</a></li>
       <li><a href={`${prefix}/#modules`}>{t(lang, "nav_modules")}</a></li>
       <li><a href={`${prefix}/notes`}>{t(lang, "nav_notes")}</a></li>
+      <li><a href={`${prefix}/#join`}>Join</a></li>
       <li><a href={`${prefix}/#about`}>{t(lang, "nav_about")}</a></li>
     </ul>
 
-    <!-- Controls -->
     <div class="nav-controls">
-      <!-- Language toggle -->
       <a href={altUrl} class="btn-ghost" aria-label="Switch language">
         {lang === "en" ? "한국어" : "English"}
       </a>
-
-      <!-- Divider -->
-      <div style="width: 0.5px; height: 14px; background: var(--border-2);"></div>
-
-      <!-- Theme toggle -->
-      <button
-        id="theme-toggle"
-        class="btn-ghost"
-        aria-label="Toggle dark mode"
-        style="font-size: 0.8rem; padding: 4px 8px;"
-      >
-        ☾
-      </button>
+      <div style="width:.5px;height:16px;background:var(--border-2)"></div>
+      <button id="theme-toggle" class="btn-ghost" aria-label="Toggle theme" style="padding:4px 8px;font-size:.8rem">☀</button>
     </div>
-
   </div>
 </nav>

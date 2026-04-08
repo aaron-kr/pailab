@@ -1,55 +1,66 @@
 ---
 // src/components/Hero.astro
+// Background image: place /public/hero.jpg — it will show behind the gradient mesh.
+// Logo image: place /public/logo-horz.png for nav, /public/logo2.png for footer.
 import { t, type Lang } from "@/i18n/translations";
-
-interface Props { lang: Lang; }
+interface Props { lang: Lang }
 const { lang } = Astro.props;
 ---
 
-<section class="section" style="border-top: none; padding-top: 1rem; padding-bottom: 3.5rem;">
-  <p class="hero-location">{t(lang, "hero_location")}</p>
+<div class="hero full-bleed">
+  <!-- Gradient mesh (animated) — sits behind any bg image -->
+  <div class="hero-bg"></div>
+  <!-- Circuit grid overlay -->
+  <div class="hero-grid"></div>
+  <!-- Overlay: light in dark mode, heavier in light mode for text legibility -->
+  <div class="hero-overlay"></div>
+  <!-- Fade to page bg at bottom -->
+  <div class="hero-fade"></div>
 
-  <h1 class="hero-title">
-    {
-      t(lang, "hero_title")
-        .split("\n")
-        .map((line, i) => (
-          <>{line}{i === 0 && <br />}</>
-        ))
-    }
-  </h1>
+  <div class="container">
+    <div class="hero-inner">
+      <div>
+        <p class="hero-eyebrow">
+          {lang === "ko" ? "— 전주 · 대한민국 · 설립 2026" : "JEONJU · KOREA · EST. 2026"}
+        </p>
+        <h1>
+          <span class="grad">{lang === "ko" ? "피지컬" : "Physical"}</span><br>
+          {lang === "ko" ? "AI 연구소" : "AI Lab"}
+        </h1>
+        <p class="hero-tagline">
+          {lang === "ko"
+            ? "임베디드 시스템, 자율 로보틱스, 엣지 AI를 통해 기계 지능과 물리적 세계를 연결합니다."
+            : "Bridging machine intelligence and the physical world — embedded systems, autonomous robotics, and real-time AI at the edge."}
+        </p>
+        <div class="hero-cta">
+          <a href="#research" class="btn-primary">
+            {lang === "ko" ? "연구 보기 →" : "View research →"}
+          </a>
+          <a href="#join" class="btn-slide btn-slide-cyan">
+            {lang === "ko" ? "연구 기회" : "Research opportunities"}
+          </a>
+        </div>
+      </div>
 
-  <p class="hero-tagline">{t(lang, "hero_tagline")}</p>
-
-  <div class="hero-cta">
-    <a href="#research" class="btn-primary">{t(lang, "hero_cta_research")}</a>
-    <a href="#about"    class="btn-outline">{t(lang, "hero_cta_about")}</a>
+      <!-- Stat panel -->
+      <div class="hero-panel">
+        <div class="stat-row">
+          <div class="stat-num">8+</div>
+          <div class="stat-label">{lang === "ko" ? "출판 및 프리프린트" : "PUBLICATIONS & PREPRINTS"}</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-num">5</div>
+          <div class="stat-label">{lang === "ko" ? "협력 대학교" : "PARTNER UNIVERSITIES"}</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-num">4</div>
+          <div class="stat-label">{lang === "ko" ? "오픈 데이터셋" : "OPEN DATASETS"}</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-num">1</div>
+          <div class="stat-label">{lang === "ko" ? "학회 창립" : "ACADEMIC SOCIETY FOUNDED"}</div>
+        </div>
+      </div>
+    </div>
   </div>
-</section>
-
-<style>
-.hero-location {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  color: var(--text-3);
-  letter-spacing: 0.12em;
-  margin-bottom: 1.25rem;
-}
-
-.hero-title {
-  margin-bottom: 1.25rem;
-}
-
-.hero-tagline {
-  font-size: 1rem;
-  color: var(--text-2);
-  max-width: 540px;
-  margin-bottom: 2rem;
-}
-
-.hero-cta {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-</style>
+</div>
