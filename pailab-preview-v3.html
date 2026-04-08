@@ -44,6 +44,8 @@
 
   /* Cyan — highlight glow */
   --cyan:       #24fffc;
+  --cyan-2:     #0aaa92;
+  --cyan-3:     #20e5e2;
   --cyan-dim:   rgba(36,255,252,.12);
 
   /* Electric pink — sparingly */
@@ -86,6 +88,7 @@
   --blue-text:  #80b8fa;
 
   --cyan:       #24fffc;
+  --cyan-2:     #0aaa92;
   --cyan-dim:   rgba(36,255,252,.09);
 
   --pink:       #ff2d84;
@@ -164,6 +167,7 @@ nav.site-nav{
   padding:0 .7rem;transition:color .15s;letter-spacing:.02em;
 }
 .nav-links a:hover{color:var(--cyan);text-decoration:none}
+[data-theme="light"] .nav-links a:hover{color:var(--green);text-decoration:none}
 .nav-controls{display:flex;align-items:center;gap:8px}
 .btn-ghost{
   background:none;border:.5px solid var(--border-2);
@@ -361,6 +365,7 @@ nav.site-nav{
 .section:last-of-type{border-bottom:none}
 .section-header{display:flex;align-items:baseline;gap:.75rem;margin-bottom:2.25rem}
 .sec-num{font-family:var(--font-mono);font-size:.58rem;color:var(--cyan);letter-spacing:.08em}
+[data-theme="light"] .sec-num{color:var(--cyan-2)}
 .section-title{font-size:1.75rem;font-weight:800;letter-spacing:-.02em}
 .section-sub{
   font-size:.82rem;color:var(--text-2);
@@ -523,11 +528,13 @@ nav.site-nav{
   color: var(--cyan); letter-spacing: .1em;
   margin-bottom: .5rem; opacity: .6;
 }
+[data-theme="light"] .ain { color: var(--cyan-2); opacity: 1 }
 .area-index-item span { font-size: 1.3rem; display: block; margin-bottom: .5rem; }
 .ait { /* title */
   font-family: var(--font-display); font-size: .82rem; font-weight: 700;
   color: var(--text-2); line-height: 1.3; letter-spacing: -.01em;
   transition: color .2s;
+  margin-bottom: .35rem;
 }
 
 @media(max-width:768px) { .areas-index { grid-template-columns: repeat(2,1fr); } }
@@ -554,6 +561,7 @@ nav.site-nav{
   color:var(--cyan);letter-spacing:.06em;display:block;
   margin-bottom:.5rem;
 }
+[data-theme="light"] .paper-venue{color:var(--cyan-2)}
 .paper-title-row{
   font-family:var(--font-display);font-size:.95rem;font-weight:600;
   line-height:1.35;margin-bottom:.4rem;
@@ -828,6 +836,7 @@ nav.site-nav{
   color:var(--cyan);letter-spacing:.1em;
   margin-bottom:.875rem;
 }
+[data-theme="light"] .profile-pi-label{color:var(--cyan-2)}
 .profile-links{display:flex;flex-direction:column;gap:7px}
 .pi-link{
   font-size:.75rem;color:var(--text-2);
@@ -920,6 +929,7 @@ nav.site-nav{
   .about-grid{grid-template-columns:1fr}
   .paper-row{grid-template-columns:60px 1fr;gap:1rem}
   .paper-row .pill{display:none}
+  .profile-img-wrap{width:220px;margin:0 2rem 0 0; float: left}
 }
 @media(max-width:640px){
   .nav-links{display:none}
@@ -928,6 +938,8 @@ nav.site-nav{
   .projects-grid{grid-template-columns:1fr}
   .footer-top{grid-template-columns:1fr}
   .note-row{grid-template-columns:1fr;gap:.25rem}
+  .profile-img-wrap{width:220px;margin:0 auto 1.25rem; float: none}
+  .about-profile{max-width: 330px;margin: 0 auto;}
 }
 </style>
 </head>
@@ -1097,14 +1109,38 @@ nav.site-nav{
     </div> -->
     <!-- HTML -->
     <div class="areas-index">
-      <a href="/areas/embodied-intelligence" class="area-index-item"><p class="ain">01</p><span>🤖</span><p class="ait">Embodied Intelligence</p></a>
-      <a href="/areas/autonomous-robotics"   class="area-index-item"><p class="ain">02</p><span>🦾</span><p class="ait">Autonomous Robotics</p></a>
-      <a href="/areas/digital-twin"          class="area-index-item"><p class="ain">03</p><span>🌐</span><p class="ait">Digital Twin & Simulation</p></a>
-      <a href="/areas/sensor-fusion"         class="area-index-item"><p class="ain">04</p><span>📡</span><p class="ait">Sensor Fusion & Perception</p></a>
-      <a href="/areas/industrial"            class="area-index-item"><p class="ain">05</p><span>⚙️</span><p class="ait">Industrial Applications</p></a>
-      <a href="/areas/safety-ethics"         class="area-index-item"><p class="ain">06</p><span>🔒</span><p class="ait">Safety & Ethics</p></a>
-      <a href="/areas/edge-ai"               class="area-index-item"><p class="ain">07</p><span>⚡</span><p class="ait">Edge AI & TinyML</p></a>
-      <a href="/curriculum"                  class="area-index-item"><p class="ain">08</p><span>📖</span><p class="ait">Open Curriculum</p></a>
+      <a href="/areas/embodied-intelligence" class="area-index-item">
+        <p class="ain">01</p><span>🤖</span><p class="ait">Embodied Intelligence</p>
+        <p class="area-desc">AI that learns through physical interaction and sensorimotor feedback loops.</p>
+      </a>
+      <a href="/areas/autonomous-robotics"   class="area-index-item">
+        <p class="ain">02</p><span>🦾</span><p class="ait">Autonomous Robotics</p>
+        <p class="area-desc">Robots that can operate independently in complex environments.</p>
+      </a>
+      <a href="/areas/digital-twin"          class="area-index-item">
+        <p class="ain">03</p><span>🌐</span><p class="ait">Digital Twin & Simulation</p>
+        <p class="area-desc">Virtual replicas of physical systems for analysis and optimization.</p>
+      </a>
+      <a href="/areas/sensor-fusion"         class="area-index-item">
+        <p class="ain">04</p><span>📡</span><p class="ait">Sensor Fusion & Perception</p>
+        <p class="area-desc">Integrating data from multiple sensors to improve perception accuracy.</p>
+      </a>
+      <a href="/areas/industrial"            class="area-index-item">
+        <p class="ain">05</p><span>⚙️</span><p class="ait">Industrial Applications</p>
+        <p class="area-desc">Applications of AI in industrial settings for automation and optimization.</p>
+      </a>
+      <a href="/areas/safety-ethics"         class="area-index-item">
+        <p class="ain">06</p><span>🔒</span><p class="ait">Safety & Ethics</p>
+        <p class="area-desc">Ensuring the safe and ethical deployment of AI systems.</p>
+      </a>
+      <a href="/areas/edge-ai"               class="area-index-item">
+        <p class="ain">07</p><span>⚡</span><p class="ait">Edge AI & TinyML</p>
+        <p class="area-desc">Deploying machine learning models on edge devices for real-time inference.</p>
+      </a>
+      <a href="/curriculum"                  class="area-index-item">
+        <p class="ain">08</p><span>📖</span><p class="ait">Open Curriculum</p>
+        <p class="area-desc">Accessible educational resources for learning about AI and robotics.</p>
+      </a>
     </div>
   </div>
 </section>
