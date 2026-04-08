@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>PAI LAB — Physical AI Laboratory</title>
+<title>PAI LAB — Physical AI Lab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -219,7 +219,7 @@ nav.site-nav{
 /* Solid primary (hero) */
 .btn-primary{
   display:inline-flex;align-items:center;gap:6px;
-  background:linear-gradient(135deg,var(--green) 0%,#0aaa92 100%);
+  background:linear-gradient(135deg,#2dd4bf 0%,#0aaa92 100%);
   color:#fff;border:none;border-radius:var(--r-md);
   padding:12px 26px;font-size:.82rem;font-weight:700;
   font-family:var(--font-display);letter-spacing:.03em;
@@ -241,6 +241,7 @@ nav.site-nav{
 .hero-bg{
   position:absolute;inset:0;z-index:0;
   background:
+    url(./public/physical-ai-bg.jpg) center/cover no-repeat,
     radial-gradient(ellipse 65% 70% at 80% 15%,rgba(2,114,241,.28) 0%,transparent 60%),
     radial-gradient(ellipse 55% 55% at 15% 85%,rgba(13,191,158,.22) 0%,transparent 55%),
     radial-gradient(ellipse 40% 45% at 60% 65%,rgba(240,18,122,.12) 0%,transparent 50%),
@@ -434,6 +435,104 @@ nav.site-nav{
 }
 .area-desc{font-size:.7rem;color:var(--text-2);line-height:1.55;font-weight:300}
 
+/* AREAS PILLS ════════════════════════════════════════════════*/
+/* CSS: add to global.css (replaces .areas-grid and .area-card blocks) */
+.areas-pills { display:flex; flex-wrap:wrap; gap:8px; }
+
+.area-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 16px; border-radius: 999px;
+  border: .5px solid rgba(45,212,191,.22);
+  color: var(--text-2); font-size: .78rem; font-weight: 500;
+  white-space: nowrap; text-decoration: none;
+  position: relative; overflow: hidden;
+  transition: color .25s, border-color .25s;
+}
+.area-pill::before {
+  content: ''; position: absolute; inset: 0; border-radius: 999px;
+  background: linear-gradient(135deg, var(--green) 0%, var(--blue) 100%);
+  transform: translateX(-101%);
+  transition: transform .3s cubic-bezier(.4,0,.2,1);
+  z-index: 0;
+}
+.area-pill:hover::before { transform: translateX(0); }
+.area-pill:hover { color: #fff; border-color: var(--green); text-decoration: none; }
+.area-pill .ico, .area-pill span { position: relative; z-index: 1; }
+.area-pill .ico { font-size: .85rem; }
+
+/* AREAS RULED ROWS ═══════════════════════════════════════════*/
+.areas-ruled { display: flex; flex-direction: column; }
+.areas-ruled-row {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  border-top: .5px solid var(--border);
+}
+.areas-ruled:last-child { border-bottom: .5px solid var(--border); }
+
+.area-ruled-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 1rem 1.25rem;
+  font-size: .8rem; font-weight: 500; color: var(--text-2);
+  border-right: .5px solid var(--border);
+  text-decoration: none;
+  transition: color .15s, background .15s;
+  position: relative; overflow: hidden;
+}
+.area-ruled-item:last-child { border-right: none; }
+.area-ruled-item::before {
+  content: ''; position: absolute; inset: 0;
+  background: var(--green-bg);
+  transform: translateX(-101%);
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+  z-index: 0;
+}
+.area-ruled-item:hover::before { transform: translateX(0); }
+.area-ruled-item:hover { color: var(--green-text); text-decoration: none; }
+.area-ruled-item span, .area-ruled-item { position: relative; z-index: 1; }
+.area-ruled-item span { font-size: .9rem; z-index: 1; position: relative; }
+
+@media(max-width:768px) { .areas-ruled-row { grid-template-columns: repeat(2,1fr); } }
+@media(max-width:480px) { .areas-ruled-row { grid-template-columns: 1fr; } }
+
+/* AREAS INDEXES ════════════════════════════════════════════════════*/
+.areas-index {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  border-top: .5px solid var(--border);
+  border-left: .5px solid var(--border);
+}
+.area-index-item {
+  padding: 1.25rem 1rem;
+  border-right: .5px solid var(--border);
+  border-bottom: .5px solid var(--border);
+  text-decoration: none; color: inherit;
+  transition: background .2s;
+  position: relative; overflow: hidden;
+}
+.area-index-item::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--green), var(--cyan));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .28s ease;
+}
+.area-index-item:hover { background: var(--bg-subtle); text-decoration: none; }
+.area-index-item:hover::before { transform: scaleX(1); }
+.area-index-item:hover .ait { color: var(--green); }
+
+.ain { /* number */
+  font-family: var(--font-mono); font-size: .55rem;
+  color: var(--cyan); letter-spacing: .1em;
+  margin-bottom: .5rem; opacity: .6;
+}
+.area-index-item span { font-size: 1.3rem; display: block; margin-bottom: .5rem; }
+.ait { /* title */
+  font-family: var(--font-display); font-size: .82rem; font-weight: 700;
+  color: var(--text-2); line-height: 1.3; letter-spacing: -.01em;
+  transition: color .2s;
+}
+
+@media(max-width:768px) { .areas-index { grid-template-columns: repeat(2,1fr); } }
+@media(max-width:480px) { .areas-index { grid-template-columns: 1fr; } }
+
 /* ════════════════════════════════════════════════════════════
    RESEARCH PAPERS — editorial list style (different from projects)
    ════════════════════════════════════════════════════════════ */
@@ -492,6 +591,17 @@ nav.site-nav{
     linear-gradient(90deg,rgba(36,255,252,.05) 1px,transparent 1px);
   background-size:22px 22px;
 }
+/* Fix: project circuit texture moves to ::after so ::before stays free for the top bar */
+.project-img::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(36,255,252,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(36,255,252,.05) 1px, transparent 1px);
+  background-size: 22px 22px;
+  pointer-events: none;
+}
+/* Remove the old .project-img::before circuit rule */
 .project-icon-badge{
   position:relative;z-index:1;
   width:38px;height:38px;border-radius:9px;
@@ -551,11 +661,75 @@ nav.site-nav{
 .module-desc{font-size:.7rem;color:var(--text-2);line-height:1.55;margin-bottom:.625rem;font-weight:300}
 
 /* ════════════════════════════════════════════════════════════
+   ALL CARDS: unified hover effect with subtle lift and border color change
+     (applies to area-card, project-card, track-card, module-card)
+   ════════════════════════════════════════════════════════════ */
+/* ── SLIDING TOP-BORDER EFFECT — all card types ─────────────
+   Replaces the existing transition rules on these selectors.
+   Each card keeps its own hover border color + gets the
+   left-to-right top accent line.
+   ──────────────────────────────────────────────────────────── */
+
+.project-card,
+.track-card,
+.module-card {
+  position: relative;
+  overflow: hidden;
+}
+
+/* The sliding top bar */
+.project-card::before,
+.track-card::before,
+.module-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform .32s cubic-bezier(.4, 0, .2, 1);
+  z-index: 2;
+  border-radius: 0; /* flat on top edge, not rounded */
+}
+
+/* Projects — green → cyan (matches hero/brand) */
+.project-card::before {
+  background: linear-gradient(90deg, var(--green), var(--cyan));
+}
+.project-card:hover::before { transform: scaleX(1); }
+.project-card:hover {
+  border-color: var(--green);
+  transform: translateY(-4px);
+}
+
+/* Curriculum tracks — blue → cyan */
+.track-card::before {
+  background: linear-gradient(90deg, var(--blue), var(--cyan));
+}
+.track-card:hover::before { transform: scaleX(1); }
+.track-card:hover {
+  border-color: var(--blue);
+  transform: translateY(-2px);
+}
+
+/* Modules — blue (slightly dimmer, more subtle) */
+.module-card::before {
+  background: linear-gradient(90deg, var(--blue), var(--green));
+}
+.module-card:hover::before { transform: scaleX(1); }
+.module-card:hover {
+  border-color: var(--blue);
+}
+
+/* ── Remove the old .track-bar since the top border replaces it
+   (or keep it — they stack fine, it just sits below the sliding line) */
+
+/* ════════════════════════════════════════════════════════════
    NOTES
    ════════════════════════════════════════════════════════════ */
 .note-row{
   display:grid;grid-template-columns:110px 1fr;
-  gap:1rem;padding:.875rem 0;
+  gap:1rem;padding:1rem 0;
   border-top:.5px solid var(--border);align-items:baseline;
 }
 .note-title{
@@ -765,7 +939,7 @@ nav.site-nav{
     <a href="/" class="nav-logo">
       <!-- PAI LAB -->
       <img src="./public/logo-horz2.png" alt="PAI Lab Logo" class="nav-logo-img">
-      <span class="sub">PHYSICAL AI LABORATORY</span>
+      <span class="sub">PHYSICAL AI LAB</span>
     </a>
     <ul class="nav-links">
       <li><a href="#areas">Areas</a></li>
@@ -790,7 +964,7 @@ nav.site-nav{
   <div class="hero-bg"></div>
   <div class="hero-grid"></div>
   <div class="hero-overlay"></div>
-  <div class="hero-fade"></div>
+  <!-- <div class="hero-fade"></div> -->
   <div class="container">
     <div class="hero-inner">
       <div>
@@ -853,7 +1027,7 @@ nav.site-nav{
       <span class="sec-num">00</span>
       <h2 class="section-title">Research Areas</h2>
     </div>
-    <div class="areas-grid">
+    <!-- <div class="areas-grid">
       <a href="/areas/embodied-intelligence" class="area-card">
         <span class="area-icon">🤖</span>
         <p class="area-name">Embodied Intelligence</p>
@@ -894,6 +1068,43 @@ nav.site-nav{
         <p class="area-name">Open Curriculum</p>
         <p class="area-desc">Bilingual Physical AI education — undergraduate modules and full research tracks.</p>
       </a>
+    </div> -->
+    <!-- HTML: replace <div class="areas-grid">...</div> -->
+    <!-- <div class="areas-pills">
+      <a href="/areas/embodied-intelligence" class="area-pill"><span class="ico">🤖</span><span>Embodied Intelligence</span></a>
+      <a href="/areas/autonomous-robotics"   class="area-pill"><span class="ico">🦾</span><span>Autonomous Robotics</span></a>
+      <a href="/areas/digital-twin"          class="area-pill"><span class="ico">🌐</span><span>Digital Twin & Simulation</span></a>
+      <a href="/areas/sensor-fusion"         class="area-pill"><span class="ico">📡</span><span>Sensor Fusion & Perception</span></a>
+      <a href="/areas/industrial"            class="area-pill"><span class="ico">⚙️</span><span>Industrial Applications</span></a>
+      <a href="/areas/safety-ethics"         class="area-pill"><span class="ico">🔒</span><span>Safety & Ethics</span></a>
+      <a href="/areas/edge-ai"               class="area-pill"><span class="ico">⚡</span><span>Edge AI & TinyML</span></a>
+      <a href="/curriculum"                  class="area-pill"><span class="ico">📖</span><span>Open Curriculum</span></a>
+    </div> -->
+    <!-- HTML -->
+    <!-- <div class="areas-ruled">
+      <div class="areas-ruled-row">
+        <a href="/areas/embodied-intelligence" class="area-ruled-item"><span>🤖</span>Embodied Intelligence</a>
+        <a href="/areas/autonomous-robotics"   class="area-ruled-item"><span>🦾</span>Autonomous Robotics</a>
+        <a href="/areas/digital-twin"          class="area-ruled-item"><span>🌐</span>Digital Twin & Simulation</a>
+        <a href="/areas/sensor-fusion"         class="area-ruled-item"><span>📡</span>Sensor Fusion & Perception</a>
+      </div>
+      <div class="areas-ruled-row">
+        <a href="/areas/industrial"            class="area-ruled-item"><span>⚙️</span>Industrial Applications</a>
+        <a href="/areas/safety-ethics"         class="area-ruled-item"><span>🔒</span>Safety & Ethics</a>
+        <a href="/areas/edge-ai"               class="area-ruled-item"><span>⚡</span>Edge AI & TinyML</a>
+        <a href="/curriculum"                  class="area-ruled-item"><span>📖</span>Open Curriculum</a>
+      </div>
+    </div> -->
+    <!-- HTML -->
+    <div class="areas-index">
+      <a href="/areas/embodied-intelligence" class="area-index-item"><p class="ain">01</p><span>🤖</span><p class="ait">Embodied Intelligence</p></a>
+      <a href="/areas/autonomous-robotics"   class="area-index-item"><p class="ain">02</p><span>🦾</span><p class="ait">Autonomous Robotics</p></a>
+      <a href="/areas/digital-twin"          class="area-index-item"><p class="ain">03</p><span>🌐</span><p class="ait">Digital Twin & Simulation</p></a>
+      <a href="/areas/sensor-fusion"         class="area-index-item"><p class="ain">04</p><span>📡</span><p class="ait">Sensor Fusion & Perception</p></a>
+      <a href="/areas/industrial"            class="area-index-item"><p class="ain">05</p><span>⚙️</span><p class="ait">Industrial Applications</p></a>
+      <a href="/areas/safety-ethics"         class="area-index-item"><p class="ain">06</p><span>🔒</span><p class="ait">Safety & Ethics</p></a>
+      <a href="/areas/edge-ai"               class="area-index-item"><p class="ain">07</p><span>⚡</span><p class="ait">Edge AI & TinyML</p></a>
+      <a href="/curriculum"                  class="area-index-item"><p class="ain">08</p><span>📖</span><p class="ait">Open Curriculum</p></a>
     </div>
   </div>
 </section>
@@ -1282,7 +1493,7 @@ nav.site-nav{
 
       <div>
         <p style="font-size:1rem;line-height:1.9;margin-bottom:1.25rem;font-weight:300">
-          The <strong style="font-weight:600;font-family:var(--font-display)">Physical AI Laboratory</strong>
+          The <strong style="font-weight:600;font-family:var(--font-display)">Physical AI Lab</strong>
           is a research group based in Jeonju, Korea, working at the intersection
           of machine learning, embedded hardware, and physical systems.
         </p>
@@ -1361,7 +1572,7 @@ nav.site-nav{
       <div class="footer-logo-col">
         <img src="./public/logo2.png" alt="PAI LAB logo" class="footer-logo-img">
         <!-- <span class="footer-logo">PAI LAB</span> -->
-        <span class="footer-logo-sub">PHYSICAL AI LABORATORY</span>
+        <span class="footer-logo-sub">PHYSICAL AI LAB</span>
         <p class="footer-logo-desc">
           Open research at the intersection of<br>
           machine intelligence and the physical world.<br>
