@@ -30,6 +30,7 @@ import "../styles/global.css";
         border: 1px solid var(--border);
         border-radius: 12px;
         text-align: center;
+        z-index: 1;
       }
 
       .lab-logo {
@@ -93,9 +94,17 @@ import "../styles/global.css";
   </head>
 
   <body>
+      <!-- Gradient mesh (animated) — sits behind any bg image -->
+  <div class="login-bg"></div>
+  <!-- Circuit grid overlay -->
+  <div class="login-grid"></div>
+  <!-- Overlay: light in dark mode, heavier in light mode for text legibility -->
+  <!-- <div class="hero-overlay"></div> -->
+  <!-- Fade to page bg at bottom -->
+  <!-- <div class="hero-fade"></div> -->
     <div class="login-card">
-      <div class="lab-logo">PAI Lab</div>
-      <div class="lab-sub">Physical AI Laboratory · Members Portal</div>
+      <img src="/logo2.png" alt="PAI LAB" class="login-logo-img" />
+      <div class="lab-sub">Physical AI Lab · Members Portal</div>
 
       <button class="google-btn" id="google-signin">
         <!-- Google "G" logo SVG -->
