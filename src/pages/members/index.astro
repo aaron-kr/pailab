@@ -1,74 +1,356 @@
 ---
-/**
- * src/pages/members/index.astro
- * ------------------------------------------------------------------
- * Members-only landing page. Visible to role="member" and "admin".
- * Add lab resources, project boards, meeting notes links here.
- * ------------------------------------------------------------------
- */
-import ProtectedLayout from "../../layouts/ProtectedLayout.astro";
+// src/pages/members/index.astro
+import ProtectedLayout from "@/layouts/ProtectedLayout.astro";
 ---
 
-<ProtectedLayout role="member" title="Members">
-  <div class="container" style="padding: 2rem 1rem; max-width: 900px; margin: 0 auto;">
+<ProtectedLayout title="Members Dashboard" area="members">
 
-    <!-- Header bar -->
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; flex-wrap:wrap; gap:1rem;">
-      <div>
-        <h1 style="margin:0; font-size:1.6rem;">PAI Lab Members Portal</h1>
-        <p style="margin:0.25rem 0 0; color:var(--fg-muted); font-size:0.875rem;">
-          Signed in as <strong data-user-email></strong>
-          &nbsp;<span style="font-size:0.7rem; padding:2px 8px; border-radius:20px; background:var(--accent-bg); color:var(--accent-text);" data-user-role></span>
-        </p>
+  <!-- ── Stat bar ─────────────────────────────────────────── -->
+  <div class="app-stat-grid" id="stat-grid">
+    <div class="app-stat">
+      <div class="app-stat-num" id="stat-projects">—</div>
+      <div class="app-stat-label">ACTIVE PROJECTS</div>
+    </div>
+    <div class="app-stat">
+      <div class="app-stat-num" id="stat-papers">—</div>
+      <div class="app-stat-label">PAPERS IN PROGRESS</div>
+    </div>
+    <div class="app-stat">
+      <div class="app-stat-num" id="stat-checklist">—</div>
+      <div class="app-stat-label">CHECKLIST COMPLETE</div>
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+
+    <!-- ── New Member Checklist ────────────────────────────── -->
+    <div class="app-card" id="checklist-card">
+      <p class="app-card-title">NEW MEMBER CHECKLIST</p>
+      <p style="font-size:.72rem; color:rgba(208,228,240,.4); margin-bottom:1.25rem;">
+        Complete these steps to get started. Progress is saved automatically.
+      </p>
+      <div id="checklist-items">
+        <div class="checklist-loading">Loading checklist…</div>
       </div>
-      <button data-signout style="padding:0.5rem 1rem; border:1px solid var(--border); border-radius:6px; background:transparent; color:var(--fg-muted); cursor:pointer; font-size:0.875rem;">
-        Sign out
-      </button>
+      <div class="checklist-complete-msg" id="checklist-complete-msg" style="display:none">
+        <span class="complete-icon">✓</span>
+        <p>All done! You're fully onboarded. Check the Projects section to get started.</p>
+        <a href="/members/projects" class="btn-outline-cyan" style="margin-top:.75rem; display:inline-block;">
+          View Projects →
+        </a>
+      </div>
     </div>
 
-    <!-- Quick links grid -->
-    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap:1rem; margin-bottom:2rem;">
-
-      <a href="https://github.com/aaronkr-classroom" target="_blank" rel="noopener"
-         style="display:block; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; text-decoration:none; color:var(--fg);">
-        <div style="font-weight:600; margin-bottom:0.25rem;">GitHub Classroom</div>
-        <div style="font-size:0.8rem; color:var(--fg-muted);">Project repos, assignments, code reviews</div>
-      </a>
-
-      <a href="https://courses.aaron.kr" target="_blank" rel="noopener"
-         style="display:block; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; text-decoration:none; color:var(--fg);">
-        <div style="font-weight:600; margin-bottom:0.25rem;">Course Materials</div>
-        <div style="font-size:0.8rem; color:var(--fg-muted);">Slides, notes, and lab resources</div>
-      </a>
-
-      <div style="padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-radius:10px;">
-        <div style="font-weight:600; margin-bottom:0.25rem;">Lab Meetings</div>
-        <div style="font-size:0.8rem; color:var(--fg-muted);">Schedule and notes — coming soon</div>
+    <!-- ── Active Projects ─────────────────────────────────── -->
+    <div class="app-card">
+      <p class="app-card-title">ACTIVE PROJECTS</p>
+      <div id="active-projects">
+        <div class="checklist-loading">Loading…</div>
       </div>
-
-      <div style="padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-radius:10px;">
-        <div style="font-weight:600; margin-bottom:0.25rem;">Paper Templates</div>
-        <div style="font-size:0.8rem; color:var(--fg-muted);">KIICE, JPEE, KLife — coming soon</div>
-      </div>
-
     </div>
 
-    <!-- Active projects table (populated from public /projects page) -->
-    <h2 style="font-size:1.1rem; font-weight:600; margin-bottom:0.75rem;">Active Projects</h2>
-    <p style="font-size:0.875rem; color:var(--fg-muted);">
-      See the <a href="/projects" style="color:var(--accent);">public Projects page</a> for current lab projects.
-      Your PI will add project-specific Notion/GitHub links here as they're set up.
-    </p>
-
-    <!-- Onboarding checklist -->
-    <h2 style="font-size:1.1rem; font-weight:600; margin:2rem 0 0.75rem;">New Member Checklist</h2>
-    <ul style="font-size:0.875rem; line-height:2; color:var(--fg-muted); padding-left:1.25rem;">
-      <li>Join the lab GitHub org: <a href="https://github.com/aaronkr-classroom" style="color:var(--accent);">aaronkr-classroom</a></li>
-      <li>Complete NVIDIA DLI: Getting Started with AI on Jetson Nano</li>
-      <li>Read the lab paper writing guide (link coming soon)</li>
-      <li>Add yourself to the People page — send your bio + photo to the PI</li>
-      <li>Pick a project from the active list and set up your dev environment</li>
-    </ul>
+    <!-- ── Paper Templates ─────────────────────────────────── -->
+    <div class="app-card" style="grid-column: 1 / -1;">
+      <p class="app-card-title">PAPER TEMPLATES</p>
+      <p style="font-size:.72rem; color:rgba(208,228,240,.4); margin-bottom:1rem;">
+        Template packets for each conference / journal society. Download from Google Drive before submitting.
+      </p>
+      <div id="templates-list">
+        <div class="checklist-loading">Loading…</div>
+      </div>
+    </div>
 
   </div>
 </ProtectedLayout>
+
+<script>
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import {
+  getFirestore,
+  doc, collection, getDocs, setDoc, getDoc,
+  query, where, orderBy, serverTimestamp
+} from "firebase/firestore";
+import { app } from "@/lib/firebase";
+
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+
+  await Promise.all([
+    loadChecklist(user.uid),
+    loadActiveProjects(user.uid),
+    loadTemplates(),
+  ]);
+});
+
+// ── Checklist ──────────────────────────────────────────────
+async function loadChecklist(uid: string) {
+  // Load checklist item definitions from admin-configured collection
+  // Falls back to hardcoded defaults if collection is empty
+  const DEFAULT_ITEMS = [
+    { id: "profile",    text: "Complete your profile (name, bio, photo)",      link: "/members/profile" },
+    { id: "github",     text: "Add your GitHub link to your profile",           link: "/members/profile" },
+    { id: "discord",    text: "Join the lab Discord / communication channel",   link: null },
+    { id: "read-guide", text: "Read the Lab Research Guide",                    link: null },
+    { id: "meet-pi",    text: "Schedule an intro meeting with Prof. Snowberger",link: null },
+    { id: "project",    text: "Be assigned to an active project",               link: "/members/projects" },
+    { id: "nvidia-dli", text: "Complete one NVIDIA DLI course",                 link: "https://courses.nvidia.com/courses/" },
+  ];
+
+  // Load definitions
+  let items = DEFAULT_ITEMS;
+  try {
+    const snap = await getDocs(
+      query(collection(db, "checklist_items"), orderBy("order", "asc"))
+    );
+    if (!snap.empty) {
+      items = snap.docs.map(d => ({ id: d.id, ...d.data() } as any));
+    }
+  } catch {}
+
+  // Load user's checked state
+  const stateSnap = await getDocs(collection(db, "users", uid, "checklist"));
+  const checked = new Set(stateSnap.docs.filter(d => d.data().checked).map(d => d.id));
+
+  // Render
+  const container = document.getElementById("checklist-items")!;
+  container.innerHTML = "";
+
+  let doneCount = 0;
+  for (const item of items) {
+    const isDone = checked.has(item.id);
+    if (isDone) doneCount++;
+
+    const row = document.createElement("label");
+    row.className = `checklist-row${isDone ? " done" : ""}`;
+    row.innerHTML = `
+      <input type="checkbox" data-id="${item.id}" ${isDone ? "checked" : ""} />
+      <span class="check-mark"></span>
+      <span class="check-text">${item.text}</span>
+      ${item.link ? `<a href="${item.link}" class="check-link" target="${item.link.startsWith("http") ? "_blank" : "_self"}">→</a>` : ""}
+    `;
+    container.appendChild(row);
+
+    // Handle toggle
+    row.querySelector("input")?.addEventListener("change", async (e) => {
+      const chk = e.target as HTMLInputElement;
+      const docRef = doc(db, "users", uid, "checklist", item.id);
+      await setDoc(docRef, {
+        checked: chk.checked,
+        checkedAt: chk.checked ? serverTimestamp() : null,
+      }, { merge: true });
+
+      row.classList.toggle("done", chk.checked);
+      updateChecklistStats(uid, items.length);
+    });
+  }
+
+  // Update stat + completion message
+  document.getElementById("stat-checklist")!.textContent = `${doneCount}/${items.length}`;
+  if (doneCount === items.length) {
+    document.getElementById("checklist-items")!.style.display = "none";
+    document.getElementById("checklist-complete-msg")!.style.display = "flex";
+  }
+}
+
+async function updateChecklistStats(uid: string, total: number) {
+  const snap = await getDocs(collection(db, "users", uid, "checklist"));
+  const done = snap.docs.filter(d => d.data().checked).length;
+  document.getElementById("stat-checklist")!.textContent = `${done}/${total}`;
+  if (done === total) {
+    document.getElementById("checklist-items")!.style.display = "none";
+    document.getElementById("checklist-complete-msg")!.style.display = "flex";
+  }
+}
+
+// ── Active Projects ────────────────────────────────────────
+async function loadActiveProjects(uid: string) {
+  const container = document.getElementById("active-projects")!;
+  try {
+    const q = query(
+      collection(db, "projects"),
+      where("members", "array-contains", uid),
+      where("status", "==", "active")
+    );
+    const snap = await getDocs(q);
+
+    // Also fetch projects where lead is this user
+    const qLead = query(
+      collection(db, "projects"),
+      where("lead_uid", "==", uid),
+      where("status", "==", "active")
+    );
+    const snapLead = await getDocs(qLead);
+
+    const allProjects = new Map();
+    [...snap.docs, ...snapLead.docs].forEach(d => allProjects.set(d.id, { id: d.id, ...d.data() }));
+
+    if (allProjects.size === 0) {
+      container.innerHTML = `<p style="font-size:.78rem; color:rgba(208,228,240,.35);">No active projects yet. Check with Prof. Snowberger.</p>`;
+      document.getElementById("stat-projects")!.textContent = "0";
+      return;
+    }
+
+    document.getElementById("stat-projects")!.textContent = String(allProjects.size);
+    container.innerHTML = "";
+
+    for (const p of allProjects.values()) {
+      const row = document.createElement("div");
+      row.className = "project-row";
+      row.innerHTML = `
+        <div>
+          <p class="project-title">${p.title ?? "Untitled"}</p>
+          <p class="project-meta">${(p.tags ?? []).map((t: string) => `<span class="tag-mini">${t}</span>`).join(" ")}</p>
+        </div>
+        <a href="/members/projects#${p.id}" class="check-link">→</a>
+      `;
+      container.appendChild(row);
+    }
+  } catch (e) {
+    container.innerHTML = `<p style="font-size:.75rem; color:var(--pink);">Could not load projects.</p>`;
+  }
+}
+
+// ── Paper Templates ────────────────────────────────────────
+async function loadTemplates() {
+  const container = document.getElementById("templates-list")!;
+  try {
+    const snap = await getDocs(
+      query(collection(db, "paper_templates"), orderBy("society", "asc"))
+    );
+
+    if (snap.empty) {
+      container.innerHTML = `<p style="font-size:.78rem; color:rgba(208,228,240,.35);">No templates added yet. Admin can add them in Settings.</p>`;
+      return;
+    }
+
+    container.innerHTML = `<div class="templates-table">
+      <div class="templates-head">
+        <span>Society / Journal</span><span>Venue</span><span>Last Verified</span><span>Link</span>
+      </div>
+    </div>`;
+    const table = container.querySelector(".templates-table")!;
+
+    for (const d of snap.docs) {
+      const t = d.data();
+      const lastChecked = t.last_checked?.toDate?.()?.toLocaleDateString("en-US", { year:"numeric", month:"short" }) ?? "—";
+      const isStale = t.last_checked && (Date.now() - t.last_checked.toMillis() > 2 * 365 * 24 * 3600 * 1000);
+
+      const row = document.createElement("div");
+      row.className = "templates-row";
+      row.innerHTML = `
+        <span class="tpl-society">${t.society ?? "—"}</span>
+        <span>${t.venue ?? "—"}</span>
+        <span class="${isStale ? "stale-date" : ""}">${lastChecked}${isStale ? " ⚠" : ""}</span>
+        <a href="${t.link ?? "#"}" target="_blank" class="check-link">Download →</a>
+      `;
+      table.appendChild(row);
+    }
+  } catch {
+    container.innerHTML = `<p style="font-size:.75rem; color:rgba(208,228,240,.35);">Templates unavailable.</p>`;
+  }
+
+  // Also show paper count
+  try {
+    const q = query(collection(db, "research_ideas"), where("status", "in", ["active","writing","submitted"]));
+    const snap2 = await getDocs(q);
+    document.getElementById("stat-papers")!.textContent = String(snap2.size);
+  } catch {}
+}
+</script>
+
+<style>
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+/* Checklist */
+.checklist-loading { font-size: .75rem; color: rgba(208,228,240,.35); }
+.checklist-row {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .55rem 0;
+  border-bottom: .5px solid rgba(36,180,255,.07);
+  cursor: pointer;
+  font-size: .82rem; color: rgba(208,228,240,.75);
+  transition: color .15s;
+}
+.checklist-row:last-child { border-bottom: none; }
+.checklist-row input[type=checkbox] { display: none; }
+.check-mark {
+  width: 18px; height: 18px; flex-shrink: 0;
+  border: 1.5px solid rgba(36,180,255,.3);
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, border-color .15s;
+}
+.check-mark::after { content: ''; }
+.checklist-row.done .check-mark {
+  background: var(--green-glow);
+  border-color: var(--green-glow);
+}
+.checklist-row.done .check-mark::after {
+  content: '✓';
+  font-size: .65rem;
+  color: #040c14;
+  font-weight: 800;
+}
+.checklist-row.done .check-text { color: rgba(208,228,240,.35); text-decoration: line-through; }
+.check-text { flex: 1; }
+.check-link { font-family: var(--font-mono); font-size: .65rem; color: var(--cyan); text-decoration: none; }
+.check-link:hover { text-decoration: underline; }
+
+/* Completion */
+.checklist-complete-msg {
+  flex-direction: column; align-items: center; text-align: center;
+  padding: 1.5rem;
+  background: rgba(45,212,191,.06);
+  border: .5px solid rgba(45,212,191,.2);
+  border-radius: var(--r-lg);
+}
+.complete-icon { font-size: 2rem; color: var(--green-glow); }
+.checklist-complete-msg p { font-size: .85rem; color: rgba(208,228,240,.7); margin-top: .5rem; }
+
+/* Projects */
+.project-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .625rem 0;
+  border-bottom: .5px solid rgba(36,180,255,.07);
+}
+.project-row:last-child { border-bottom: none; }
+.project-title { font-size: .82rem; margin-bottom: .25rem; }
+.project-meta { display: flex; gap: 4px; flex-wrap: wrap; }
+.tag-mini { font-family: var(--font-mono); font-size: .6rem; padding: 1px 6px; background: rgba(36,180,255,.1); border-radius: 3px; color: var(--cyan); }
+
+/* Templates */
+.templates-table { display: flex; flex-direction: column; }
+.templates-head, .templates-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1.5fr 1fr auto;
+  gap: 1rem;
+  padding: .5rem 0;
+  font-size: .75rem;
+  border-bottom: .5px solid rgba(36,180,255,.08);
+  align-items: center;
+}
+.templates-head { font-family: var(--font-mono); font-size: .6rem; color: rgba(208,228,240,.35); letter-spacing: .1em; }
+.tpl-society { font-weight: 500; }
+.stale-date { color: #fbbf24; }
+
+.btn-outline-cyan {
+  background: rgba(36,255,252,.06);
+  color: var(--cyan);
+  border: .5px solid rgba(36,255,252,.3);
+  border-radius: var(--r-md);
+  padding: .5rem 1.25rem;
+  font-size: .8rem;
+  text-decoration: none;
+  transition: background .15s;
+}
+.btn-outline-cyan:hover { background: rgba(36,255,252,.12); }
+
+@media (max-width: 720px) { .dashboard-grid { grid-template-columns: 1fr; } }
+</style>

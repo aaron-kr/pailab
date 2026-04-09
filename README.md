@@ -219,6 +219,21 @@ order: 5
 ---
 ```
 
+## Firebase Storage rules (add to your Storage rules) - when ready for uploading student images ($)
+
+```
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Profile photos: only the owner can write, anyone can read
+    match /profiles/{uid}/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}
+```
+
 ---
 
 ## Deployment

@@ -1,0 +1,94 @@
+---
+// src/pages/members/projects.astro
+import ProtectedLayout from "@/layouts/ProtectedLayout.astro";
+---
+
+<ProtectedLayout title="Projects" description="Your active and past lab projects." area="members">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <p id="project-count" style="font-family:var(--font-mono); font-size:.72rem; color:rgba(208,228,240,.4);"></p>
+  </div>
+
+  <div id="projects-list">
+    <div class="loading-msg">Loading projects…</div>
+  </div>
+</ProtectedLayout>
+
+<script>
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getFirestore, collection, getDocs, query, where, orderBy } from "firebase/firestore";
+import { app } from "@/lib/firebase";
+
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+  const container = document.getElementById("projects-list")!;
+
+  try {
+    // Fetch projects where user is member or lead
+    const q1 = query(collection(db, "projects"), where("members", "array-contains", user.uid));
+    const q2 = query(collection(db, "projects"), where("lead_uid", "==", user.uid));
+    const [s1, s2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+
+    const all = new Map();
+    [...s1.docs, ...s2.docs].forEach(d => all.set(d.id, { id: d.id, ...d.data() }));
+
+    document.getElementById("project-count")!.textContent = `${all.size} project${all.size !== 1 ? "s" : ""}`;
+
+    if (all.size === 0) {
+      container.innerHTML = `
+        <div class="app-card" style="text-align:center; padding:3rem 2rem;">
+          <p style="font-size:2rem; margin-bottom:1rem;">⊞</p>
+          <p style="font-size:.88rem; color:rgba(208,228,240,.5);">You haven't been assigned to any projects yet.</p>
+          <p style="font-size:.75rem; color:rgba(208,228,240,.3); margin-top:.5rem;">Prof. Snowberger will assign projects after your intro meeting.</p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = "";
+    const statusOrder: Record<string, number> = { active:0, writing:1, submitted:2, published:3, paused:4 };
+
+    const sorted = Array.from(all.values()).sort((a,b) =>
+      (statusOrder[a.status] ?? 9) - (statusOrder[b.status] ?? 9)
+    );
+
+    for (const p of sorted) {
+      const statusColors: Record<string, string> = {
+        active:    "var(--green-glow)",
+        writing:   "var(--cyan)",
+        submitted: "var(--blue)",
+        published: "var(--ok-text)",
+        paused:    "rgba(208,228,240,.3)",
+      };
+      const card = document.createElement("div");
+      card.className = "app-card project-card-full";
+      card.id = p.id;
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem;">
+          <div>
+            <p class="app-card-title" style="margin-bottom:.5rem;">${p.title ?? "Untitled"}</p>
+            ${p.description ? `<p style="font-size:.82rem; color:rgba(208,228,240,.65); line-height:1.7; margin-bottom:.875rem;">${p.description}</p>` : ""}
+          </div>
+          <span class="status-pill" style="color:${statusColors[p.status] ?? "var(--text-3)"}; border-color:${statusColors[p.status] ?? "rgba(208,228,240,.2)"};">
+            ${p.status ?? "—"}
+          </span>
+        </div>
+        ${p.tags?.length ? `<div style="display:flex; gap:6px; flex-wrap:wrap;">${p.tags.map((t: string) => `<span class="tag">${t}</span>`).join("")}</div>` : ""}
+        ${p.github ? `<a href="${p.github}" target="_blank" class="check-link" style="margin-top:.875rem; display:inline-block;">GitHub repository →</a>` : ""}
+      `;
+      container.appendChild(card);
+    }
+  } catch (e) {
+    container.innerHTML = `<p style="color:var(--pink); font-size:.78rem;">Could not load projects.</p>`;
+  }
+});
+</script>
+
+<style>
+.loading-msg { font-size: .75rem; color: rgba(208,228,240,.35); }
+.project-card-full { margin-bottom: 1rem; }
+.status-pill { font-family: var(--font-mono); font-size: .62rem; border: .5px solid; border-radius: 3px; padding: 2px 8px; white-space: nowrap; flex-shrink: 0; letter-spacing: .08em; }
+.check-link { font-family: var(--font-mono); font-size: .65rem; color: var(--cyan); text-decoration: none; }
+.check-link:hover { text-decoration: underline; }
+</style>

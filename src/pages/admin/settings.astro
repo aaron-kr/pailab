@@ -1,0 +1,309 @@
+---
+// src/pages/admin/settings.astro
+import ProtectedLayout from "@/layouts/ProtectedLayout.astro";
+---
+
+<ProtectedLayout
+  title="Settings"
+  description="Configure checklists, paper templates, and lab settings."
+  area="admin"
+  requireAdmin={true}
+>
+  <div class="settings-grid">
+
+    <!-- ── Onboarding Checklist Config ──────────────────── -->
+    <div class="app-card settings-section">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <p class="app-card-title">NEW MEMBER CHECKLIST ITEMS</p>
+        <button class="btn-small" id="add-checklist-item">+ Add item</button>
+      </div>
+      <p style="font-size:.72rem; color:rgba(208,228,240,.35); margin-bottom:1rem;">
+        These items appear on every new member's dashboard. Drag to reorder (coming soon).
+      </p>
+      <div id="checklist-admin-list">
+        <div class="checklist-loading">Loading…</div>
+      </div>
+    </div>
+
+    <!-- ── Paper Templates ──────────────────────────────── -->
+    <div class="app-card settings-section">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <p class="app-card-title">PAPER TEMPLATES</p>
+        <button class="btn-small" id="add-template-btn">+ Add template</button>
+      </div>
+      <p style="font-size:.72rem; color:rgba(208,228,240,.35); margin-bottom:1rem;">
+        Google Drive links for each conference / journal template packet.
+        Templates marked ⚠ haven't been verified in over 2 years.
+      </p>
+      <div id="templates-admin-list">
+        <div class="checklist-loading">Loading…</div>
+      </div>
+    </div>
+
+    <!-- ── Admin Emails ──────────────────────────────────── -->
+    <div class="app-card settings-section" style="grid-column:1/-1;">
+      <p class="app-card-title">ADMIN ACCOUNT</p>
+      <p style="font-size:.72rem; color:rgba(208,228,240,.45); line-height:1.7;">
+        To make a user an admin, go to <strong>Students</strong>, open their profile, and change their role to "Admin".<br />
+        That user will see the admin sidebar on their next login.<br /><br />
+        To set yourself as admin for the first time, go to the
+        <a href="https://console.firebase.google.com" target="_blank" class="check-link">Firebase Console</a>
+        → Firestore → <code>users</code> → your UID document → set <code>role: "admin"</code>.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- ── Add Checklist Item Modal ───────────────────────── -->
+  <div class="modal-overlay" id="checklist-modal" style="display:none">
+    <div class="modal app-card">
+      <p class="app-card-title" id="checklist-modal-title">ADD CHECKLIST ITEM</p>
+      <input type="hidden" id="edit-checklist-id" />
+      <div class="form-field" style="margin-bottom:.875rem;">
+        <label class="form-label">Item text</label>
+        <input class="form-input" id="ci-text" type="text" placeholder="Complete your profile…" />
+      </div>
+      <div class="form-field" style="margin-bottom:.875rem;">
+        <label class="form-label">Link (optional)</label>
+        <input class="form-input" id="ci-link" type="text" placeholder="/members/profile or https://…" />
+      </div>
+      <div class="form-field" style="margin-bottom:1.25rem;">
+        <label class="form-label">Order (number)</label>
+        <input class="form-input" id="ci-order" type="number" placeholder="1" min="1" />
+      </div>
+      <div style="display:flex; gap:.75rem; justify-content:flex-end;">
+        <button class="btn-ghost" id="close-checklist-modal">Cancel</button>
+        <button class="btn-primary" id="save-checklist-item">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Add Template Modal ───────────────────────────── -->
+  <div class="modal-overlay" id="template-modal" style="display:none">
+    <div class="modal app-card">
+      <p class="app-card-title" id="template-modal-title">ADD PAPER TEMPLATE</p>
+      <input type="hidden" id="edit-template-id" />
+      <div class="form-field" style="margin-bottom:.875rem;">
+        <label class="form-label">Society / Journal</label>
+        <input class="form-input" id="tpl-society" type="text" placeholder="KIICE, KSPAI, IEEE…" />
+      </div>
+      <div class="form-field" style="margin-bottom:.875rem;">
+        <label class="form-label">Venue / Format</label>
+        <input class="form-input" id="tpl-venue" type="text" placeholder="Word template, LaTeX, etc." />
+      </div>
+      <div class="form-field" style="margin-bottom:.875rem;">
+        <label class="form-label">Google Drive link</label>
+        <input class="form-input" id="tpl-link" type="url" placeholder="https://drive.google.com/…" />
+      </div>
+      <div class="form-field" style="margin-bottom:1.25rem;">
+        <label class="form-label">Notes</label>
+        <input class="form-input" id="tpl-notes" type="text" placeholder="Optional notes" />
+      </div>
+      <label class="toggle-row" style="margin-bottom:1.25rem; font-size:.8rem;">
+        <span>Mark as verified today</span>
+        <input type="checkbox" id="tpl-verify" checked />
+        <span class="toggle-slider"></span>
+      </label>
+      <div style="display:flex; gap:.75rem; justify-content:flex-end;">
+        <button class="btn-ghost" id="close-template-modal">Cancel</button>
+        <button class="btn-primary" id="save-template-btn">Save</button>
+      </div>
+    </div>
+  </div>
+</ProtectedLayout>
+
+<script>
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, addDoc, serverTimestamp, query, orderBy, Timestamp } from "firebase/firestore";
+import { app } from "@/lib/firebase";
+
+const db = getFirestore(app);
+
+// ── Checklist items ────────────────────────────────────────
+async function loadChecklistAdmin() {
+  const snap = await getDocs(query(collection(db, "checklist_items"), orderBy("order", "asc")));
+  const container = document.getElementById("checklist-admin-list")!;
+  container.innerHTML = "";
+
+  if (snap.empty) {
+    container.innerHTML = `<p style="font-size:.75rem; color:rgba(208,228,240,.35);">No items yet. Click "+ Add item".</p>`;
+    return;
+  }
+
+  for (const d of snap.docs) {
+    const item = d.data();
+    const row = document.createElement("div");
+    row.className = "settings-row";
+    row.innerHTML = `
+      <div>
+        <p style="font-size:.82rem;">${item.text}</p>
+        ${item.link ? `<p style="font-size:.68rem; color:rgba(208,228,240,.4); font-family:var(--font-mono);">${item.link}</p>` : ""}
+      </div>
+      <div style="display:flex; gap:.5rem;">
+        <button class="btn-icon edit-ci" data-id="${d.id}" data-text="${encodeURIComponent(item.text)}" data-link="${item.link ?? ""}" data-order="${item.order ?? 1}">✎</button>
+        <button class="btn-icon del-ci" data-id="${d.id}" style="color:var(--pink)">✕</button>
+      </div>
+    `;
+    container.appendChild(row);
+  }
+
+  container.querySelectorAll(".edit-ci").forEach(btn => btn.addEventListener("click", (e) => {
+    const el = e.currentTarget as HTMLElement;
+    document.getElementById("edit-checklist-id")!.setAttribute("value", el.dataset.id!);
+    (document.getElementById("ci-text") as HTMLInputElement).value = decodeURIComponent(el.dataset.text!);
+    (document.getElementById("ci-link") as HTMLInputElement).value = el.dataset.link ?? "";
+    (document.getElementById("ci-order") as HTMLInputElement).value = el.dataset.order ?? "1";
+    document.getElementById("checklist-modal-title")!.textContent = "EDIT CHECKLIST ITEM";
+    document.getElementById("checklist-modal")!.style.display = "flex";
+  }));
+
+  container.querySelectorAll(".del-ci").forEach(btn => btn.addEventListener("click", async (e) => {
+    const id = (e.currentTarget as HTMLElement).dataset.id!;
+    if (confirm("Delete this checklist item?")) {
+      await deleteDoc(doc(db, "checklist_items", id));
+      loadChecklistAdmin();
+    }
+  }));
+}
+
+document.getElementById("add-checklist-item")?.addEventListener("click", () => {
+  (document.getElementById("edit-checklist-id") as HTMLInputElement).value = "";
+  (document.getElementById("ci-text") as HTMLInputElement).value = "";
+  (document.getElementById("ci-link") as HTMLInputElement).value = "";
+  (document.getElementById("ci-order") as HTMLInputElement).value = "";
+  document.getElementById("checklist-modal-title")!.textContent = "ADD CHECKLIST ITEM";
+  document.getElementById("checklist-modal")!.style.display = "flex";
+});
+
+document.getElementById("save-checklist-item")?.addEventListener("click", async () => {
+  const id    = (document.getElementById("edit-checklist-id") as HTMLInputElement).value;
+  const text  = (document.getElementById("ci-text") as HTMLInputElement).value.trim();
+  const link  = (document.getElementById("ci-link") as HTMLInputElement).value.trim() || null;
+  const order = parseInt((document.getElementById("ci-order") as HTMLInputElement).value) || 99;
+  if (!text) return;
+
+  if (id) {
+    await setDoc(doc(db, "checklist_items", id), { text, link, order }, { merge: true });
+  } else {
+    await addDoc(collection(db, "checklist_items"), { text, link, order });
+  }
+  document.getElementById("checklist-modal")!.style.display = "none";
+  loadChecklistAdmin();
+});
+
+document.getElementById("close-checklist-modal")?.addEventListener("click", () => {
+  document.getElementById("checklist-modal")!.style.display = "none";
+});
+
+// ── Paper templates ────────────────────────────────────────
+async function loadTemplatesAdmin() {
+  const snap = await getDocs(query(collection(db, "paper_templates"), orderBy("society", "asc")));
+  const container = document.getElementById("templates-admin-list")!;
+  container.innerHTML = "";
+
+  if (snap.empty) {
+    container.innerHTML = `<p style="font-size:.75rem; color:rgba(208,228,240,.35);">No templates yet. Click "+ Add template".</p>`;
+    return;
+  }
+
+  for (const d of snap.docs) {
+    const t = d.data();
+    const lastChecked = t.last_checked?.toDate?.()?.toLocaleDateString("en-US", { year:"numeric", month:"short" }) ?? "—";
+    const isStale = t.last_checked && (Date.now() - t.last_checked.toMillis() > 2 * 365 * 24 * 3600 * 1000);
+
+    const row = document.createElement("div");
+    row.className = "settings-row";
+    row.innerHTML = `
+      <div>
+        <p style="font-size:.82rem; font-weight:500;">${t.society ?? "—"} <span style="font-weight:300; color:rgba(208,228,240,.5);">— ${t.venue ?? "—"}</span></p>
+        <p style="font-size:.68rem; color:rgba(208,228,240,.4); font-family:var(--font-mono);">
+          Last verified: <span class="${isStale ? "stale" : ""}">${lastChecked}${isStale ? " ⚠ Check for update" : ""}</span>
+        </p>
+      </div>
+      <div style="display:flex; gap:.5rem; align-items:center;">
+        <a href="${t.link ?? "#"}" target="_blank" class="btn-icon" title="Open Drive">↗</a>
+        <button class="btn-icon verify-tpl" data-id="${d.id}" title="Mark as verified today" style="color:var(--green-glow)">✓</button>
+        <button class="btn-icon del-tpl" data-id="${d.id}" style="color:var(--pink)">✕</button>
+      </div>
+    `;
+    container.appendChild(row);
+  }
+
+  container.querySelectorAll(".verify-tpl").forEach(btn => btn.addEventListener("click", async (e) => {
+    const id = (e.currentTarget as HTMLElement).dataset.id!;
+    await setDoc(doc(db, "paper_templates", id), { last_checked: Timestamp.now() }, { merge: true });
+    loadTemplatesAdmin();
+  }));
+
+  container.querySelectorAll(".del-tpl").forEach(btn => btn.addEventListener("click", async (e) => {
+    const id = (e.currentTarget as HTMLElement).dataset.id!;
+    if (confirm("Delete this template?")) {
+      await deleteDoc(doc(db, "paper_templates", id));
+      loadTemplatesAdmin();
+    }
+  }));
+}
+
+document.getElementById("add-template-btn")?.addEventListener("click", () => {
+  document.getElementById("template-modal")!.style.display = "flex";
+});
+document.getElementById("close-template-modal")?.addEventListener("click", () => {
+  document.getElementById("template-modal")!.style.display = "none";
+});
+
+document.getElementById("save-template-btn")?.addEventListener("click", async () => {
+  const society = (document.getElementById("tpl-society") as HTMLInputElement).value.trim();
+  const venue   = (document.getElementById("tpl-venue")   as HTMLInputElement).value.trim();
+  const link    = (document.getElementById("tpl-link")    as HTMLInputElement).value.trim();
+  const notes   = (document.getElementById("tpl-notes")   as HTMLInputElement).value.trim() || null;
+  const verify  = (document.getElementById("tpl-verify")  as HTMLInputElement).checked;
+  if (!society || !link) return;
+
+  await addDoc(collection(db, "paper_templates"), {
+    society, venue, link, notes,
+    last_checked: verify ? Timestamp.now() : null,
+    created_at: serverTimestamp(),
+  });
+  document.getElementById("template-modal")!.style.display = "none";
+  loadTemplatesAdmin();
+});
+
+loadChecklistAdmin();
+loadTemplatesAdmin();
+</script>
+
+<style>
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+.settings-section { }
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .625rem 0; border-bottom: .5px solid rgba(36,180,255,.08);
+}
+.settings-row:last-child { border-bottom: none; }
+.stale { color: #fbbf24; }
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(2,8,18,.75);
+  backdrop-filter: blur(6px);
+  align-items: center; justify-content: center;
+}
+.modal { min-width: 360px; max-width: 480px; width: 100%; }
+.form-field { display: flex; flex-direction: column; gap: .35rem; }
+.form-label { font-family: var(--font-mono); font-size: .62rem; color: rgba(208,228,240,.4); letter-spacing: .1em; }
+.form-input { background: rgba(4,12,26,.5); border: .5px solid rgba(36,180,255,.2); border-radius: var(--r-md); padding: .55rem .875rem; font-family: var(--font-body); font-size: .82rem; color: #d0e4f0; width: 100%; }
+.form-input:focus { outline: none; border-color: rgba(36,180,255,.5); }
+.btn-ghost { background: none; border: .5px solid rgba(36,180,255,.2); border-radius: var(--r-md); padding: .5rem 1rem; font-size: .78rem; font-family: var(--font-mono); color: rgba(208,228,240,.5); cursor: pointer; }
+.btn-ghost:hover { border-color: var(--cyan); color: var(--cyan); }
+.btn-primary { background: linear-gradient(135deg, var(--green), #0a9a87); color: #fff; border: none; border-radius: var(--r-md); padding: .6rem 1.25rem; font-size: .82rem; font-weight: 600; font-family: var(--font-display); cursor: pointer; }
+.btn-small { background: rgba(36,180,255,.1); border: .5px solid rgba(36,180,255,.25); border-radius: var(--r-sm); padding: .35rem .875rem; font-size: .68rem; font-family: var(--font-mono); color: var(--cyan); cursor: pointer; }
+.btn-small:hover { background: rgba(36,180,255,.2); }
+.btn-icon { background: none; border: .5px solid rgba(36,180,255,.2); border-radius: var(--r-sm); width: 30px; height: 30px; cursor: pointer; color: var(--cyan); font-size: .85rem; display: flex; align-items: center; justify-content: center; }
+.btn-icon:hover { background: rgba(36,180,255,.1); }
+.check-link { font-family: var(--font-mono); font-size: .65rem; color: var(--cyan); text-decoration: none; }
+.toggle-row { display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+.toggle-row input[type=checkbox] { display: none; }
+.toggle-slider { width: 42px; height: 22px; background: rgba(36,180,255,.15); border: .5px solid rgba(36,180,255,.25); border-radius: 11px; position: relative; }
+.toggle-slider::after { content: ''; position: absolute; left: 2px; top: 2px; width: 16px; height: 16px; border-radius: 50%; background: rgba(36,180,255,.4); transition: left .2s, background .2s; }
+.toggle-row input:checked + .toggle-slider { background: rgba(45,212,191,.25); border-color: var(--cyan); }
+.toggle-row input:checked + .toggle-slider::after { left: 22px; background: var(--cyan); }
+@media (max-width: 720px) { .settings-grid { grid-template-columns: 1fr; } }
+</style>

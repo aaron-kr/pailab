@@ -1,0 +1,283 @@
+---
+// src/pages/admin/students.astro
+import ProtectedLayout from "@/layouts/ProtectedLayout.astro";
+---
+
+<ProtectedLayout
+  title="Students"
+  description="Manage lab members, roles, and assignments."
+  area="admin"
+  requireAdmin={true}
+>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <div id="student-count" style="font-family:var(--font-mono); font-size:.72rem; color:rgba(208,228,240,.4);">Loading…</div>
+    <button class="btn-primary" id="invite-btn">+ Invite member</button>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <input class="form-input" id="search-input" type="text" placeholder="Search by name or email…" />
+    <select class="form-input" id="filter-role" style="width:auto;">
+      <option value="">All roles</option>
+      <option value="admin">Admin</option>
+      <option value="member">Member</option>
+    </select>
+    <select class="form-input" id="filter-status" style="width:auto;">
+      <option value="">All status</option>
+      <option value="active">Active</option>
+      <option value="inactive">Inactive</option>
+    </select>
+  </div>
+
+  <!-- Student list -->
+  <div id="students-list" class="students-list">
+    <div class="checklist-loading">Loading members…</div>
+  </div>
+
+  <!-- Student detail drawer -->
+  <div class="student-drawer" id="student-drawer" style="display:none">
+    <div class="drawer-header">
+      <h2 id="drawer-name">—</h2>
+      <button class="drawer-close" id="drawer-close">✕</button>
+    </div>
+    <div id="drawer-content"></div>
+  </div>
+</ProtectedLayout>
+
+<script>
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import {
+  getFirestore, collection, getDocs, doc, updateDoc, query, orderBy
+} from "firebase/firestore";
+import { app } from "@/lib/firebase";
+
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let allStudents: any[] = [];
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+  await loadStudents();
+});
+
+async function loadStudents() {
+  const snap = await getDocs(query(collection(db, "users"), orderBy("displayName", "asc")));
+  allStudents = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+
+  document.getElementById("student-count")!.textContent =
+    `${allStudents.length} member${allStudents.length !== 1 ? "s" : ""}`;
+
+  renderList(allStudents);
+}
+
+function renderList(students: any[]) {
+  const container = document.getElementById("students-list")!;
+  container.innerHTML = "";
+
+  if (students.length === 0) {
+    container.innerHTML = `<p style="font-size:.78rem; color:rgba(208,228,240,.35);">No members found.</p>`;
+    return;
+  }
+
+  for (const s of students) {
+    const card = document.createElement("div");
+    card.className = "student-card";
+    const initials = (s.displayName ?? s.email ?? "?")
+      .split(" ").map((n: string) => n[0]).join("").slice(0,2).toUpperCase();
+
+    card.innerHTML = `
+      <div class="student-avatar"${s.photoURL ? ` style="background-image:url(${s.photoURL});background-size:cover;"` : ""}>
+        ${s.photoURL ? "" : initials}
+      </div>
+      <div class="student-info">
+        <p class="student-name">${s.displayName ?? "—"}</p>
+        <p class="student-meta">${s.email ?? ""} · ${s.university ?? "No university"}</p>
+        <div style="display:flex; gap:5px; margin-top:4px; flex-wrap:wrap;">
+          ${(s.interests ?? []).map((i: string) => `<span class="tag-mini">${i}</span>`).join("")}
+        </div>
+      </div>
+      <div class="student-actions">
+        <span class="role-badge role-badge--${s.role === "admin" ? "admin" : "member"}">${s.role ?? "member"}</span>
+        <button class="btn-icon" data-uid="${s.uid}" title="Edit">✎</button>
+      </div>
+    `;
+
+    card.querySelector("[data-uid]")?.addEventListener("click", () => openDrawer(s));
+    container.appendChild(card);
+  }
+}
+
+// ── Filter / Search ────────────────────────────────────────
+function applyFilters() {
+  const search = (document.getElementById("search-input") as HTMLInputElement).value.toLowerCase();
+  const role   = (document.getElementById("filter-role") as HTMLSelectElement).value;
+
+  const filtered = allStudents.filter(s => {
+    const matchSearch = !search ||
+      (s.displayName ?? "").toLowerCase().includes(search) ||
+      (s.email ?? "").toLowerCase().includes(search);
+    const matchRole = !role || s.role === role;
+    return matchSearch && matchRole;
+  });
+
+  renderList(filtered);
+}
+
+document.getElementById("search-input")?.addEventListener("input", applyFilters);
+document.getElementById("filter-role")?.addEventListener("change", applyFilters);
+
+// ── Drawer ─────────────────────────────────────────────────
+function openDrawer(student: any) {
+  const drawer = document.getElementById("student-drawer")!;
+  document.getElementById("drawer-name")!.textContent = student.displayName ?? student.email ?? "Unknown";
+
+  const content = document.getElementById("drawer-content")!;
+  content.innerHTML = `
+    <div style="display:flex; flex-direction:column; gap:1rem; padding-top:1rem;">
+      <div class="drawer-field">
+        <label class="form-label">Email</label>
+        <p class="drawer-value">${student.email ?? "—"}</p>
+      </div>
+      <div class="drawer-field">
+        <label class="form-label">University</label>
+        <p class="drawer-value">${student.university ?? "—"}</p>
+      </div>
+      <div class="drawer-field">
+        <label class="form-label">Bio</label>
+        <p class="drawer-value">${student.bio ?? "—"}</p>
+      </div>
+      <div class="drawer-field">
+        <label class="form-label">Interests</label>
+        <p class="drawer-value">${(student.interests ?? []).join(", ") || "—"}</p>
+      </div>
+      <div class="drawer-field">
+        <label class="form-label">Links</label>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          ${student.github   ? `<a href="${student.github}"   target="_blank" class="check-link">GitHub →</a>` : ""}
+          ${student.scholar  ? `<a href="${student.scholar}"  target="_blank" class="check-link">Scholar →</a>` : ""}
+          ${student.linkedin ? `<a href="${student.linkedin}" target="_blank" class="check-link">LinkedIn →</a>` : ""}
+          ${student.website  ? `<a href="${student.website}"  target="_blank" class="check-link">Site →</a>` : ""}
+        </div>
+      </div>
+      <hr style="border:.5px solid rgba(36,180,255,.12);" />
+      <div class="drawer-field">
+        <label class="form-label">Role</label>
+        <div style="display:flex; gap:.75rem; margin-top:.5rem;">
+          <label style="display:flex; align-items:center; gap:.5rem; cursor:pointer; font-size:.8rem;">
+            <input type="radio" name="role-${student.uid}" value="member" ${student.role !== "admin" ? "checked" : ""} />
+            Member
+          </label>
+          <label style="display:flex; align-items:center; gap:.5rem; cursor:pointer; font-size:.8rem;">
+            <input type="radio" name="role-${student.uid}" value="admin" ${student.role === "admin" ? "checked" : ""} />
+            Admin
+          </label>
+        </div>
+      </div>
+      <button class="btn-primary" id="save-role-btn" data-uid="${student.uid}">Save role change</button>
+    </div>
+  `;
+
+  document.getElementById("save-role-btn")?.addEventListener("click", async (e) => {
+    const uid = (e.target as HTMLElement).dataset.uid!;
+    const selected = (document.querySelector(`input[name="role-${uid}"]:checked`) as HTMLInputElement)?.value;
+    if (selected) {
+      await updateDoc(doc(db, "users", uid), { role: selected });
+      alert(`Role updated to "${selected}" for ${student.displayName ?? student.email}. They'll see changes on next login.`);
+      drawer.style.display = "none";
+      await loadStudents();
+    }
+  });
+
+  drawer.style.display = "flex";
+}
+
+document.getElementById("drawer-close")?.addEventListener("click", () => {
+  document.getElementById("student-drawer")!.style.display = "none";
+});
+</script>
+
+<style>
+.filter-bar {
+  display: flex; gap: .75rem; margin-bottom: 1.25rem; flex-wrap: wrap;
+}
+.filter-bar .form-input { flex: 1; min-width: 160px; }
+
+.students-list { display: flex; flex-direction: column; gap: .75rem; }
+
+.student-card {
+  display: flex; align-items: center; gap: 1rem;
+  background: rgba(4,12,26,.5);
+  border: .5px solid rgba(36,180,255,.14);
+  border-radius: var(--r-lg);
+  padding: 1rem 1.25rem;
+  transition: border-color .15s;
+}
+.student-card:hover { border-color: rgba(36,180,255,.3); }
+.student-avatar {
+  width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+  background: rgba(36,180,255,.15);
+  border: .5px solid rgba(36,180,255,.25);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: .9rem; font-weight: 700; color: var(--cyan);
+}
+.student-info { flex: 1; }
+.student-name { font-size: .88rem; font-weight: 500; margin-bottom: 3px; }
+.student-meta { font-size: .72rem; color: rgba(208,228,240,.45); }
+.student-actions { display: flex; align-items: center; gap: .75rem; }
+.btn-icon {
+  background: none; border: .5px solid rgba(36,180,255,.2); border-radius: var(--r-sm);
+  width: 30px; height: 30px; cursor: pointer; color: var(--cyan); font-size: .85rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.btn-icon:hover { background: rgba(36,180,255,.1); }
+
+.student-drawer {
+  position: fixed; right: 0; top: 0; bottom: 0; width: 360px;
+  background: rgba(4,12,26,.92);
+  border-left: .5px solid rgba(36,180,255,.2);
+  backdrop-filter: blur(18px);
+  padding: 1.5rem;
+  flex-direction: column;
+  z-index: 999;
+  overflow-y: auto;
+}
+.drawer-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 1rem;
+  border-bottom: .5px solid rgba(36,180,255,.12);
+}
+.drawer-header h2 { font-size: 1rem; }
+.drawer-close {
+  background: none; border: none; color: rgba(208,228,240,.4);
+  font-size: 1rem; cursor: pointer;
+}
+.drawer-close:hover { color: var(--pink); }
+.drawer-field { display: flex; flex-direction: column; gap: .25rem; }
+.drawer-value { font-size: .82rem; color: rgba(208,228,240,.75); }
+
+/* Shared with other pages */
+.form-input {
+  background: rgba(4,12,26,.5);
+  border: .5px solid rgba(36,180,255,.2);
+  border-radius: var(--r-md);
+  padding: .55rem .875rem;
+  font-family: var(--font-body); font-size: .82rem;
+  color: #d0e4f0;
+}
+.form-label { font-family: var(--font-mono); font-size: .62rem; color: rgba(208,228,240,.4); letter-spacing: .1em; }
+.checklist-loading { font-size: .75rem; color: rgba(208,228,240,.35); }
+.tag-mini { font-family: var(--font-mono); font-size: .6rem; padding: 1px 6px; background: rgba(36,180,255,.1); border-radius: 3px; color: var(--cyan); }
+.check-link { font-family: var(--font-mono); font-size: .65rem; color: var(--cyan); text-decoration: none; }
+.check-link:hover { text-decoration: underline; }
+.role-badge { display: inline-block; font-family: var(--font-mono); font-size: .6rem; padding: 2px 7px; border-radius: 3px; letter-spacing: .08em; }
+.role-badge--admin  { background: rgba(240,18,122,.2); color: var(--pink); }
+.role-badge--member { background: rgba(36,180,255,.1); color: var(--cyan); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--green), #0a9a87);
+  color: #fff; border: none; border-radius: var(--r-md);
+  padding: .65rem 1.5rem; font-size: .82rem; font-weight: 600;
+  font-family: var(--font-display); cursor: pointer; transition: opacity .15s;
+}
+.btn-primary:hover { opacity: .88; }
+</style>

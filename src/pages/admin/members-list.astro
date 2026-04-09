@@ -1,0 +1,124 @@
+---
+// src/pages/admin/members-list.astro
+// Student Access — reads directly from Firestore users collection.
+import ProtectedLayout from "@/layouts/ProtectedLayout.astro";
+---
+
+<ProtectedLayout
+  title="Student Access"
+  description="Members with portal access and their current project assignments."
+  area="admin"
+  requireAdmin={true}
+>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; gap:1rem; flex-wrap:wrap;">
+    <p id="member-count" style="font-family:var(--font-mono); font-size:.68rem; color:rgba(208,228,240,.4);"></p>
+    <div style="display:flex; gap:.75rem;">
+      <input class="form-input" id="search-input" type="text" placeholder="Search…" style="width:200px;" />
+      <a href="/admin/students" class="btn-small">Full management →</a>
+    </div>
+  </div>
+
+  <div class="app-card" style="padding:0; overflow:hidden;">
+    <div class="members-head">
+      <span>Member</span>
+      <span>University</span>
+      <span>Interests</span>
+      <span>Role</span>
+      <span>Visible</span>
+    </div>
+    <div id="members-body">
+      <div style="padding:1.5rem; font-size:.75rem; color:rgba(208,228,240,.35);">Loading members…</div>
+    </div>
+  </div>
+</ProtectedLayout>
+
+<script>
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getFirestore, collection, getDocs, query, orderBy } from "firebase/firestore";
+import { app } from "@/lib/firebase";
+
+const auth = getAuth(app);
+const db   = getFirestore(app);
+let allUsers: any[] = [];
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+  const snap = await getDocs(query(collection(db, "users"), orderBy("displayName", "asc")));
+  allUsers = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+  document.getElementById("member-count")!.textContent =
+    `${allUsers.length} member${allUsers.length !== 1 ? "s" : ""}`;
+  render(allUsers);
+});
+
+function render(users: any[]) {
+  const body = document.getElementById("members-body")!;
+  if (users.length === 0) {
+    body.innerHTML = `<div style="padding:1.5rem; font-size:.75rem; color:rgba(208,228,240,.35);">No members found.</div>`;
+    return;
+  }
+  body.innerHTML = "";
+  for (const u of users) {
+    const initials = (u.displayName ?? u.email ?? "?")
+      .split(" ").map((n: string) => n[0]).join("").slice(0,2).toUpperCase();
+    const row = document.createElement("div");
+    row.className = "members-row";
+    row.innerHTML = `
+      <div style="display:flex; align-items:center; gap:.75rem;">
+        <div class="mini-avatar"${u.photoURL ? ` style="background-image:url(${u.photoURL});background-size:cover;"` : ""}>
+          ${u.photoURL ? "" : initials}
+        </div>
+        <div>
+          <p style="font-size:.82rem; font-weight:500;">${u.displayName ?? "—"}</p>
+          <p style="font-family:var(--font-mono); font-size:.65rem; color:rgba(208,228,240,.4);">${u.email ?? ""}</p>
+        </div>
+      </div>
+      <span style="font-size:.75rem; color:rgba(208,228,240,.55);">${u.university ?? "—"}</span>
+      <div style="display:flex; gap:4px; flex-wrap:wrap;">
+        ${(u.interests ?? []).slice(0,3).map((i: string) => `<span class="tag-mini">${i}</span>`).join("")}
+      </div>
+      <span class="role-badge role-badge--${u.role === "admin" ? "admin" : "member"}">${u.role ?? "member"}</span>
+      <span style="font-size:.75rem; color:${u.public_profile ? "var(--green-glow)" : "rgba(208,228,240,.25)"};">
+        ${u.public_profile ? "✓ Public" : "Hidden"}
+      </span>
+    `;
+    row.addEventListener("click", () => {
+      window.location.href = "/admin/students";
+    });
+    row.style.cursor = "pointer";
+    body.appendChild(row);
+  }
+}
+
+// Search
+document.getElementById("search-input")?.addEventListener("input", (e) => {
+  const q = (e.target as HTMLInputElement).value.toLowerCase();
+  render(q ? allUsers.filter(u =>
+    (u.displayName ?? "").toLowerCase().includes(q) ||
+    (u.email ?? "").toLowerCase().includes(q) ||
+    (u.university ?? "").toLowerCase().includes(q)
+  ) : allUsers);
+});
+</script>
+
+<style>
+.members-head, .members-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 2fr 1fr 1fr;
+  gap: 1rem;
+  padding: .75rem 1.5rem;
+  border-bottom: .5px solid rgba(36,180,255,.08);
+  align-items: center;
+}
+.members-head { font-family:var(--font-mono); font-size:.6rem; color:rgba(208,228,240,.3); letter-spacing:.1em; background:rgba(4,12,26,.3); }
+.members-row:last-child { border-bottom: none; }
+.members-row:hover { background: rgba(36,180,255,.04); }
+.mini-avatar { width:32px; height:32px; border-radius:50%; flex-shrink:0; background:rgba(36,180,255,.15); border:.5px solid rgba(36,180,255,.25); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-size:.65rem; font-weight:700; color:var(--cyan); }
+.tag-mini { font-family:var(--font-mono); font-size:.58rem; padding:1px 5px; background:rgba(36,180,255,.1); border-radius:3px; color:var(--cyan); }
+.role-badge { display:inline-block; font-family:var(--font-mono); font-size:.6rem; padding:2px 6px; border-radius:3px; }
+.role-badge--admin  { background:rgba(240,18,122,.2); color:var(--pink); }
+.role-badge--member { background:rgba(36,180,255,.1); color:var(--cyan); }
+.form-input { background:rgba(4,12,26,.5); border:.5px solid rgba(36,180,255,.2); border-radius:var(--r-md); padding:.5rem .875rem; font-family:var(--font-body); font-size:.82rem; color:#d0e4f0; }
+.form-input:focus { outline:none; border-color:rgba(36,180,255,.5); }
+.btn-small { background:rgba(36,180,255,.1); border:.5px solid rgba(36,180,255,.25); border-radius:var(--r-sm); padding:.35rem .875rem; font-size:.68rem; font-family:var(--font-mono); color:var(--cyan); cursor:pointer; text-decoration:none; white-space:nowrap; }
+@media (max-width:800px) { .members-head span:nth-child(3), .members-row > *:nth-child(3), .members-head span:nth-child(5), .members-row > *:nth-child(5) { display:none; } .members-head, .members-row { grid-template-columns: 2fr 1.5fr 1fr; } }
+</style>

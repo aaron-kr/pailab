@@ -1,86 +1,125 @@
 ---
-/**
- * src/pages/admin/index.astro
- * ------------------------------------------------------------------
- * Admin dashboard. Only accessible by the ADMIN_EMAIL account.
- * Links to the research tracker and any other admin tools.
- * ------------------------------------------------------------------
- */
-import ProtectedLayout from "../../layouts/ProtectedLayout.astro";
+// src/pages/admin/index.astro
+// Build-time stats from content collections.
+// Runtime stats (members, grants) loaded from Firestore via client script.
+import ProtectedLayout from "@/layouts/ProtectedLayout.astro";
+import { getCollection } from "astro:content";
+
+const papers   = await getCollection("research");
+const projects = await getCollection("projects");
+const notes    = await getCollection("notes");
+
+const published  = papers.filter(p => p.data.status === "published").length;
+const inReview   = papers.filter(p => p.data.status === "in-review").length;
+const activeProj = projects.filter(p => p.data.status === "active").length;
 ---
 
-<ProtectedLayout role="admin" title="Admin">
-  <div class="container" style="padding: 2rem 1rem; max-width: 1000px; margin: 0 auto;">
+<ProtectedLayout title="Admin Dashboard" area="admin" requireAdmin={true}>
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; flex-wrap:wrap; gap:1rem;">
-      <div>
-        <h1 style="margin:0; font-size:1.6rem;">Admin Dashboard</h1>
-        <p style="margin:0.25rem 0 0; color:var(--fg-muted); font-size:0.875rem;">
-          Signed in as <strong data-user-email></strong>
-          &nbsp;<span style="font-size:0.7rem; padding:2px 8px; border-radius:20px; background:var(--accent-bg); color:var(--accent-text);">admin</span>
-        </p>
-      </div>
-      <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-        <a href="/members" style="padding:0.5rem 1rem; border:1px solid var(--border); border-radius:6px; color:var(--fg-muted); text-decoration:none; font-size:0.875rem;">Members view</a>
-        <button data-signout style="padding:0.5rem 1rem; border:1px solid var(--border); border-radius:6px; background:transparent; color:var(--fg-muted); cursor:pointer; font-size:0.875rem;">Sign out</button>
-      </div>
+  <div class="app-stat-grid" style="margin-bottom:1.75rem;">
+    <div class="app-stat">
+      <div class="app-stat-num">{published}</div>
+      <div class="app-stat-label">PUBLISHED PAPERS</div>
     </div>
-
-    <!-- Admin nav cards -->
-    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:1rem;">
-
-      <a href="/admin/tracker"
-         style="display:block; padding:1.5rem; background:var(--surface); border:1px solid var(--accent); border-radius:10px; text-decoration:none; color:var(--fg);">
-        <div style="font-size:1.4rem; margin-bottom:0.5rem;">📋</div>
-        <div style="font-weight:600; margin-bottom:0.25rem;">Research Tracker</div>
-        <div style="font-size:0.8rem; color:var(--fg-muted);">All ideas, statuses, PAI connections, targets</div>
-      </a>
-
-      <a href="/admin/members-list"
-         style="display:block; padding:1.5rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; text-decoration:none; color:var(--fg);">
-        <div style="font-size:1.4rem; margin-bottom:0.5rem;">👥</div>
-        <div style="font-weight:600; margin-bottom:0.25rem;">Student Access</div>
-        <div style="font-size:0.8rem; color:var(--fg-muted);">Add / remove member email addresses</div>
-      </a>
-
-      <a href="/admin/publications"
-         style="display:block; padding:1.5rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; text-decoration:none; color:var(--fg);">
-        <div style="font-size:1.4rem; margin-bottom:0.5rem;">📄</div>
-        <div style="font-weight:600; margin-bottom:0.25rem;">Publications</div>
-        <div style="font-size:0.8rem; color:var(--fg-muted);">Manage the public research collection</div>
-      </a>
-
-      <a href="/admin/grants"
-         style="display:block; padding:1.5rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; text-decoration:none; color:var(--fg);">
-        <div style="font-size:1.4rem; margin-bottom:0.5rem;">💰</div>
-        <div style="font-weight:600; margin-bottom:0.25rem;">Grant Tracker</div>
-        <div style="font-size:0.8rem; color:var(--fg-muted);">Deadlines, statuses, notes for funding apps</div>
-      </a>
-
+    <div class="app-stat">
+      <div class="app-stat-num">{inReview}</div>
+      <div class="app-stat-label">IN REVIEW</div>
     </div>
-
-    <!-- Quick stats — populated by client script -->
-    <h2 style="font-size:1rem; font-weight:600; margin:2.5rem 0 0.75rem; color:var(--fg-muted); text-transform:uppercase; letter-spacing:0.05em;">Quick Stats</h2>
-    <div id="stats-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:0.75rem;">
-      <div style="padding:1rem; background:var(--surface); border-radius:8px; text-align:center;">
-        <div id="stat-total" style="font-size:1.8rem; font-weight:700; color:var(--accent);">—</div>
-        <div style="font-size:0.75rem; color:var(--fg-muted);">Total ideas</div>
-      </div>
-      <div style="padding:1rem; background:var(--surface); border-radius:8px; text-align:center;">
-        <div id="stat-active" style="font-size:1.8rem; font-weight:700; color:var(--accent);">—</div>
-        <div style="font-size:0.75rem; color:var(--fg-muted);">In progress ▶️</div>
-      </div>
-      <div style="padding:1rem; background:var(--surface); border-radius:8px; text-align:center;">
-        <div id="stat-done" style="font-size:1.8rem; font-weight:700; color:var(--accent);">—</div>
-        <div style="font-size:0.75rem; color:var(--fg-muted);">Completed ✅</div>
-      </div>
-      <div style="padding:1rem; background:var(--surface); border-radius:8px; text-align:center;">
-        <div id="stat-pai" style="font-size:1.8rem; font-weight:700; color:var(--accent);">—</div>
-        <div style="font-size:0.75rem; color:var(--fg-muted);">PAI-connected</div>
-      </div>
+    <div class="app-stat">
+      <div class="app-stat-num">{activeProj}</div>
+      <div class="app-stat-label">ACTIVE PROJECTS</div>
     </div>
-
+    <div class="app-stat">
+      <div class="app-stat-num" id="stat-members"><span class="stat-loading">…</span></div>
+      <div class="app-stat-label">MEMBERS</div>
+    </div>
+    <div class="app-stat">
+      <div class="app-stat-num">{notes.length}</div>
+      <div class="app-stat-label">NOTES</div>
+    </div>
+    <div class="app-stat">
+      <div class="app-stat-num" id="stat-grants"><span class="stat-loading">…</span></div>
+      <div class="app-stat-label">ACTIVE GRANTS</div>
+    </div>
   </div>
+
+  <div class="dash-grid">
+    <a href="/admin/tracker"      class="app-card dash-shortcut"><span class="ds-icon">⊞</span><div><p class="app-card-title">RESEARCH TRACKER</p><p class="ds-desc">Track ideas, paper status, and deadlines.</p></div><span class="ds-arrow">→</span></a>
+    <a href="/admin/members-list" class="app-card dash-shortcut"><span class="ds-icon">◉</span><div><p class="app-card-title">STUDENT ACCESS</p><p class="ds-desc">View member profiles and project assignments.</p></div><span class="ds-arrow">→</span></a>
+    <a href="/admin/publications"  class="app-card dash-shortcut"><span class="ds-icon">📄</span><div><p class="app-card-title">PUBLICATIONS</p><p class="ds-desc">Manage paper records and DOI links.</p></div><span class="ds-arrow">→</span></a>
+    <a href="/admin/grants"        class="app-card dash-shortcut"><span class="ds-icon">💰</span><div><p class="app-card-title">GRANT TRACKER</p><p class="ds-desc">Track funding applications and deadlines.</p></div><span class="ds-arrow">→</span></a>
+    <a href="/admin/content"       class="app-card dash-shortcut"><span class="ds-icon">≡</span><div><p class="app-card-title">CONTENT</p><p class="ds-desc">Manage lab projects and templates.</p></div><span class="ds-arrow">→</span></a>
+    <a href="/admin/settings"      class="app-card dash-shortcut"><span class="ds-icon">⚙</span><div><p class="app-card-title">SETTINGS</p><p class="ds-desc">Configure onboarding checklist.</p></div><span class="ds-arrow">→</span></a>
+  </div>
+
+  <div class="app-card" style="margin-top:1.5rem;">
+    <p class="app-card-title">RECENT PAPERS</p>
+    <div class="papers-list">
+      {papers.sort((a,b) => b.data.year - a.data.year).slice(0,5).map(p => (
+        <div class="paper-row">
+          <div>
+            <p class="paper-title">{p.data.title}</p>
+            <p class="paper-meta">{p.data.venue} · {p.data.year}</p>
+          </div>
+          <span class:list={["status-pill", `status-${p.data.status}`]}>{p.data.status}</span>
+        </div>
+      ))}
+    </div>
+    <a href="/admin/publications" class="view-all-link">All publications →</a>
+  </div>
+
 </ProtectedLayout>
 
-<script src="../../scripts/admin-dashboard.ts"></script>
+<script>
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getFirestore, collection, getDocs, query, where } from "firebase/firestore";
+import { app } from "@/lib/firebase";
+
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+
+  // Member count from Firestore
+  try {
+    const membersSnap = await getDocs(query(collection(db, "users"), where("role", "==", "member")));
+    document.getElementById("stat-members")!.textContent = String(membersSnap.size);
+  } catch {
+    document.getElementById("stat-members")!.textContent = "—";
+  }
+
+  // Active grants count from Firestore
+  try {
+    const grantsSnap = await getDocs(
+      query(collection(db, "grants"), where("status", "in", ["active", "awarded"]))
+    );
+    document.getElementById("stat-grants")!.textContent = String(grantsSnap.size);
+  } catch {
+    document.getElementById("stat-grants")!.textContent = "—";
+  }
+});
+</script>
+
+<style>
+.dash-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+.dash-shortcut { display:flex; align-items:flex-start; gap:.875rem; text-decoration:none; transition:border-color .15s; cursor:pointer; }
+.dash-shortcut:hover { border-color:rgba(36,180,255,.4); text-decoration:none; }
+.ds-icon { font-size:1.3rem; flex-shrink:0; padding-top:.1rem; }
+.ds-desc { font-size:.72rem; color:rgba(208,228,240,.45); margin-top:3px; line-height:1.5; }
+.ds-arrow { color:var(--cyan); opacity:.35; font-size:1rem; margin-left:auto; padding-top:.1rem; }
+.dash-shortcut:hover .ds-arrow { opacity:1; }
+.papers-list { display:flex; flex-direction:column; }
+.paper-row { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.65rem 0; border-bottom:.5px solid rgba(36,180,255,.07); }
+.paper-row:last-child { border-bottom:none; }
+.paper-title { font-size:.82rem; font-weight:500; margin-bottom:3px; }
+.paper-meta  { font-size:.68rem; color:rgba(208,228,240,.4); font-family:var(--font-mono); }
+.status-pill { font-family:var(--font-mono); font-size:.6rem; border:.5px solid; border-radius:3px; padding:2px 7px; white-space:nowrap; }
+.status-published { color:var(--green-glow); border-color:var(--green-glow); }
+.status-in-review  { color:var(--cyan);      border-color:var(--cyan); }
+.status-preprint   { color:var(--blue);      border-color:var(--blue); }
+.view-all-link { display:inline-block; margin-top:1rem; font-family:var(--font-mono); font-size:.68rem; color:var(--cyan); }
+.stat-loading { color:rgba(208,228,240,.25); font-size:.7em; }
+@media (max-width:900px) { .dash-grid { grid-template-columns:1fr 1fr; } }
+@media (max-width:600px) { .dash-grid { grid-template-columns:1fr; } }
+</style>

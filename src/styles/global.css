@@ -604,7 +604,10 @@ nav.site-nav{
    PROTECTED AREA — App shell (admin + members)
    Same dark aesthetic as the login page.
    ════════════════════════════════════════════════════════════ */
-
+.members-logo-img {
+  display: inline-block;
+  max-width: 40px;
+}
 .app-body {
   background: var(--bg-deep);
   min-height: 100vh;
@@ -669,9 +672,16 @@ nav.site-nav{
 }
 .app-logo-area {
   font-family: var(--font-mono);
-  font-size: .6rem; font-weight: 400;
+  font-size: .8rem; font-weight: 400;
+  position: relative; bottom: 6px;
   color: rgba(36,220,255,.5);
   letter-spacing: .14em;
+}
+.app-logo-area::after {
+  content: '';
+  display: block; width: 100px; height: 1px;
+  background: rgba(36,220,255,.5);
+  margin-right: 6px;
 }
 
 .app-nav {

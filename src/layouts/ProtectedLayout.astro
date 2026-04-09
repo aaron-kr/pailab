@@ -1,46 +1,43 @@
 ---
 // src/layouts/ProtectedLayout.astro
-// App shell for /admin and /members pages.
-// Uses the exact same login-page dark mesh + grid aesthetic so the whole
-// authenticated area feels like one cohesive dark-mode experience.
-//
-// Sidebar nav items are passed via the `navItems` prop or you can
-// override the entire sidebar with the "sidebar" slot.
-
 import "@/styles/global.css";
 
-interface NavItem {
-  href: string;
-  label: string;
-  icon?: string;
-}
+interface NavItem { href: string; label: string; icon: string; }
 
 interface Props {
   title: string;
   description?: string;
   activeHref?: string;
-  area?: "admin" | "members"; // controls which nav links show
+  area?: "admin" | "members" | "auto";
+  requireAdmin?: boolean;
 }
 
-const { title, description, activeHref, area = "members" } = Astro.props;
+const { title, description, activeHref, area = "auto", requireAdmin = false } = Astro.props;
+
+const resolvedArea = area !== "auto"
+  ? area
+  : Astro.url.pathname.startsWith("/admin") ? "admin" : "members";
 
 const adminNav: NavItem[] = [
-  { href: "/admin",           label: "Dashboard",   icon: "◈" },
-  { href: "/admin/tracker",   label: "Tracker",     icon: "⊞" },
-  { href: "/admin/students",  label: "Students",    icon: "◉" },
-  { href: "/admin/content",   label: "Content",     icon: "≡" },
-  { href: "/admin/settings",  label: "Settings",    icon: "⚙" },
+  { href: "/admin",              label: "Dashboard",    icon: "◈" },
+  { href: "/admin/tracker",      label: "Tracker",      icon: "⊞" },
+  { href: "/admin/members-list", label: "Members",      icon: "◉" },
+  { href: "/admin/publications", label: "Publications", icon: "📄" },
+  { href: "/admin/grants",       label: "Grants",       icon: "💰" },
+  { href: "/admin/students",     label: "Student Mgmt", icon: "≋" },
+  { href: "/admin/content",      label: "Content",      icon: "≡" },
+  { href: "/admin/settings",     label: "Settings",     icon: "⚙" },
 ];
 
 const membersNav: NavItem[] = [
-  { href: "/members",          label: "Dashboard",   icon: "◈" },
-  { href: "/members/projects", label: "Projects",    icon: "⊞" },
-  { href: "/members/notes",    label: "Notes",       icon: "≡" },
-  { href: "/members/profile",  label: "Profile",     icon: "◉" },
+  { href: "/members",           label: "Dashboard", icon: "◈" },
+  { href: "/members/projects",  label: "Projects",  icon: "⊞" },
+  { href: "/members/notes",     label: "Notes",     icon: "≡" },
+  { href: "/members/profile",   label: "Profile",   icon: "◉" },
 ];
 
-const navItems = area === "admin" ? adminNav : membersNav;
-const siteLabel = area === "admin" ? "ADMIN" : "MEMBERS";
+const navItems  = resolvedArea === "admin" ? adminNav : membersNav;
+const siteLabel = resolvedArea === "admin" ? "ADMIN" : "MEMBERS";
 ---
 
 <!doctype html>
@@ -51,31 +48,22 @@ const siteLabel = area === "admin" ? "ADMIN" : "MEMBERS";
   <meta name="robots" content="noindex, nofollow" />
   <title>{title} · PAI LAB</title>
   {description && <meta name="description" content={description} />}
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-
-  <!-- Always dark in protected area — no flash -->
   <script is:inline>document.documentElement.setAttribute("data-theme","dark");</script>
 </head>
 
 <body class="app-body">
-
-  <!-- ── Background layer (fixed, behind everything) ───── -->
   <div class="app-mesh-bg" aria-hidden="true"></div>
   <div class="app-mesh-grid" aria-hidden="true"></div>
 
-  <!-- ── App shell ─────────────────────────────────────── -->
   <div class="app-shell">
-
-    <!-- Sidebar -->
     <aside class="app-sidebar">
       <div class="app-sidebar-top">
         <a href="/" class="app-logo">
-          <span class="app-logo-wordmark">PAI</span>
+          <img src="/favicon.svg" alt="PAI LAB" class="members-logo-img" />
           <span class="app-logo-area">{siteLabel}</span>
         </a>
       </div>
@@ -84,12 +72,28 @@ const siteLabel = area === "admin" ? "ADMIN" : "MEMBERS";
         {navItems.map((item) => (
           <a
             href={item.href}
-            class:list={["app-nav-link", { active: activeHref === item.href }]}
+            class:list={["app-nav-link", {
+              active: activeHref === item.href || Astro.url.pathname === item.href
+            }]}
           >
-            {item.icon && <span class="app-nav-icon">{item.icon}</span>}
+            <span class="app-nav-icon">{item.icon}</span>
             <span>{item.label}</span>
           </a>
         ))}
+
+        <div class="app-nav-divider"></div>
+
+        {resolvedArea === "admin" ? (
+          <a href="/members" class="app-nav-link app-nav-link--dim">
+            <span class="app-nav-icon">↓</span>
+            <span>Members view</span>
+          </a>
+        ) : (
+          <a href="/admin" class="app-nav-link app-nav-link--dim" id="admin-link" style="display:none">
+            <span class="app-nav-icon">↑</span>
+            <span>Admin view</span>
+          </a>
+        )}
       </nav>
 
       <div class="app-sidebar-bottom">
@@ -97,16 +101,14 @@ const siteLabel = area === "admin" ? "ADMIN" : "MEMBERS";
           <span class="app-nav-icon">←</span>
           <span>Public site</span>
         </a>
-        <button id="app-logout" class="app-nav-link app-logout">
+        <button id="app-logout" class="app-nav-link app-logout" type="button">
           <span class="app-nav-icon">⏻</span>
           <span>Sign out</span>
         </button>
       </div>
     </aside>
 
-    <!-- Main content area -->
     <div class="app-main-wrap">
-      <!-- Top bar -->
       <header class="app-topbar">
         <div class="app-topbar-title">
           <h1>{title}</h1>
@@ -114,49 +116,40 @@ const siteLabel = area === "admin" ? "ADMIN" : "MEMBERS";
         </div>
         <div class="app-topbar-actions">
           <slot name="topbar-actions" />
+          <button id="app-logout-top" class="app-logout-btn" type="button">Sign out</button>
           <div id="app-user-badge" class="app-user-badge">
-            <span class="app-user-avatar">AS</span>
+            <span class="app-user-avatar" id="app-user-avatar">—</span>
           </div>
         </div>
       </header>
 
-      <!-- Page content -->
       <main class="app-main">
         <slot />
       </main>
     </div>
-
   </div>
 
-  <script>
-    import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
-    import { app } from "@/lib/firebase";
+  <div id="layout-config"
+    data-require-admin={requireAdmin ? "true" : "false"}
+    data-resolved-area={resolvedArea}
+    style="display:none"
+  ></div>
 
-    const auth = getAuth(app);
-
-    // Guard: redirect to login if not authenticated
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = "/login";
-        return;
-      }
-      // Update avatar with user initials
-      const badge = document.getElementById("app-user-badge");
-      if (badge && user.displayName) {
-        const initials = user.displayName.split(" ").map(n => n[0]).join("").slice(0,2).toUpperCase();
-        badge.querySelector(".app-user-avatar")!.textContent = initials;
-      }
-      if (badge && user.email) {
-        badge.setAttribute("title", user.email);
-      }
-    });
-
-    // Logout
-    document.getElementById("app-logout")?.addEventListener("click", async () => {
-      await signOut(auth);
-      window.location.href = "/login";
-    });
-  </script>
-
+  <!-- Single shared auth script -->
+  <script src="../scripts/protected.ts"></script>
 </body>
 </html>
+
+<style>
+.app-logout-btn {
+  background: none; border: .5px solid rgba(240,18,122,.25);
+  border-radius: var(--r-sm); padding: .35rem .875rem;
+  font-family: var(--font-mono); font-size: .65rem;
+  color: rgba(240,18,122,.6); cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.app-logout-btn:hover { background: rgba(240,18,122,.1); color: var(--pink); }
+.app-nav-divider { height: .5px; background: rgba(36,180,255,.12); margin: .5rem .75rem; }
+.app-nav-link--dim { opacity: .45; font-size: .68rem !important; }
+.app-nav-link--dim:hover { opacity: 1; }
+</style>

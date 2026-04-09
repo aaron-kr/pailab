@@ -1,0 +1,158 @@
+---
+// src/components/TeamSection.astro
+// Reads member profiles directly from Firestore users collection.
+// No separate /content/team/ .md files needed.
+// Shows members with public_profile: true, sorted by team_order.
+//
+// To enable on homepage: add <TeamSection /> to src/pages/index.astro
+// To disable: remove that one line.
+---
+
+<section class="section team-section full-bleed" id="team">
+  <div class="container">
+    <div class="section-header">
+      <span class="sec-num">07</span>
+      <h2 class="section-title">Team</h2>
+    </div>
+
+    <div class="team-grid" id="team-grid">
+      <!-- PI always shown statically — no Firestore needed -->
+      <div class="team-card">
+        <div class="team-avatar pi-avatar">AS</div>
+        <div class="team-info">
+          <p class="team-name">Aaron Snowberger</p>
+          <p class="team-role">Principal Investigator</p>
+          <div style="display:flex; gap:5px; flex-wrap:wrap; justify-content:center; margin-top:.5rem;">
+            <span class="tag">Physical AI</span>
+            <span class="tag">Edge ML</span>
+          </div>
+          <div class="team-links">
+            <a href="https://aaron.kr" target="_blank" class="team-link">aaron.kr ↗</a>
+          </div>
+        </div>
+      </div>
+      <!-- Member cards injected here by script -->
+    </div>
+
+    <div class="section-footer">
+      <a href="/team" class="btn-slide btn-slide-cyan">Full team page →</a>
+    </div>
+  </div>
+</section>
+
+<script>
+// Load from Firestore directly — same query as /team page
+import { initializeApp, getApps } from "firebase/app";
+import { getFirestore, collection, getDocs, query, where, orderBy } from "firebase/firestore";
+
+let fbApp = getApps()[0];
+if (!fbApp) {
+  fbApp = initializeApp({
+    apiKey:            import.meta.env.PUBLIC_FIREBASE_API_KEY,
+    authDomain:        import.meta.env.PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId:         import.meta.env.PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket:     import.meta.env.PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId:             import.meta.env.PUBLIC_FIREBASE_APP_ID,
+  });
+}
+const db = getFirestore(fbApp);
+
+(async () => {
+  const grid = document.getElementById("team-grid");
+  if (!grid) return;
+
+  try {
+    const q = query(
+      collection(db, "users"),
+      where("public_profile", "==", true),
+      orderBy("team_order", "asc")
+    );
+    const snap = await getDocs(q);
+    if (snap.empty) return;
+
+    for (const d of snap.docs) {
+      const m = d.data();
+      const initials = (m.displayName ?? "?")
+        .split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase();
+
+      const card = document.createElement("div");
+      card.className = "team-card";
+
+      const avatarHtml = m.photoURL
+        ? `<img src="${m.photoURL}" alt="${m.displayName ?? ""}" class="team-avatar team-avatar--photo" />`
+        : `<div class="team-avatar">${initials}</div>`;
+
+      const interestTags = (m.interests ?? []).slice(0, 3)
+        .map((i: string) => `<span class="tag">${i}</span>`).join("");
+
+      const links = [
+        m.github  ? `<a href="${m.github}"  target="_blank" class="team-link">GitHub ↗</a>`  : "",
+        m.website ? `<a href="${m.website}" target="_blank" class="team-link">Site ↗</a>`   : "",
+        m.scholar ? `<a href="${m.scholar}" target="_blank" class="team-link">Scholar ↗</a>`: "",
+      ].filter(Boolean).join("");
+
+      card.innerHTML = `
+        ${avatarHtml}
+        <div class="team-info">
+          <p class="team-name">${m.displayName ?? "—"}</p>
+          <p class="team-role">${m.role !== "admin" ? (m.university ?? "Lab Member") : "Faculty"}</p>
+          ${interestTags ? `<div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin-top:.5rem;">${interestTags}</div>` : ""}
+          ${links ? `<div class="team-links">${links}</div>` : ""}
+        </div>
+      `;
+      grid.appendChild(card);
+    }
+  } catch (e) {
+    // Silently fail — section just shows PI only
+  }
+})();
+</script>
+
+<style>
+.team-section { background: var(--bg-subtle); padding: 0; }
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1.25rem;
+  margin-top: .5rem;
+}
+.team-card {
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center;
+  padding: 1.5rem 1rem;
+  background: var(--bg-surface);
+  border: .5px solid var(--border);
+  border-radius: var(--r-lg);
+  transition: border-color .2s, transform .2s;
+}
+.team-card:hover { border-color: var(--border-2); transform: translateY(-3px); }
+.team-avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--bg-subtle);
+  border: 1.5px solid var(--border-2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 1.2rem; font-weight: 800;
+  color: var(--accent); margin-bottom: .875rem; flex-shrink: 0;
+}
+.pi-avatar {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, var(--bg-deep) 0%, var(--bg-subtle) 100%);
+}
+.team-avatar--photo {
+  width: 72px; height: 72px; border-radius: 50%;
+  object-fit: cover; margin-bottom: .875rem;
+  border: 1.5px solid var(--border-2);
+  display: block;
+}
+.team-info { width: 100%; }
+.team-name { font-size: .88rem; font-weight: 600; margin-bottom: 2px; }
+.team-role { font-family: var(--font-mono); font-size: .6rem; color: var(--text-3); letter-spacing: .06em; }
+.team-links {
+  display: flex; justify-content: center; gap: .5rem;
+  margin-top: .625rem; flex-wrap: wrap;
+}
+.team-link { font-family: var(--font-mono); font-size: .6rem; color: var(--accent); text-decoration: none; }
+.team-link:hover { text-decoration: underline; }
+.section-footer { margin-top: 2rem; text-align: right; }
+</style>

@@ -1,0 +1,83 @@
+---
+// src/pages/members/notes.astro
+import ProtectedLayout from "@/layouts/ProtectedLayout.astro";
+---
+
+<ProtectedLayout title="Notes" description="Lab notes and shared resources." area="members">
+  <div style="margin-bottom:1.5rem;">
+    <p style="font-size:.82rem; color:rgba(208,228,240,.55); line-height:1.75;">
+      These are the public lab notes. To write a new note, create a Markdown file in
+      <code style="font-family:var(--font-mono); font-size:.78rem; background:rgba(36,180,255,.1); padding:2px 6px; border-radius:4px;">src/content/notes/</code>
+      and push to GitHub. Your note will appear on the
+      <a href="/notes" style="color:var(--cyan);">public Notes page</a> once deployed.
+    </p>
+  </div>
+
+  <div class="app-card" style="margin-bottom:1.5rem;">
+    <p class="app-card-title">QUICK REFERENCE — NEW NOTE FRONTMATTER</p>
+    <pre class="code-block">---
+title: "Your Post Title"
+title_ko: "제목 (선택)"
+pubDate: 2025-06-01
+lang: "both"            # en | ko | both
+tags: ["Tutorial", "ROS 2"]
+summary: "One-sentence description."
+naver_url: "https://blog.naver.com/aaron_kr/..."   # if lang: both
+
+# Optional images:
+featuredImage: "/images/posts/hero.jpg"
+headerBgImage: "/images/posts/bg.jpg"
+---
+
+Your Markdown content here.</pre>
+  </div>
+
+  <div class="app-card">
+    <p class="app-card-title">RECENT NOTES</p>
+    <div id="notes-list">
+      <div style="font-size:.75rem; color:rgba(208,228,240,.35);">Loading…</div>
+    </div>
+  </div>
+</ProtectedLayout>
+
+<script>
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { app } from "@/lib/firebase";
+import { getAuth as ga } from "firebase/auth";
+
+// Notes come from the static Astro content system, not Firestore.
+// We just fetch the public /notes index and parse it for display.
+const auth = ga(app);
+onAuthStateChanged(auth, async () => {
+  const container = document.getElementById("notes-list")!;
+  try {
+    const res = await fetch("/notes");
+    if (!res.ok) throw new Error();
+    // Just link to the public page
+    container.innerHTML = `
+      <p style="font-size:.82rem; color:rgba(208,228,240,.55);">
+        Notes are published on the public site.
+        <a href="/notes" target="_blank" style="color:var(--cyan);">View all notes →</a>
+      </p>
+    `;
+  } catch {
+    container.innerHTML = `<a href="/notes" style="color:var(--cyan); font-size:.82rem;">View notes on public site →</a>`;
+  }
+});
+</script>
+
+<style>
+.code-block {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  color: rgba(208,228,240,.7);
+  background: rgba(4,12,26,.5);
+  border: .5px solid rgba(36,180,255,.15);
+  border-radius: var(--r-md);
+  padding: 1rem;
+  overflow-x: auto;
+  white-space: pre;
+  line-height: 1.7;
+  margin-top: .875rem;
+}
+</style>

@@ -1,0 +1,154 @@
+---
+// src/pages/admin/publications.astro
+// Publications manager.
+// Displays the static content/research/ papers and lets you manage
+// external metadata (DOI, PDF link, notes) stored in localStorage
+// (no Firestore needed — the source of truth is the Markdown files).
+
+import ProtectedLayout from "@/layouts/ProtectedLayout.astro";
+import { getCollection } from "astro:content";
+
+const papers = (await getCollection("research")).sort((a,b) => b.data.year - a.data.year);
+---
+
+<ProtectedLayout
+  title="Publications"
+  description="Lab paper records and metadata."
+  area="admin"
+  requireAdmin={true}
+>
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+    <p style="font-family:var(--font-mono); font-size:.68rem; color:rgba(208,228,240,.4);">
+      {papers.length} paper{papers.length !== 1 ? "s" : ""} · Source: <code style="background:rgba(36,180,255,.1);padding:1px 5px;border-radius:3px;">src/content/research/</code>
+    </p>
+    <div style="display:flex; gap:.75rem;">
+      <a href="/research" target="_blank" class="btn-small">View public page ↗</a>
+    </div>
+  </div>
+
+  <!-- Status filter -->
+  <div style="display:flex; gap:.5rem; margin-bottom:1.25rem; flex-wrap:wrap;">
+    <button class="filter-btn active" data-filter="all">All ({papers.length})</button>
+    <button class="filter-btn" data-filter="published">Published ({papers.filter(p => p.data.status === 'published').length})</button>
+    <button class="filter-btn" data-filter="in-review">In Review ({papers.filter(p => p.data.status === 'in-review').length})</button>
+    <button class="filter-btn" data-filter="preprint">Preprint ({papers.filter(p => p.data.status === 'preprint').length})</button>
+  </div>
+
+  <!-- Papers table -->
+  <div class="app-card" style="padding:0; overflow:hidden;">
+    <div class="pub-head">
+      <span>Title</span>
+      <span>Venue</span>
+      <span>Year</span>
+      <span>Status</span>
+      <span>Links</span>
+    </div>
+    {papers.map(p => (
+      <div class="pub-row" data-status={p.data.status}>
+        <div>
+          <p class="pub-title">{p.data.title}</p>
+          {p.data.title_ko && <p class="pub-ko">{p.data.title_ko}</p>}
+          <p class="pub-authors">{p.data.authors}</p>
+        </div>
+        <span class="pub-venue">{p.data.venue}</span>
+        <span class="pub-year">{p.data.year}</span>
+        <span class:list={["status-pill", `status-${p.data.status}`]}>{p.data.status}</span>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          {p.data.doi && <a href={p.data.doi} target="_blank" class="pub-link">DOI ↗</a>}
+          {p.data.pdf && <a href={p.data.pdf} target="_blank" class="pub-link">PDF ↗</a>}
+          {!p.data.doi && !p.data.pdf && <span style="font-size:.68rem; color:rgba(208,228,240,.25);">—</span>}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <!-- How to add papers note -->
+  <div class="app-card" style="margin-top:1.25rem;">
+    <p class="app-card-title">HOW TO ADD / EDIT A PAPER</p>
+    <p style="font-size:.78rem; color:rgba(208,228,240,.5); line-height:1.75; margin-bottom:1rem;">
+      Papers are managed as Markdown files in <code class="code-inline">src/content/research/</code>.
+      Create a new file, fill in the frontmatter, push to GitHub, and it will appear here and on the public Research page.
+    </p>
+    <pre class="code-block">---
+title: "Your Paper Title"
+title_ko: "논문 제목"
+authors: "Snowberger, A., Co-Author"
+venue: "ICTC 2025"
+year: 2025
+status: "published"     # published | in-review | preprint
+doi: "https://doi.org/..."
+pdf: "https://..."
+tags: ["Physical AI", "Edge ML"]
+featured: false
+---
+
+Abstract or summary here.</pre>
+  </div>
+
+</ProtectedLayout>
+
+<script>
+// Status filter
+document.querySelectorAll(".filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const filter = (btn as HTMLElement).dataset.filter!;
+    document.querySelectorAll(".pub-row").forEach(row => {
+      const el = row as HTMLElement;
+      el.style.display = (filter === "all" || el.dataset.status === filter) ? "" : "none";
+    });
+  });
+});
+</script>
+
+<style>
+.filter-btn {
+  background: rgba(36,180,255,.05);
+  border: .5px solid rgba(36,180,255,.15);
+  border-radius: var(--r-sm);
+  padding: .35rem .875rem;
+  font-family: var(--font-mono);
+  font-size: .65rem;
+  color: rgba(208,228,240,.5);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.filter-btn:hover, .filter-btn.active {
+  background: rgba(36,180,255,.15);
+  color: var(--cyan);
+  border-color: rgba(36,180,255,.35);
+}
+
+.pub-head, .pub-row {
+  display: grid;
+  grid-template-columns: 3fr 1.5fr .7fr 1.1fr 1fr;
+  gap: .875rem;
+  padding: .875rem 1.5rem;
+  border-bottom: .5px solid rgba(36,180,255,.08);
+  align-items: center;
+}
+.pub-head { font-family:var(--font-mono); font-size:.6rem; color:rgba(208,228,240,.3); letter-spacing:.1em; }
+.pub-row:last-child { border-bottom: none; }
+.pub-title   { font-size:.82rem; font-weight:500; margin-bottom:2px; }
+.pub-ko      { font-size:.72rem; color:rgba(208,228,240,.45); margin-bottom:3px; }
+.pub-authors { font-size:.68rem; color:rgba(208,228,240,.4); font-family:var(--font-mono); }
+.pub-venue   { font-size:.75rem; color:rgba(208,228,240,.6); }
+.pub-year    { font-family:var(--font-mono); font-size:.75rem; color:rgba(208,228,240,.5); }
+.pub-link    { font-family:var(--font-mono); font-size:.65rem; color:var(--cyan); text-decoration:none; border:.5px solid rgba(36,180,255,.2); border-radius:3px; padding:1px 6px; }
+.pub-link:hover { background:rgba(36,180,255,.1); }
+.status-pill { font-family:var(--font-mono); font-size:.6rem; border:.5px solid; border-radius:3px; padding:2px 7px; white-space:nowrap; }
+.status-published { color:var(--green-glow); border-color:var(--green-glow); }
+.status-in-review  { color:var(--cyan);      border-color:var(--cyan); }
+.status-preprint   { color:var(--blue);      border-color:var(--blue); }
+.btn-small { background:rgba(36,180,255,.1); border:.5px solid rgba(36,180,255,.25); border-radius:var(--r-sm); padding:.35rem .875rem; font-size:.68rem; font-family:var(--font-mono); color:var(--cyan); cursor:pointer; text-decoration:none; }
+.code-inline { background:rgba(36,180,255,.1); padding:1px 5px; border-radius:3px; font-family:var(--font-mono); font-size:.78em; }
+.code-block { font-family:var(--font-mono); font-size:.72rem; color:rgba(208,228,240,.7); background:rgba(4,12,26,.5); border:.5px solid rgba(36,180,255,.15); border-radius:var(--r-md); padding:1rem; overflow-x:auto; white-space:pre; line-height:1.7; }
+
+@media (max-width: 800px) {
+  .pub-head, .pub-row { grid-template-columns: 1fr 1fr; }
+  .pub-head span:nth-child(3), .pub-head span:nth-child(4), .pub-head span:nth-child(5),
+  .pub-row > *:nth-child(3), .pub-row > *:nth-child(4), .pub-row > *:nth-child(5) { display: none; }
+}
+</style>
