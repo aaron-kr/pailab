@@ -20,13 +20,13 @@ const prefix = lang === "ko" ? "/ko" : "";
 
     <ul class="nav-links">
       <li><a href={`${prefix}/#areas`}>{t(lang, "nav_research")}</a></li>
-      <li><a href={`${prefix}/#research`}>Papers</a></li>
-      <li><a href={`${prefix}/#projects`}>{t(lang, "nav_projects")}</a></li>
-      <li><a href={`${prefix}/#curriculum`}>{t(lang, "nav_curriculum")}</a></li>
-      <li><a href={`${prefix}/#modules`}>{t(lang, "nav_modules")}</a></li>
+      <li><a href={`${prefix}/research`}>Papers</a></li>
+      <li><a href={`${prefix}/projects`}>{t(lang, "nav_projects")}</a></li>
+      <li><a href={`${prefix}/curriculum`}>{t(lang, "nav_curriculum")}</a></li>
+      <li><a href={`${prefix}/modules`}>{t(lang, "nav_modules")}</a></li>
       <li><a href={`${prefix}/notes`}>{t(lang, "nav_notes")}</a></li>
       <li><a href={`${prefix}/#join`}>Join</a></li>
-      <li><a href={`${prefix}/#about`}>{t(lang, "nav_about")}</a></li>
+      <li><a href={`${prefix}/about`}>{t(lang, "nav_about")}</a></li>
     </ul>
 
     <div class="nav-controls">
@@ -35,6 +35,7 @@ const prefix = lang === "ko" ? "/ko" : "";
       </a>
       <div style="width:.5px;height:16px;background:var(--border-2)"></div>
       <button id="theme-toggle" class="btn-ghost" aria-label="Toggle theme" style="padding:4px 8px;font-size:.8rem">☀</button>
+      <a id="login-link" class="btn-ghost" href={`${prefix}/login`} style="padding:4px 8px;font-size:.8rem">🔒</a>
     </div>
   </div>
 </nav>

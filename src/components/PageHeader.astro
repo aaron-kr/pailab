@@ -1,0 +1,46 @@
+---
+// src/components/PageHeader.astro
+// Mid-height page header with the same mesh-gradient + grid as the hero/join sections.
+// Usage in any content page:
+//   <PageHeader title="Research" description="Papers and publications." />
+//   <PageHeader title="Research" bgImage="/images/research-bg.jpg" />
+
+interface Props {
+  title: string;
+  description?: string;
+  eyebrow?: string;       // small mono label above the title (e.g. "01 · RESEARCH")
+  bgImage?: string;       // optional background image URL (from page YAML or direct)
+  size?: "sm" | "md" | "lg"; // sm=200px, md=280px (default), lg=380px
+}
+
+const {
+  title,
+  description,
+  eyebrow,
+  bgImage,
+  size = "md",
+} = Astro.props;
+---
+
+<section class={`page-header page-header--${size}`}>
+  <!-- Animated gradient mesh -->
+  <div class="page-header-bg"></div>
+  <!-- Grid overlay -->
+  <div class="page-header-grid"></div>
+  <!-- Optional background image (blended over the mesh) -->
+  {bgImage && (
+    <div
+      class="page-header-image"
+      style={`background-image: url('${bgImage}')`}
+    ></div>
+  )}
+  <!-- Bottom fade into page bg -->
+  <div class="page-header-fade"></div>
+
+  <!-- Text content -->
+  <div class="container page-header-inner">
+    {eyebrow && <p class="page-eyebrow">{eyebrow}</p>}
+    <h1 class="page-title">{title}</h1>
+    {description && <p class="page-description">{description}</p>}
+  </div>
+</section>

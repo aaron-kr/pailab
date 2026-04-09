@@ -1,72 +1,28 @@
 ---
 // src/pages/projects.astro
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageHeader from "@/components/PageHeader.astro";
 import ProjectRow from "@/components/ProjectRow.astro";
 import { getCollection } from "astro:content";
 
 const lang = "en" as const;
-const all = (await getCollection("projects")).sort((a, b) => a.data.order - b.data.order);
-
-const active   = all.filter((p) => p.data.status === "active");
-const published = all.filter((p) => p.data.status === "published");
-const planned  = all.filter((p) => p.data.status === "planned");
-const archived = all.filter((p) => p.data.status === "archived");
+const projects = (await getCollection("projects")).sort(
+  (a, b) => a.data.order - b.data.order
+);
 ---
 
-<BaseLayout lang={lang} title="Projects · PAI LAB">
-  <div style="padding: 1rem 0 4rem;">
+<BaseLayout lang={lang} title="Projects · PAI LAB"
+  description="Active hardware and software projects from the PAI Lab.">
 
-    <div class="section-header" style="margin-bottom: 0.5rem;">
-      <span class="sec-num">03</span>
-      <h1 style="font-size: 1.15rem;">Projects</h1>
+  <PageHeader
+    title="Projects"
+    eyebrow="03 · PROJECTS"
+    description="Active hardware and software projects — from gesture-controlled robotics to edge AI deployment pipelines."
+  />
+
+  <div class="container page-content">
+    <div class="row-list">
+      {projects.map((project) => <ProjectRow project={project} lang={lang} />)}
     </div>
-    <p style="font-size: 0.85rem; color: var(--text-2); margin-bottom: 2.5rem; margin-left: 1.75rem;">
-      Research projects, datasets, and community initiatives from the Physical AI Laboratory.
-    </p>
-
-    {active.length > 0 && (
-      <section style="margin-bottom: 2.5rem;">
-        <h2 style="font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; color: var(--text-3); margin-bottom: 0.5rem;">
-          ACTIVE
-        </h2>
-        <div class="row-list">
-          {active.map((p) => <ProjectRow project={p} lang={lang} />)}
-        </div>
-      </section>
-    )}
-
-    {published.length > 0 && (
-      <section style="margin-bottom: 2.5rem;">
-        <h2 style="font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; color: var(--text-3); margin-bottom: 0.5rem;">
-          PUBLISHED
-        </h2>
-        <div class="row-list">
-          {published.map((p) => <ProjectRow project={p} lang={lang} />)}
-        </div>
-      </section>
-    )}
-
-    {planned.length > 0 && (
-      <section style="margin-bottom: 2.5rem;">
-        <h2 style="font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; color: var(--text-3); margin-bottom: 0.5rem;">
-          PLANNED
-        </h2>
-        <div class="row-list">
-          {planned.map((p) => <ProjectRow project={p} lang={lang} />)}
-        </div>
-      </section>
-    )}
-
-    {archived.length > 0 && (
-      <section>
-        <h2 style="font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; color: var(--text-3); margin-bottom: 0.5rem;">
-          ARCHIVED
-        </h2>
-        <div class="row-list">
-          {archived.map((p) => <ProjectRow project={p} lang={lang} />)}
-        </div>
-      </section>
-    )}
-
   </div>
 </BaseLayout>

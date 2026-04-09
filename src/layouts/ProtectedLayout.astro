@@ -1,90 +1,162 @@
 ---
 // src/layouts/ProtectedLayout.astro
-// Auth-gated page shell.
-// Renders a spinner, then calls guardPage() client-side.
-// If auth passes: shows content. If not: redirects to /login.
+// App shell for /admin and /members pages.
+// Uses the exact same login-page dark mesh + grid aesthetic so the whole
+// authenticated area feels like one cohesive dark-mode experience.
 //
-// Props:
-//   role  — minimum role required: "member" | "admin"
-//   title — page <title>
-//   lang  — "en" | "ko" (default "en")
+// Sidebar nav items are passed via the `navItems` prop or you can
+// override the entire sidebar with the "sidebar" slot.
 
-interface Props {
-  role:   "member" | "admin";
-  title:  string;
-  lang?:  "en" | "ko";
+import "@/styles/global.css";
+
+interface NavItem {
+  href: string;
+  label: string;
+  icon?: string;
 }
 
-const { role, title, lang = "en" } = Astro.props;
-import "../styles/global.css";
+interface Props {
+  title: string;
+  description?: string;
+  activeHref?: string;
+  area?: "admin" | "members"; // controls which nav links show
+}
+
+const { title, description, activeHref, area = "members" } = Astro.props;
+
+const adminNav: NavItem[] = [
+  { href: "/admin",           label: "Dashboard",   icon: "◈" },
+  { href: "/admin/tracker",   label: "Tracker",     icon: "⊞" },
+  { href: "/admin/students",  label: "Students",    icon: "◉" },
+  { href: "/admin/content",   label: "Content",     icon: "≡" },
+  { href: "/admin/settings",  label: "Settings",    icon: "⚙" },
+];
+
+const membersNav: NavItem[] = [
+  { href: "/members",          label: "Dashboard",   icon: "◈" },
+  { href: "/members/projects", label: "Projects",    icon: "⊞" },
+  { href: "/members/notes",    label: "Notes",       icon: "≡" },
+  { href: "/members/profile",  label: "Profile",     icon: "◉" },
+];
+
+const navItems = area === "admin" ? adminNav : membersNav;
+const siteLabel = area === "admin" ? "ADMIN" : "MEMBERS";
 ---
 
-<!DOCTYPE html>
-<html lang={lang} data-theme="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title} — PAI Lab</title>
-    <meta name="robots" content="noindex, nofollow" />
-    <style>
-      /* Content hidden until auth resolves */
-      #protected-content { display: none; }
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>{title} · PAI LAB</title>
+  {description && <meta name="description" content={description} />}
 
-      #auth-loading {
-        position: fixed; inset: 0;
-        display: flex; flex-direction: column;
-        align-items: center; justify-content: center;
-        gap: 1rem;
-        background: var(--bg);
-        z-index: 999;
-      }
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-      .spinner {
-        width: 36px; height: 36px;
-        border: 3px solid var(--accent-bg);
-        border-top-color: var(--accent);
-        border-radius: 50%;
-        animation: spin 0.7s linear infinite;
-      }
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-      @keyframes spin { to { transform: rotate(360deg); } }
+  <!-- Always dark in protected area — no flash -->
+  <script is:inline>document.documentElement.setAttribute("data-theme","dark");</script>
+</head>
 
-      .loading-label {
-        font-size: 0.875rem;
-        color: var(--fg-muted);
-        letter-spacing: 0.05em;
-      }
+<body class="app-body">
 
-      /* Role badge in nav bar */
-      .role-badge {
-        display: inline-block;
-        font-size: 0.7rem;
-        padding: 2px 8px;
-        border-radius: 20px;
-        background: var(--accent-bg);
-        color: var(--accent-text);
-        font-weight: 600;
-        vertical-align: middle;
-        margin-left: 6px;
-      }
-    </style>
-  </head>
-  <body>
+  <!-- ── Background layer (fixed, behind everything) ───── -->
+  <div class="app-mesh-bg" aria-hidden="true"></div>
+  <div class="app-mesh-grid" aria-hidden="true"></div>
 
-    <!--
-      Pass required role to client via data attribute.
-      define:vars is incompatible with type="module" in Astro 4.
-    -->
-    <div id="auth-loading" data-required-role={role}>
-      <div class="spinner"></div>
-      <span class="loading-label">Checking access…</span>
+  <!-- ── App shell ─────────────────────────────────────── -->
+  <div class="app-shell">
+
+    <!-- Sidebar -->
+    <aside class="app-sidebar">
+      <div class="app-sidebar-top">
+        <a href="/" class="app-logo">
+          <span class="app-logo-wordmark">PAI</span>
+          <span class="app-logo-area">{siteLabel}</span>
+        </a>
+      </div>
+
+      <nav class="app-nav">
+        {navItems.map((item) => (
+          <a
+            href={item.href}
+            class:list={["app-nav-link", { active: activeHref === item.href }]}
+          >
+            {item.icon && <span class="app-nav-icon">{item.icon}</span>}
+            <span>{item.label}</span>
+          </a>
+        ))}
+      </nav>
+
+      <div class="app-sidebar-bottom">
+        <a href="/" class="app-nav-link">
+          <span class="app-nav-icon">←</span>
+          <span>Public site</span>
+        </a>
+        <button id="app-logout" class="app-nav-link app-logout">
+          <span class="app-nav-icon">⏻</span>
+          <span>Sign out</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main content area -->
+    <div class="app-main-wrap">
+      <!-- Top bar -->
+      <header class="app-topbar">
+        <div class="app-topbar-title">
+          <h1>{title}</h1>
+          {description && <p class="app-topbar-desc">{description}</p>}
+        </div>
+        <div class="app-topbar-actions">
+          <slot name="topbar-actions" />
+          <div id="app-user-badge" class="app-user-badge">
+            <span class="app-user-avatar">AS</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page content -->
+      <main class="app-main">
+        <slot />
+      </main>
     </div>
 
-    <div id="protected-content">
-      <slot />
-    </div>
+  </div>
 
-    <script src="../scripts/protected.ts"></script>
+  <script>
+    import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
+    import { app } from "@/lib/firebase";
 
-  </body>
+    const auth = getAuth(app);
+
+    // Guard: redirect to login if not authenticated
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "/login";
+        return;
+      }
+      // Update avatar with user initials
+      const badge = document.getElementById("app-user-badge");
+      if (badge && user.displayName) {
+        const initials = user.displayName.split(" ").map(n => n[0]).join("").slice(0,2).toUpperCase();
+        badge.querySelector(".app-user-avatar")!.textContent = initials;
+      }
+      if (badge && user.email) {
+        badge.setAttribute("title", user.email);
+      }
+    });
+
+    // Logout
+    document.getElementById("app-logout")?.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "/login";
+    });
+  </script>
+
+</body>
 </html>

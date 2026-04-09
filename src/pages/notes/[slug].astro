@@ -7,15 +7,15 @@ export async function getStaticPaths() {
   const notes = (await getCollection("notes")).sort(
     (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
   );
-  return notes.map((note, i) => ({
+  return notes.map((note, index) => ({
     params: { slug: note.slug },
     props: {
       note,
-      prevPost: i < notes.length - 1
-        ? { title: notes[i + 1].data.title, slug: notes[i + 1].slug }
+      prevPost: index < notes.length - 1
+        ? { title: notes[index + 1].data.title, slug: notes[index + 1].slug }
         : undefined,
-      nextPost: i > 0
-        ? { title: notes[i - 1].data.title, slug: notes[i - 1].slug }
+      nextPost: index > 0
+        ? { title: notes[index - 1].data.title, slug: notes[index - 1].slug }
         : undefined,
     },
   }));
@@ -26,14 +26,28 @@ interface Props {
   prevPost?: { title: string; slug: string };
   nextPost?: { title: string; slug: string };
 }
+
 const { note, prevPost, nextPost } = Astro.props;
 const { Content } = await note.render();
-const { title, pubDate, tags, naver_url, lang: noteLang, summary } = note.data;
+
+const {
+  title,
+  title_ko,
+  pubDate,
+  tags,
+  naver_url,
+  lang: noteLang,
+  summary,
+  featuredImage,   // ← wide image above post body
+  headerBgImage,   // ← subtle bg in the page header strip
+} = note.data;
+
 const lang = "en" as const;
 ---
 
 <PostLayout
   title={title}
+  title_ko={title_ko}
   description={summary}
   pubDate={pubDate}
   lang={lang}
@@ -41,6 +55,8 @@ const lang = "en" as const;
   naverUrl={noteLang === "both" ? naver_url : undefined}
   prevPost={prevPost}
   nextPost={nextPost}
+  featuredImage={featuredImage}
+  headerBgImage={headerBgImage}
 >
   <Content />
 </PostLayout>

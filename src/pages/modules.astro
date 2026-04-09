@@ -1,64 +1,44 @@
 ---
 // src/pages/modules.astro
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageHeader from "@/components/PageHeader.astro";
 import { getCollection } from "astro:content";
 
 const lang = "en" as const;
-const modules = (await getCollection("modules")).sort((a, b) => a.data.order - b.data.order);
+const modules = (await getCollection("modules")).sort(
+  (a, b) => a.data.order - b.data.order
+);
 ---
 
-<BaseLayout lang={lang} title="Course plug-in modules · PAI LAB">
-  <div style="padding: 1rem 0 5rem;">
+<BaseLayout lang={lang} title="Course plug-in modules · PAI LAB"
+  description="Self-contained Physical AI add-ons for any university course.">
 
-    <div class="section-header" style="margin-bottom: 0.5rem;">
-      <span class="sec-num">04</span>
-      <h1 style="font-size: 1.15rem;">Course plug-in modules</h1>
-    </div>
-    <p style="font-size: 0.85rem; color: var(--text-2); margin-bottom: 2.5rem; margin-left: 1.75rem; max-width: 580px;">
-      Self-contained Physical AI add-ons for courses not primarily focused on AI.
-      Each module is designed to drop into an existing syllabus with minimal disruption —
-      typically 1–3 weeks of material.
-    </p>
+  <PageHeader
+    title="Plug-in Modules"
+    eyebrow="04 · MODULES"
+    description="Self-contained Physical AI add-ons for courses not primarily focused on AI — drop one in for 1–2 weeks of hands-on physical computing."
+  />
 
-    <!-- How to use callout -->
-    <div class="card" style="margin-bottom: 2.5rem; background: var(--bg-subtle); border-color: transparent;">
-      <p style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-3); margin-bottom: 6px;">HOW TO USE</p>
-      <p style="font-size: 0.85rem; line-height: 1.7; color: var(--text-2);">
-        Each module ships as a standalone Markdown/MDX document with a lesson plan,
-        student exercises, and optionally a hardware BOM. Fork the
-        <a href="https://github.com/aaronkr-classroom" style="color: var(--accent);">aaronkr-classroom</a>
-        GitHub org to adapt modules for your institution, or
-        <a href="#about" style="color: var(--accent);">contact the lab</a> to discuss collaboration.
-      </p>
-    </div>
-
-    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+  <div class="container page-content">
+    <div class="card-grid">
       {modules.map((mod) => (
-        <div class="card" style="display: grid; grid-template-columns: 140px 1fr; gap: 2rem; align-items: start;">
-
-          <div style="padding-top: 0.125rem;">
-            <div style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-3); margin-bottom: 6px;">
-              MODULE
-            </div>
-            <div style="font-size: 0.875rem; font-weight: 500; margin-bottom: 8px;">
-              {mod.data.course_tag}
-            </div>
+        <div class="card module-card">
+          <div style="font-family:var(--font-mono); font-size:.68rem; color:var(--text-3); margin-bottom:.5rem;">
+            MODULE · {mod.data.course_tag.toUpperCase()}
+          </div>
+          <h3 style="font-size:.9rem; margin-bottom:.375rem;">{mod.data.title}</h3>
+          {mod.data.title_ko && (
+            <p style="font-size:.75rem; color:var(--text-3); margin-bottom:.5rem;">{mod.data.title_ko}</p>
+          )}
+          <p style="font-size:.8rem; color:var(--text-2); margin-bottom:.875rem; line-height:1.6;">
+            {mod.data.description}
+          </p>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <span class="tag">{mod.data.course_tag}</span>
             <span class="tag">{mod.data.duration}</span>
           </div>
-
-          <div>
-            <h2 style="font-size: 1rem; margin-bottom: 0.375rem;">{mod.data.title}</h2>
-            {mod.data.title_ko && (
-              <p style="font-size: 0.78rem; color: var(--text-2); margin-bottom: 0.5rem;">{mod.data.title_ko}</p>
-            )}
-            <p style="font-size: 0.85rem; color: var(--text-2); line-height: 1.65;">
-              {mod.data.description}
-            </p>
-          </div>
-
         </div>
       ))}
     </div>
-
   </div>
 </BaseLayout>

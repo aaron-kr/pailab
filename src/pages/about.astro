@@ -1,116 +1,122 @@
 ---
 // src/pages/about.astro
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import { t } from "@/i18n/translations";
+
+const lang = "en" as const;
 ---
 
-<BaseLayout lang="en" title="About · PAI LAB">
-  <div style="padding:1rem 0 5rem;max-width:860px">
-    <div class="section-header" style="margin-bottom:2.5rem">
-      <span class="sec-num">06</span>
-      <h1 style="font-size:1.75rem;font-weight:800">About</h1>
-    </div>
+<BaseLayout lang={lang} title="About · PAI LAB"
+  description="About the Physical AI Laboratory and Principal Investigator Aaron Snowberger.">
+
+  <PageHeader
+    title="About"
+    eyebrow="06 · ABOUT"
+    description="The Physical AI Laboratory — pushing the boundary between intelligent software and the physical world."
+  />
+
+  <div class="container page-content">
     <div class="about-grid">
+
+      <!-- Profile column -->
       <div class="about-profile">
         <div class="profile-img-wrap">
-          <!--
-            Place /public/profile.jpg (portrait, 3:4) then uncomment:
-            <img src="/profile.jpg" alt="Aaron Snowberger"
-              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;border-radius:inherit">
-          -->
           <div class="profile-placeholder">AS</div>
         </div>
-        <div class="profile-stats">
-          <div class="profile-stat"><span class="num">5</span><span class="lbl">UNIVERSITIES</span></div>
-          <div class="profile-stat"><span class="num">8+</span><span class="lbl">PAPERS</span></div>
-          <div class="profile-stat"><span class="num">4</span><span class="lbl">DATASETS</span></div>
-          <div class="profile-stat"><span class="num">1</span><span class="lbl">SOCIETY</span></div>
-        </div>
-        <p class="profile-pi-label">PRINCIPAL INVESTIGATOR</p>
-        <div class="profile-links">
-          <a class="pi-link" href="https://aaron.kr">aaron.kr — blog & hub</a>
-          <a class="pi-link" href="https://aaronsnowberger.com">aaronsnowberger.com</a>
-          <a class="pi-link" href="https://kspai.org">kspai.org — KSPAI society</a>
-          <a class="pi-link" href="https://aaronkr-courses.github.io/courses/">courses.aaron.kr</a>
-          <a class="pi-link" href="https://keytokorean.com">keytokorean.com</a>
-          <a class="pi-link" href="https://blog.naver.com/aaron_kr">Naver blog (한국어)</a>
+
+        <p style="font-size:.9rem; font-weight:600; margin-bottom:2px; color:var(--text);">
+          Aaron Snowberger
+        </p>
+        <p style="font-size:.75rem; color:var(--text-2); margin-bottom:1.25rem;">
+          {t(lang, "about_pi_role")}
+        </p>
+
+        <div style="border-top:.5px solid var(--border); padding-top:1rem; display:flex; flex-direction:column; gap:6px;">
+          <a href="https://aaron.kr"                           class="pi-link">aaron.kr</a>
+          <a href="https://aaronsnowberger.com"                class="pi-link">aaronsnowberger.com</a>
+          <a href="https://kspai.org"                          class="pi-link">kspai.org</a>
+          <a href="https://aaronkr-courses.github.io/courses/" class="pi-link" style="font-family:var(--font-mono); font-size:.68rem;">courses.aaron.kr</a>
+          <a href="https://blog.naver.com/aaron_kr"            class="pi-link">{t(lang, "about_naver")}</a>
         </div>
       </div>
 
+      <!-- Bio column -->
       <div>
-        <p style="font-size:1rem;line-height:1.9;margin-bottom:1.25rem;font-weight:300">
-          Aaron Snowberger is a researcher and educator working at the intersection of
-          machine learning, embedded hardware, and physical systems. He teaches across
-          multiple Korean universities — Jeonbuk National University, Korea National
-          University of Transportation, Hanbat National University, Wonkwang University,
-          and Jeonju National University of Education.
-        </p>
-        <p style="font-size:1rem;line-height:1.9;margin-bottom:1.25rem;font-weight:300">
-          His current research focus is <strong style="font-weight:600;font-family:var(--font-display)">Physical AI</strong>:
-          machine intelligence that perceives and acts in the real world in real time,
-          deployed on or near the hardware doing the sensing and actuation. He is a founding
-          organiser of <a href="https://kspai.org" style="color:var(--green)">KSPAI</a>
-          (한국피지컬AI학회), the Korean Society for Physical AI.
-        </p>
-        <p style="font-size:1rem;line-height:1.9;margin-bottom:2rem;font-weight:300;font-style:italic;color:var(--text-2)">
-          Wyoming native. Laid back. Will talk robotics over coffee.
+        <p style="font-size:.95rem; line-height:1.85; margin-bottom:1.25rem; color:var(--text);">
+          {t(lang, "about_body")}
         </p>
 
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:2.5rem">
-          <span class="tag green">Physical AI</span>
+        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:2rem;">
+          <span class="tag accent">Physical AI</span>
           <span class="tag">Embedded Systems</span>
-          <span class="tag blue">Edge ML</span>
+          <span class="tag">Edge ML</span>
           <span class="tag">Robotics</span>
           <span class="tag ok">Open Research</span>
-          <span class="tag pink">Korea</span>
         </div>
 
-        <div style="border-top:.5px solid var(--border);padding-top:1.5rem;margin-bottom:2.5rem">
-          <p style="font-family:var(--font-mono);font-size:.56rem;color:var(--text-3);letter-spacing:.1em;margin-bottom:1rem">RESEARCH INTERESTS</p>
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem">
-            {[
-              ["Physical AI","Edge inference, sensor-actuator loops, real-time guarantees"],
-              ["Embedded ML","TinyML, TFLite Micro, FPGA deployment"],
-              ["Robotic Perception","Gesture recognition, object detection, pose estimation"],
-              ["Curriculum Design","Bilingual Physical AI tracks, plug-in course modules"],
-              ["Script Recognition","Ancient Korean & Manchu script datasets and OCR models"],
-              ["Open Research","CC-BY datasets, reproducible benchmarks, public code"],
-            ].map(([area, detail]) => (
-              <div style="padding:1rem;background:var(--bg-subtle);border-radius:var(--r-md)">
-                <p style="font-family:var(--font-display);font-size:.85rem;font-weight:700;margin-bottom:4px">{area}</p>
-                <p style="font-size:.72rem;color:var(--text-2);line-height:1.5;font-weight:300">{detail}</p>
-              </div>
-            ))}
+        <div style="border-top:.5px solid var(--border); padding-top:1.5rem;">
+          <p style="font-family:var(--font-mono); font-size:.68rem; color:var(--text-3); letter-spacing:.1em; margin-bottom:.875rem;">
+            AFFILIATED INSTITUTIONS
+          </p>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <span class="tag">전북대학교</span>
+            <span class="tag">한국교통대</span>
+            <span class="tag">한밭대학교</span>
+            <span class="tag">원광대학교</span>
+            <span class="tag">전주교육대</span>
+            <span class="tag accent">KSPAI</span>
           </div>
         </div>
-
-        <div style="border-top:.5px solid var(--border);padding-top:1.5rem">
-          <p style="font-family:var(--font-mono);font-size:.56rem;color:var(--text-3);letter-spacing:.1em;margin-bottom:1rem">AFFILIATED INSTITUTIONS</p>
-          {[
-            ["JBNU","Jeonbuk National University","전북대학교","https://www.jbnu.ac.kr","blue"],
-            ["UT",  "Korea National Univ. of Transportation","한국교통대","https://www.ut.ac.kr","blue"],
-            ["HBU", "Hanbat National University","한밭대학교","https://www.hanbat.ac.kr","blue"],
-            ["WKU", "Wonkwang University","원광대학교","https://www.wku.ac.kr","blue"],
-            ["JNUE","Jeonju National Univ. of Education","전주교육대","https://www.jnue.kr","blue"],
-            ["KSPAI","Korean Society for Physical AI","한국피지컬AI학회","https://kspai.org","green"],
-          ].map(([abbr, en, ko, url, color]) => (
-            <div style="display:grid;grid-template-columns:58px 1fr 1fr;gap:1rem;padding:.6rem 0;border-top:.5px solid var(--border);align-items:center">
-              <span style={`font-family:var(--font-mono);font-size:.6rem;color:var(--${color})`}>{abbr}</span>
-              <a href={url} target="_blank" rel="noopener" style="font-size:.82rem;color:var(--text)">{en}</a>
-              <span style="font-size:.82rem;color:var(--text-2)">{ko}</span>
-            </div>
-          ))}
-        </div>
-
-        <div style="border-top:.5px solid var(--border);padding-top:1.5rem;margin-top:1.5rem">
-          <p style="font-family:var(--font-mono);font-size:.56rem;color:var(--text-3);letter-spacing:.1em;margin-bottom:1rem">CONTACT & COLLABORATION</p>
-          <p style="font-size:.9rem;line-height:1.75;color:var(--text-2);max-width:560px;font-weight:300">
-            Interested in research collaboration, curriculum adoption, or dataset use?
-            Reach out via <a href="https://aaronsnowberger.com" style="color:var(--green)">aaronsnowberger.com</a>
-            or through <a href="https://kspai.org" style="color:var(--green)">KSPAI</a>.
-            For Korean correspondence, the <a href="https://blog.naver.com/aaron_kr" style="color:var(--green)">Naver blog</a> has a contact link.
-          </p>
-        </div>
       </div>
+
     </div>
   </div>
 </BaseLayout>
+
+<style>
+.about-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+.about-profile {
+  position: sticky;
+  top: calc(var(--nav-h) + 1.5rem);
+}
+.profile-img-wrap {
+  width: 100%; aspect-ratio: 3/4;
+  background: linear-gradient(160deg, #041a2a 0%, #060d20 50%, #1a041a 100%);
+  border-radius: var(--r-xl);
+  border: .5px solid var(--border-2);
+  position: relative; overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+.profile-img-wrap::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(36,200,255,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(36,200,255,.04) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+.profile-placeholder {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-size: 4.5rem; font-weight: 800;
+  color: rgba(45,212,191,.18);
+}
+.pi-link {
+  font-size: .78rem;
+  color: var(--cyan);
+  text-decoration: none;
+}
+.pi-link:hover { text-decoration: underline; }
+
+@media (max-width: 680px) {
+  .about-grid { grid-template-columns: 1fr; }
+  .about-profile { position: static; }
+}
+</style>

@@ -1,35 +1,56 @@
 ---
 // src/pages/research.astro
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import PaperRow from "@/components/PaperRow.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import ResearchCard from "@/components/ResearchCard.astro";
 import { getCollection } from "astro:content";
 
 const lang = "en" as const;
-const all = (await getCollection("research")).sort((a,b) => b.data.year - a.data.year);
-const featured = all.filter(p => p.data.featured);
-const rest = all.filter(p => !p.data.featured);
+const papers = (await getCollection("research")).sort(
+  (a, b) => b.data.year - a.data.year
+);
+const featured = papers.filter((p) => p.data.featured);
+const rest     = papers.filter((p) => !p.data.featured);
 ---
 
-<BaseLayout lang={lang} title="Research · PAI LAB">
-  <div style="padding:1rem 0 4rem">
-    <div class="section-header" style="margin-bottom:.5rem">
-      <span class="sec-num">01</span>
-      <h1 style="font-size:1.75rem;font-weight:800">Research</h1>
-    </div>
-    <p style="font-size:.85rem;color:var(--text-2);margin-bottom:2.5rem;margin-left:1.75rem;font-weight:300">
-      Papers, preprints, and technical reports from the Physical AI Lab.
-    </p>
+<BaseLayout lang={lang} title="Research · PAI LAB"
+  description="Papers, publications, and active research in Physical AI.">
+
+  <PageHeader
+    title="Research"
+    eyebrow="01 · RESEARCH"
+    description="Papers, publications, and active research spanning physical AI, embedded ML, and autonomous systems."
+  />
+
+  <div class="container page-content">
+
     {featured.length > 0 && (
-      <>
-        <h2 style="font-family:var(--font-mono);font-size:.62rem;color:var(--text-3);letter-spacing:.1em;margin-bottom:.5rem">FEATURED</h2>
-        <div class="papers-list" style="margin-bottom:2.5rem">
-          {featured.map(p => <PaperRow paper={p} lang={lang} />)}
+      <section style="margin-bottom:3rem;">
+        <h2 class="section-sub-label">Featured</h2>
+        <div class="card-grid">
+          {featured.map((p) => <ResearchCard paper={p} lang={lang} />)}
         </div>
-      </>
+      </section>
     )}
-    <h2 style="font-family:var(--font-mono);font-size:.62rem;color:var(--text-3);letter-spacing:.1em;margin-bottom:.5rem">ALL PUBLICATIONS</h2>
-    <div class="papers-list">
-      {rest.map(p => <PaperRow paper={p} lang={lang} />)}
-    </div>
+
+    {rest.length > 0 && (
+      <section>
+        <h2 class="section-sub-label">All Publications</h2>
+        <div class="card-grid">
+          {rest.map((p) => <ResearchCard paper={p} lang={lang} />)}
+        </div>
+      </section>
+    )}
+
   </div>
 </BaseLayout>
+
+<style>
+.section-sub-label {
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  color: var(--text-3);
+  letter-spacing: .12em;
+  margin-bottom: 1.25rem;
+}
+</style>

@@ -1,25 +1,27 @@
 ---
 // src/pages/notes/index.astro
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageHeader from "@/components/PageHeader.astro";
 import NoteRow from "@/components/NoteRow.astro";
 import { getCollection } from "astro:content";
 import { t } from "@/i18n/translations";
 
 const lang = "en" as const;
-const notes = (await getCollection("notes"))
-  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+const notes = (await getCollection("notes")).sort(
+  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
+);
 ---
 
-<BaseLayout lang={lang} title="Notes · PAI LAB">
-  <div style="padding: 1rem 0 3rem;">
-    <div class="section-header" style="margin-bottom: 0.5rem;">
-      <span class="sec-num">05</span>
-      <h1 style="font-size: 1.15rem;">{t(lang, "sec_notes")}</h1>
-    </div>
-    <p style="font-size: 0.85rem; color: var(--text-2); margin-bottom: 2rem; margin-left: 1.75rem;">
-      Lab updates, tutorials, and field notes.
-    </p>
+<BaseLayout lang={lang} title="Notes · PAI LAB"
+  description="Lab updates, tutorials, and field notes from the Physical AI Laboratory.">
 
+  <PageHeader
+    title="Notes"
+    eyebrow="05 · NOTES"
+    description="Lab updates, tutorials, and field notes — in English and 한국어."
+  />
+
+  <div class="container page-content">
     <div class="row-list">
       {notes.map((note) => <NoteRow note={note} lang={lang} />)}
     </div>

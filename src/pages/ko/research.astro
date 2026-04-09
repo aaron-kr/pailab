@@ -1,35 +1,53 @@
 ---
 // src/pages/ko/research.astro
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import PaperRow from "@/components/PaperRow.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import ResearchCard from "@/components/ResearchCard.astro";
 import { getCollection } from "astro:content";
 
 const lang = "ko" as const;
-const all = (await getCollection("research")).sort((a,b) => b.data.year - a.data.year);
-const featured = all.filter(p => p.data.featured);
-const rest = all.filter(p => !p.data.featured);
+const papers = (await getCollection("research")).sort(
+  (a, b) => b.data.year - a.data.year
+);
+const featured = papers.filter((p) => p.data.featured);
+const rest     = papers.filter((p) => !p.data.featured);
 ---
 
-<BaseLayout lang={lang} title="연구 · PAI LAB">
-  <div style="padding:1rem 0 4rem">
-    <div class="section-header" style="margin-bottom:.5rem">
-      <span class="sec-num">01</span>
-      <h1 style="font-size:1.75rem;font-weight:800">연구</h1>
-    </div>
-    <p style="font-size:.85rem;color:var(--text-2);margin-bottom:2.5rem;margin-left:1.75rem;font-weight:300">
-      피지컬 AI 연구소의 논문, 프리프린트, 기술 보고서.
-    </p>
+<BaseLayout lang={lang} title="연구 · PAI LAB"
+  description="피지컬 AI 관련 논문 및 활발한 연구 활동.">
+
+  <PageHeader
+    title="연구"
+    eyebrow="01 · 연구"
+    description="피지컬 AI, 임베디드 ML, 자율 시스템을 아우르는 논문 및 연구 활동."
+  />
+
+  <div class="container page-content">
     {featured.length > 0 && (
-      <>
-        <h2 style="font-family:var(--font-mono);font-size:.62rem;color:var(--text-3);letter-spacing:.1em;margin-bottom:.5rem">주요 논문</h2>
-        <div class="papers-list" style="margin-bottom:2.5rem">
-          {featured.map(p => <PaperRow paper={p} lang={lang} />)}
+      <section style="margin-bottom:3rem;">
+        <h2 class="section-sub-label">주요 논문</h2>
+        <div class="card-grid">
+          {featured.map((p) => <ResearchCard paper={p} lang={lang} />)}
         </div>
-      </>
+      </section>
     )}
-    <h2 style="font-family:var(--font-mono);font-size:.62rem;color:var(--text-3);letter-spacing:.1em;margin-bottom:.5rem">전체 논문</h2>
-    <div class="papers-list">
-      {rest.map(p => <PaperRow paper={p} lang={lang} />)}
-    </div>
+    {rest.length > 0 && (
+      <section>
+        <h2 class="section-sub-label">전체 논문</h2>
+        <div class="card-grid">
+          {rest.map((p) => <ResearchCard paper={p} lang={lang} />)}
+        </div>
+      </section>
+    )}
   </div>
 </BaseLayout>
+
+<style>
+.section-sub-label {
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  color: var(--text-3);
+  letter-spacing: .12em;
+  margin-bottom: 1.25rem;
+}
+</style>

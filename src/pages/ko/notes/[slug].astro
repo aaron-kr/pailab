@@ -4,18 +4,19 @@ import PostLayout from "@/layouts/PostLayout.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 
 export async function getStaticPaths() {
-  const notes = (await getCollection("notes")).sort(
-    (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
-  );
-  return notes.map((note, i) => ({
+  const notes = (await getCollection("notes"))
+    .filter((n) => n.data.lang === "ko" || n.data.lang === "both")
+    .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+  return notes.map((note, index) => ({
     params: { slug: note.slug },
     props: {
       note,
-      prevPost: i < notes.length - 1
-        ? { title: notes[i + 1].data.title_ko ?? notes[i + 1].data.title, slug: notes[i + 1].slug }
+      prevPost: index < notes.length - 1
+        ? { title: notes[index + 1].data.title_ko ?? notes[index + 1].data.title, slug: notes[index + 1].slug }
         : undefined,
-      nextPost: i > 0
-        ? { title: notes[i - 1].data.title_ko ?? notes[i - 1].data.title, slug: notes[i - 1].slug }
+      nextPost: index > 0
+        ? { title: notes[index - 1].data.title_ko ?? notes[index - 1].data.title, slug: notes[index - 1].slug }
         : undefined,
     },
   }));
@@ -26,23 +27,30 @@ interface Props {
   prevPost?: { title: string; slug: string };
   nextPost?: { title: string; slug: string };
 }
+
 const { note, prevPost, nextPost } = Astro.props;
 const { Content } = await note.render();
-const { title, title_ko, pubDate, tags, naver_url, lang: noteLang, summary_ko, summary } = note.data;
+
+const {
+  title, title_ko, pubDate, tags, naver_url, lang: noteLang,
+  summary, featuredImage, headerBgImage,
+} = note.data;
+
 const lang = "ko" as const;
-const displayTitle = title_ko ?? title;
 ---
 
 <PostLayout
-  title={displayTitle}
-  description={summary_ko ?? summary}
+  title={title_ko ?? title}
+  title_ko={title}
+  description={summary}
   pubDate={pubDate}
   lang={lang}
   tags={tags}
   naverUrl={noteLang === "both" ? naver_url : undefined}
-  altLangUrl={`/notes/${note.slug}`}
   prevPost={prevPost}
   nextPost={nextPost}
+  featuredImage={featuredImage}
+  headerBgImage={headerBgImage}
 >
   <Content />
 </PostLayout>
