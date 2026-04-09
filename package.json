@@ -11,7 +11,10 @@
     "@astrojs/mdx": "^3.1.0",
     "@astrojs/sitemap": "^3.2.0",
     "astro": "^4.16.0",
-    "firebase": "^12.11.0"
+    "dotenv": "^17.4.1",
+    "firebase": "^12.11.0",
+    "firebase-admin": "^13.7.0",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
     "typescript": "^5.6.0"

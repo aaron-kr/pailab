@@ -1,14 +1,13 @@
 ---
 // src/layouts/PostLayout.astro
-// Individual note/post layout with PageHeader, optional featuredImage, prev/next nav.
-//
-// Frontmatter in notes can now include:
-//   featuredImage: "/images/my-post-hero.jpg"   ← wide image at top of post
-//   headerBgImage: "/images/header-bg.jpg"        ← subtle bg in the page header strip
+// New: right sidebar with post metadata, related posts (same category/tags),
+// and a ToC placeholder (can be wired up with rehype-toc if needed).
+// Sidebar items placed with CSS that mirrors their scroll position ("in-flow sidebar").
 
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
 import { t, type Lang } from "@/i18n/translations";
+import { getCollection } from "astro:content";
 
 interface Props {
   title: string;
@@ -16,144 +15,327 @@ interface Props {
   description?: string;
   pubDate: Date;
   tags?: string[];
+  category?: string;
   naverUrl?: string;
   lang?: Lang;
   prevPost?: { title: string; slug: string };
   nextPost?: { title: string; slug: string };
-  featuredImage?: string;   // ← full-width image shown above post body
-  headerBgImage?: string;   // ← subtle background for the page header strip
+  featuredImage?: string;
+  headerBgImage?: string;
+  categoryFeatured?: boolean;
 }
 
 const {
-  title,
-  title_ko,
-  description,
-  pubDate,
-  tags = [],
-  naverUrl,
-  lang = "en",
-  prevPost,
-  nextPost,
-  featuredImage,
-  headerBgImage,
+  title, title_ko, description, pubDate,
+  tags = [], category, naverUrl, lang = "en",
+  prevPost, nextPost, featuredImage, headerBgImage, categoryFeatured,
 } = Astro.props;
 
 const notesPath = lang === "ko" ? "/ko/notes" : "/notes";
 const dateStr   = pubDate.toLocaleDateString(lang === "ko" ? "ko-KR" : "en-US", {
   year: "numeric", month: "long", day: "numeric",
 });
-const altTitle = lang === "ko" ? title : (title_ko ?? title);
+
+// Related posts: same category first, then same tags
+let relatedNotes: any[] = [];
+try {
+  const allNotes = (await getCollection("notes"))
+    .filter(n => n.data.lang !== "ko")
+    .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+  const sameCategory = category
+    ? allNotes.filter(n => n.data.category === category && n.data.title !== title)
+    : [];
+
+  const sameTags = tags.length > 0
+    ? allNotes.filter(n =>
+        n.data.title !== title &&
+        !sameCategory.find(c => c.data.title === n.data.title) &&
+        n.data.tags?.some(t => tags.includes(t))
+      )
+    : [];
+
+  relatedNotes = [...sameCategory, ...sameTags].slice(0, 4);
+} catch {}
+
+// Area info for category badge
+let areaInfo: any = null;
+if (category) {
+  try {
+    const areas = await getCollection("areas" as any);
+    areaInfo = areas.find((a: any) => a.data.slug === category)?.data ?? null;
+  } catch {}
+}
 ---
 
 <BaseLayout lang={lang} title={`${title} · PAI LAB`} description={description}>
 
-  <!-- ── Page header strip ──────────────────────────────── -->
   <PageHeader
     title={title}
-    description={description}
     eyebrow={dateStr}
     bgImage={headerBgImage}
     size="sm"
   />
 
-  <!-- ── Article wrapper ───────────────────────────────── -->
   <div class="container page-content">
-    <article>
+    <div class="post-layout">
 
-      <!-- Tags + Naver link row -->
-      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:2rem;">
-        {tags.map((tag) => <span class="tag">{tag}</span>)}
-        {naverUrl && (
-          <a
-            href={naverUrl}
-            target="_blank"
-            rel="noopener"
-            style="font-size:.72rem; color:var(--text-2); border:.5px solid var(--border-2); border-radius:4px; padding:2px 8px;"
-          >
-            {lang === "ko" ? "영어로 읽기 ↗" : "한국어로 읽기 ↗"}
-          </a>
-        )}
-        {lang === "en" && title_ko && (
-          <span style="font-size:.72rem; color:var(--text-3);">{title_ko}</span>
-        )}
-      </div>
+      <!-- ── Article ───────────────────────────────────── -->
+      <article class="post-article">
 
-      <!-- ── Featured image (optional wide photo) ───────── -->
-      {featuredImage && (
-        <div class="featured-image-wrap">
-          <img src={featuredImage} alt={title} loading="lazy" />
+        <!-- Meta row under title -->
+        <div class="post-meta-row">
+          {category && areaInfo && (
+            <a href={`/notes/category/${category}`} class="category-chip"
+               style={`--chip-color: ${areaInfo.color ?? "var(--cyan)"}`}>
+              {areaInfo.icon} {areaInfo.title}
+            </a>
+          )}
+          {tags.map(tag => <span class="tag">{tag}</span>)}
+          {categoryFeatured && (
+            <span class="featured-badge">⭐ Featured</span>
+          )}
+          {naverUrl && (
+            <a href={naverUrl} target="_blank" rel="noopener" class="naver-link">
+              {lang === "ko" ? "영어로 읽기 ↗" : "한국어로 읽기 ↗"}
+            </a>
+          )}
         </div>
-      )}
 
-      <!-- ── Prose body ────────────────────────────────── -->
-      <div class="prose">
-        <slot />
-      </div>
-
-      <!-- ── Prev / Next navigation ────────────────────── -->
-      {(prevPost || nextPost) && (
-        <nav class="post-nav">
-          <div class="post-nav-item">
-            {prevPost && (
-              <>
-                <p class="post-nav-label">← {t(lang, "prev")}</p>
-                <a href={`${notesPath}/${prevPost.slug}`} class="post-nav-link">
-                  {prevPost.title}
-                </a>
-              </>
-            )}
+        <!-- Featured image -->
+        {featuredImage && (
+          <div class="featured-image-wrap">
+            <img src={featuredImage} alt={title} loading="lazy" />
           </div>
-          <div class="post-nav-item post-nav-item--right">
-            {nextPost && (
-              <>
-                <p class="post-nav-label">{t(lang, "next")} →</p>
-                <a href={`${notesPath}/${nextPost.slug}`} class="post-nav-link">
-                  {nextPost.title}
-                </a>
-              </>
-            )}
+        )}
+
+        <!-- Body -->
+        <div class="prose">
+          <slot />
+        </div>
+
+        <!-- Prev / Next -->
+        {(prevPost || nextPost) && (
+          <nav class="post-nav">
+            <div>
+              {prevPost && (
+                <>
+                  <p class="post-nav-label">← older</p>
+                  <a href={`${notesPath}/${prevPost.slug}`} class="post-nav-link">{prevPost.title}</a>
+                </>
+              )}
+            </div>
+            <div style="text-align:right">
+              {nextPost && (
+                <>
+                  <p class="post-nav-label">newer →</p>
+                  <a href={`${notesPath}/${nextPost.slug}`} class="post-nav-link">{nextPost.title}</a>
+                </>
+              )}
+            </div>
+          </nav>
+        )}
+
+        <div style="margin-top:2rem;">
+          <a href={notesPath} class="back-link">← {t(lang, "sec_notes")}</a>
+        </div>
+      </article>
+
+      <!-- ── Sidebar ────────────────────────────────────── -->
+      <aside class="post-sidebar">
+
+        <!-- Post info -->
+        <div class="sidebar-widget">
+          <p class="sidebar-widget-label">POST INFO</p>
+          <div class="sidebar-meta-row">
+            <span class="sidebar-meta-key">Published</span>
+            <span class="sidebar-meta-val">{dateStr}</span>
           </div>
-        </nav>
-      )}
+          {category && (
+            <div class="sidebar-meta-row">
+              <span class="sidebar-meta-key">Area</span>
+              <a href={`/notes/category/${category}`} class="sidebar-meta-link">
+                {areaInfo?.title ?? category}
+              </a>
+            </div>
+          )}
+          {lang !== "en" && (
+            <div class="sidebar-meta-row">
+              <span class="sidebar-meta-key">Language</span>
+              <span class="sidebar-meta-val">{lang === "ko" ? "한국어" : "English"}</span>
+            </div>
+          )}
+        </div>
 
-      <!-- ── Back to notes ─────────────────────────────── -->
-      <div style="margin-top:2rem;">
-        <a href={notesPath} class="back-link">
-          ← {t(lang, "sec_notes")}
-        </a>
-      </div>
+        <!-- Tags -->
+        {tags.length > 0 && (
+          <div class="sidebar-widget">
+            <p class="sidebar-widget-label">TAGS</p>
+            <div style="display:flex; flex-wrap:wrap; gap:5px;">
+              {tags.map(tag => <span class="tag">{tag}</span>)}
+            </div>
+          </div>
+        )}
 
-    </article>
+        <!-- Related posts -->
+        {relatedNotes.length > 0 && (
+          <div class="sidebar-widget">
+            <p class="sidebar-widget-label">RELATED</p>
+            <div class="related-list">
+              {relatedNotes.map(n => (
+                <a href={`${notesPath}/${n.slug}`} class="related-item">
+                  {n.data.category === category && areaInfo && (
+                    <span class="related-category-dot"
+                          style={`background:${areaInfo.color ?? "var(--cyan)"}`}></span>
+                  )}
+                  <span class="related-title">{n.data.title}</span>
+                  <span class="related-date">
+                    {n.data.pubDate.toLocaleDateString("en-US", { month:"short", year:"numeric" })}
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <!-- Naver link -->
+        {naverUrl && (
+          <div class="sidebar-widget">
+            <a href={naverUrl} target="_blank" rel="noopener" class="naver-cta">
+              <span style="font-size:1.1rem;">🇰🇷</span>
+              <div>
+                <p style="font-size:.78rem; font-weight:500;">Read in Korean</p>
+                <p style="font-size:.65rem; color:rgba(208,228,240,.45); margin-top:1px;">한국어로 읽기 ↗</p>
+              </div>
+            </a>
+          </div>
+        )}
+
+      </aside>
+
+    </div>
   </div>
-
 </BaseLayout>
 
 <style>
-.post-nav {
-  margin-top: 4rem;
-  padding-top: 2rem;
-  border-top: .5px solid var(--border);
+/* ── Two-column layout ────────────────────────────────────── */
+.post-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  grid-template-columns: 1fr 220px;
+  gap: 3.5rem;
+  align-items: start;
 }
-.post-nav-item--right { text-align: right; }
-.post-nav-label {
+.post-article { min-width: 0; }
+
+/* ── Sticky sidebar ───────────────────────────────────────── */
+.post-sidebar {
+  position: sticky;
+  top: calc(var(--nav-h, 60px) + 1.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.sidebar-widget {
+  background: var(--bg-subtle);
+  border-radius: var(--r-lg);
+  padding: 1rem;
+  border: .5px solid var(--border);
+}
+.sidebar-widget-label {
   font-family: var(--font-mono);
-  font-size: .65rem;
-  color: var(--text-3);
-  margin-bottom: 4px;
+  font-size: .6rem; letter-spacing: .12em;
+  color: var(--text-3); margin-bottom: .75rem;
 }
-.post-nav-link {
-  font-size: .85rem;
-  font-weight: 500;
-  color: var(--text);
+.sidebar-meta-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: .3rem 0;
+  border-bottom: .5px solid var(--border);
+  gap: .5rem;
 }
-.post-nav-link:hover { color: var(--cyan); text-decoration: none; }
-.back-link {
-  font-family: var(--font-mono);
-  font-size: .72rem;
-  color: var(--text-3);
+.sidebar-meta-row:last-child { border-bottom: none; }
+.sidebar-meta-key { font-family: var(--font-mono); font-size: .65rem; color: var(--text-3); flex-shrink: 0; }
+.sidebar-meta-val { font-size: .72rem; color: var(--text-2); text-align: right; }
+.sidebar-meta-link { font-size: .72rem; color: var(--accent); text-decoration: none; text-align: right; }
+.sidebar-meta-link:hover { text-decoration: underline; }
+
+/* ── Related posts ────────────────────────────────────────── */
+.related-list { display: flex; flex-direction: column; gap: .125rem; }
+.related-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  gap: 0 .375rem;
+  padding: .5rem 0;
+  border-bottom: .5px solid var(--border);
+  text-decoration: none;
+  transition: background .12s;
 }
-.back-link:hover { color: var(--cyan); text-decoration: none; }
+.related-item:last-child { border-bottom: none; }
+.related-item:hover .related-title { color: var(--accent); }
+.related-category-dot {
+  grid-row: 1 / span 2;
+  width: 6px; height: 6px; border-radius: 50%;
+  margin-top: .35rem; flex-shrink: 0;
+  align-self: start;
+}
+.related-title {
+  font-size: .75rem; color: var(--text); line-height: 1.4;
+  grid-column: 2;
+}
+.related-date {
+  font-family: var(--font-mono); font-size: .6rem;
+  color: var(--text-3); grid-column: 2; margin-top: 2px;
+}
+
+/* ── Naver CTA ────────────────────────────────────────────── */
+.naver-cta {
+  display: flex; align-items: center; gap: .75rem;
+  text-decoration: none; padding: .75rem;
+  background: var(--bg-subtle); border-radius: var(--r-md);
+  border: .5px solid var(--border); transition: border-color .15s;
+}
+.naver-cta:hover { border-color: var(--border-2); text-decoration: none; }
+
+/* ── Meta row under title ─────────────────────────────────── */
+.post-meta-row {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+  margin-bottom: 1.75rem;
+}
+.category-chip {
+  display: inline-flex; align-items: center; gap: .3rem;
+  padding: .25rem .75rem; border-radius: 20px; font-size: .72rem;
+  border: .5px solid color-mix(in srgb, var(--chip-color) 35%, transparent);
+  background: color-mix(in srgb, var(--chip-color) 10%, transparent);
+  color: var(--chip-color); text-decoration: none;
+}
+.category-chip:hover { background: color-mix(in srgb, var(--chip-color) 20%, transparent); text-decoration: none; }
+.featured-badge {
+  font-family: var(--font-mono); font-size: .65rem;
+  color: #fbbf24; border: .5px solid rgba(251,191,36,.3);
+  border-radius: 20px; padding: .2rem .625rem;
+}
+.naver-link { font-family: var(--font-mono); font-size: .68rem; color: var(--text-2); text-decoration: none; border: .5px solid var(--border-2); border-radius: 4px; padding: 2px 8px; }
+.naver-link:hover { color: var(--accent); }
+
+/* ── Prev/Next ────────────────────────────────────────────── */
+.post-nav {
+  margin-top: 4rem; padding-top: 2rem;
+  border-top: .5px solid var(--border);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+}
+.post-nav-label { font-family: var(--font-mono); font-size: .65rem; color: var(--text-3); margin-bottom: 4px; }
+.post-nav-link  { font-size: .85rem; font-weight: 500; color: var(--text); text-decoration: none; }
+.post-nav-link:hover { color: var(--accent); }
+.back-link { font-family: var(--font-mono); font-size: .72rem; color: var(--text-3); text-decoration: none; }
+.back-link:hover { color: var(--cyan); }
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .post-layout { grid-template-columns: 1fr; }
+  .post-sidebar {
+    position: static;
+    flex-direction: row; flex-wrap: wrap;
+  }
+  .post-sidebar .sidebar-widget { flex: 1 1 220px; }
+}
 </style>

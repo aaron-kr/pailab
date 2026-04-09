@@ -4,26 +4,182 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
 import NoteRow from "@/components/NoteRow.astro";
 import { getCollection } from "astro:content";
-import { t } from "@/i18n/translations";
 
 const lang = "en" as const;
-const notes = (await getCollection("notes")).sort(
-  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
-);
+
+const [notes, areas] = await Promise.all([
+  getCollection("notes").then(ns =>
+    ns.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
+  ),
+  getCollection("areas").then(as => as.sort((a, b) => a.data.order - b.data.order)),
+]);
+
+// Build category → area map for colored chips
+const areaMap = new Map(areas.map(a => [a.data.slug, a]));
+
+// All unique tags across all notes
+const allTags = Array.from(new Set(notes.flatMap(n => n.data.tags ?? []))).sort();
+
+// Active filter state is client-side; we render everything
 ---
 
 <BaseLayout lang={lang} title="Notes · PAI LAB"
   description="Lab updates, tutorials, and field notes from the Physical AI Laboratory.">
 
-  <PageHeader
-    title="Notes"
-    eyebrow="05 · NOTES"
-    description="Lab updates, tutorials, and field notes — in English and 한국어."
-  />
+  <PageHeader title="Notes" eyebrow="05 · NOTES"
+    description="Lab updates, tutorials, and field notes — in English and 한국어." />
 
   <div class="container page-content">
-    <div class="row-list">
-      {notes.map((note) => <NoteRow note={note} lang={lang} />)}
+
+    <!-- Category chips (colored) -->
+    {areas.length > 0 && (
+      <div class="filter-section">
+        <p class="filter-label">RESEARCH AREAS</p>
+        <div class="filter-chips">
+          <button class="chip chip--active" data-filter-type="all" data-filter-value="all">
+            All ({notes.length})
+          </button>
+          {areas.map(area => {
+            const count = notes.filter(n => n.data.category === area.data.slug).length;
+            if (count === 0) return null;
+            return (
+              <a
+                href={`/notes/category/${area.data.slug}`}
+                class="chip chip--category"
+                style={`--chip-color: ${area.data.color ?? "var(--cyan)"}`}
+                data-filter-type="category"
+                data-filter-value={area.data.slug}
+              >
+                {area.data.icon} {area.data.title}
+                <span class="chip-count">{count}</span>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    )}
+
+    <!-- Tag chips (uncolored) -->
+    {allTags.length > 0 && (
+      <div class="filter-section" style="margin-top:1rem;">
+        <p class="filter-label">TAGS</p>
+        <div class="filter-chips">
+          {allTags.map(tag => {
+            const count = notes.filter(n => (n.data.tags ?? []).includes(tag)).length;
+            return (
+              <button
+                class="chip chip--tag"
+                data-filter-type="tag"
+                data-filter-value={tag}
+              >
+                {tag}
+                <span class="chip-count">{count}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    )}
+
+    <!-- Notes list -->
+    <div class="row-list" id="notes-list" style="margin-top:2rem;">
+      {notes.map(note => (
+        <div
+          class="note-filter-row"
+          data-category={note.data.category ?? ""}
+          data-tags={JSON.stringify(note.data.tags ?? [])}
+        >
+          <NoteRow note={note} lang={lang} />
+        </div>
+      ))}
     </div>
+
+    <div id="no-results" style="display:none; padding:2rem 0; text-align:center; color:var(--text-3); font-size:.85rem;">
+      No notes match this filter.
+    </div>
+
   </div>
 </BaseLayout>
+
+<script>
+// Client-side tag filtering (categories link out, tags filter inline)
+let activeFilter: { type: string; value: string } = { type: "all", value: "all" };
+
+function applyFilter() {
+  const rows = document.querySelectorAll<HTMLElement>(".note-filter-row");
+  let visible = 0;
+
+  rows.forEach(row => {
+    let show = true;
+    if (activeFilter.type === "tag") {
+      const tags: string[] = JSON.parse(row.dataset.tags ?? "[]");
+      show = tags.includes(activeFilter.value);
+    }
+    row.style.display = show ? "" : "none";
+    if (show) visible++;
+  });
+
+  const noResults = document.getElementById("no-results")!;
+  noResults.style.display = visible === 0 ? "block" : "none";
+
+  // Update active state on tag buttons
+  document.querySelectorAll<HTMLElement>(".chip--tag").forEach(chip => {
+    chip.classList.toggle("chip--active",
+      activeFilter.type === "tag" && chip.dataset.filterValue === activeFilter.value
+    );
+  });
+  const allBtn = document.querySelector<HTMLElement>('[data-filter-value="all"]');
+  if (allBtn) allBtn.classList.toggle("chip--active", activeFilter.type === "all");
+}
+
+document.querySelectorAll<HTMLElement>(".chip--tag, [data-filter-type='all']").forEach(btn => {
+  btn.addEventListener("click", () => {
+    activeFilter = {
+      type:  btn.dataset.filterType!,
+      value: btn.dataset.filterValue!,
+    };
+    applyFilter();
+  });
+});
+</script>
+
+<style>
+.filter-section { }
+.filter-label {
+  font-family: var(--font-mono); font-size: .6rem;
+  color: var(--text-3); letter-spacing: .12em; margin-bottom: .625rem;
+}
+.filter-chips { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+.chip {
+  display: inline-flex; align-items: center; gap: .375rem;
+  padding: .3rem .75rem;
+  border-radius: 20px;
+  font-size: .72rem;
+  border: .5px solid var(--border-2);
+  background: transparent;
+  color: var(--text-2);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.chip:hover { background: var(--bg-subtle); color: var(--text); text-decoration: none; }
+.chip--active { background: var(--bg-subtle); color: var(--text); border-color: var(--border-2); }
+
+/* Colored category chips */
+.chip--category {
+  border-color: color-mix(in srgb, var(--chip-color, var(--cyan)) 35%, transparent);
+  color: var(--chip-color, var(--cyan));
+  background: color-mix(in srgb, var(--chip-color, var(--cyan)) 8%, transparent);
+}
+.chip--category:hover {
+  background: color-mix(in srgb, var(--chip-color, var(--cyan)) 18%, transparent);
+  color: var(--chip-color, var(--cyan));
+}
+
+.chip-count {
+  font-family: var(--font-mono);
+  font-size: .6rem;
+  opacity: .6;
+}
+</style>

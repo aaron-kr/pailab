@@ -5,35 +5,24 @@ import PageHeader from "@/components/PageHeader.astro";
 import { getCollection } from "astro:content";
 
 const lang = "en" as const;
-const modules = (await getCollection("modules")).sort(
-  (a, b) => a.data.order - b.data.order
-);
+const modules = (await getCollection("modules")).sort((a,b) => a.data.order - b.data.order);
 ---
 
-<BaseLayout lang={lang} title="Course plug-in modules · PAI LAB"
+<BaseLayout lang={lang} title="Course Plug-in Modules · PAI LAB"
   description="Self-contained Physical AI add-ons for any university course.">
-
-  <PageHeader
-    title="Plug-in Modules"
-    eyebrow="04 · MODULES"
-    description="Self-contained Physical AI add-ons for courses not primarily focused on AI — drop one in for 1–2 weeks of hands-on physical computing."
-  />
+  <PageHeader title="Plug-in Modules" eyebrow="04 · MODULES"
+    description="Self-contained Physical AI add-ons for courses not primarily focused on AI — drop one in for 1–2 weeks of hands-on physical computing." />
 
   <div class="container page-content">
-    <div class="card-grid">
-      {modules.map((mod) => (
-        <div class="card module-card">
-          <div style="font-family:var(--font-mono); font-size:.68rem; color:var(--text-3); margin-bottom:.5rem;">
-            MODULE · {mod.data.course_tag.toUpperCase()}
-          </div>
-          <h3 style="font-size:.9rem; margin-bottom:.375rem;">{mod.data.title}</h3>
-          {mod.data.title_ko && (
-            <p style="font-size:.75rem; color:var(--text-3); margin-bottom:.5rem;">{mod.data.title_ko}</p>
-          )}
-          <p style="font-size:.8rem; color:var(--text-2); margin-bottom:.875rem; line-height:1.6;">
-            {mod.data.description}
-          </p>
-          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+    <div class="module-grid">
+      {modules.map(mod => (
+        <div class="module-card card">
+          <div class="module-bar"></div>
+          <div class="module-course-tag">{mod.data.course_tag.toUpperCase()}</div>
+          <h3 class="module-title">{mod.data.title}</h3>
+          {mod.data.title_ko && <p class="module-ko">{mod.data.title_ko}</p>}
+          <p class="module-desc">{mod.data.description}</p>
+          <div class="module-footer">
             <span class="tag">{mod.data.course_tag}</span>
             <span class="tag">{mod.data.duration}</span>
           </div>
@@ -42,3 +31,25 @@ const modules = (await getCollection("modules")).sort(
     </div>
   </div>
 </BaseLayout>
+
+<style>
+.module-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:1.25rem; }
+.module-card {
+  position:relative; overflow:hidden; padding:1.5rem;
+  display:flex; flex-direction:column;
+  transition: border-color .2s, transform .2s;
+}
+.module-card:hover { border-color:var(--border-2); transform:translateY(-3px); }
+.module-bar {
+  position:absolute; top:0; left:0; right:0; height:2.5px;
+  background:linear-gradient(90deg, var(--blue), var(--cyan));
+  transform:scaleX(0); transform-origin:left;
+  transition:transform .32s cubic-bezier(.4,0,.2,1);
+}
+.module-card:hover .module-bar { transform:scaleX(1); }
+.module-course-tag { font-family:var(--font-mono); font-size:.6rem; color:var(--blue); letter-spacing:.1em; margin-bottom:.625rem; }
+.module-title { font-size:.9rem; font-weight:600; margin-bottom:.375rem; line-height:1.3; }
+.module-ko    { font-size:.72rem; color:var(--text-3); margin-bottom:.625rem; }
+.module-desc  { font-size:.78rem; color:var(--text-2); line-height:1.65; flex:1; margin-bottom:1rem; }
+.module-footer { margin-top:auto; display:flex; gap:6px; flex-wrap:wrap; }
+</style>

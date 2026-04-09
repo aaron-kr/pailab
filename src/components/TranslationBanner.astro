@@ -1,0 +1,71 @@
+---
+// src/components/TranslationBanner.astro
+// Shows a dismissible alert when ?notranslated=1 is present in the URL.
+// Add <TranslationBanner /> inside BaseLayout, just after the <nav>.
+---
+<div id="translation-banner" style="display:none;" role="alert">
+  <div class="tl-banner-inner container">
+    <span class="tl-banner-icon">🌐</span>
+    <span class="tl-banner-text">
+      This page isn't available in Korean yet — showing the English version.
+      <a href="#" id="tl-banner-ko-link" style="color:inherit; text-decoration:underline;">한국어 홈으로</a>
+    </span>
+    <button id="tl-banner-close" aria-label="Dismiss">✕</button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has("notranslated")) return;
+
+    const banner = document.getElementById("translation-banner");
+    if (banner) banner.style.display = "block";
+
+    // Clean the URL without reloading
+    const cleanUrl = window.location.pathname + window.location.hash;
+    history.replaceState(null, "", cleanUrl);
+
+    // Link back to /ko/
+    const link = document.getElementById("tl-banner-ko-link") as HTMLAnchorElement;
+    if (link) link.href = "/ko/";
+
+    // Dismiss
+    document.getElementById("tl-banner-close")?.addEventListener("click", () => {
+      if (banner) banner.style.display = "none";
+    });
+  })();
+</script>
+
+<style>
+#translation-banner {
+  background: var(--info-bg, #e8f0fe);
+  border-bottom: .5px solid rgba(26,86,219,.2);
+  padding: .5rem 0;
+  font-size: .8rem;
+  color: var(--info-text, #1a56db);
+}
+[data-theme="dark"] #translation-banner {
+  background: rgba(36,180,255,.08);
+  border-bottom-color: rgba(36,180,255,.15);
+  color: var(--cyan);
+}
+.tl-banner-inner {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+.tl-banner-icon { flex-shrink: 0; }
+.tl-banner-text { flex: 1; }
+#tl-banner-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: .85rem;
+  color: inherit;
+  opacity: .6;
+  padding: 2px 6px;
+  flex-shrink: 0;
+}
+#tl-banner-close:hover { opacity: 1; }
+</style>

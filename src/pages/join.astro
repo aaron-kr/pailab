@@ -1,0 +1,128 @@
+---
+// src/pages/join.astro
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageHeader from "@/components/PageHeader.astro";
+---
+
+<BaseLayout lang="en" title="Join the Lab · PAI LAB"
+  description="Research opportunities at the PAI Laboratory — working with undergraduates on real Physical AI projects.">
+
+  <PageHeader title="Join the Lab" eyebrow="JOIN US"
+    description="We work with motivated undergraduates on real Physical AI projects — hardware, software, and publication." size="md" />
+
+  <div class="container page-content">
+    <div class="join-layout">
+
+      <!-- Main -->
+      <div>
+        <div class="card" style="margin-bottom:1.5rem;">
+          <p class="app-card-title">WHO WE'RE LOOKING FOR</p>
+          <p style="font-size:.88rem; color:var(--text-2); line-height:1.85; margin-bottom:1rem;">
+            The PAI Lab works with students who want to build things and write about them.
+            Prior AI background is helpful but not required — curiosity and follow-through matter more.
+          </p>
+          <div class="profile-grid-join">
+            {[
+              { icon:"🔧", role:"Hardware / Embedded", desc:"Comfortable with Arduino, Raspberry Pi, ESP32, or eager to learn. You'll build the physical side." },
+              { icon:"🧠", role:"ML / Computer Vision",  desc:"Image models, edge inference, YOLO variants. You'll bring intelligence to the hardware." },
+              { icon:"✍️", role:"Strong Writer",          desc:"Can draft clearly and iterate fast. Invaluable at paper time." },
+              { icon:"🔩", role:"Generalist Engineer",    desc:"Clean code, good documentation, happy to switch tasks. The team glue." },
+            ].map(p => (
+              <div class="profile-card">
+                <span style="font-size:1.5rem;">{p.icon}</span>
+                <h3 style="font-size:.85rem; font-weight:600; margin:.5rem 0 .25rem;">{p.role}</h3>
+                <p style="font-size:.75rem; color:var(--text-2); line-height:1.6;">{p.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:1.5rem;">
+          <p class="app-card-title">WHAT YOU'LL DO</p>
+          <ul class="join-list">
+            <li>Work on a focused Physical AI project (6–8 week sprints)</li>
+            <li>Write and publish — we target conference papers together</li>
+            <li>Weekly check-ins and structured feedback on your work</li>
+            <li>Gain experience with NVIDIA Jetson, ROS 2, and edge AI tooling</li>
+            <li>Build a public portfolio of code, datasets, and papers on GitHub</li>
+          </ul>
+        </div>
+
+        <div class="card" style="margin-bottom:1.5rem;">
+          <p class="app-card-title">CURRENT OPENINGS</p>
+          <p style="font-size:.82rem; color:var(--text-2); margin-bottom:1rem;">
+            We typically take on 4–6 students per semester. Check back or reach out directly.
+          </p>
+          <div class="opening-list">
+            {[
+              { title:"Edge Vision for Robotic Perception",    tags:["Computer Vision","Jetson Nano","YOLO"] },
+              { title:"Gesture-Controlled Robotic Arm",        tags:["ROS 2","Robotics","Edge AI"] },
+              { title:"PAI-9 Framework Validation Study",      tags:["Survey","Education","Writing"] },
+              { title:"Physical LLM Interface",                tags:["LLM","Task Planning","Robotics"] },
+            ].map(o => (
+              <div class="opening-row">
+                <div>
+                  <p style="font-size:.85rem; font-weight:500;">{o.title}</p>
+                  <div style="display:flex; gap:5px; flex-wrap:wrap; margin-top:.375rem;">
+                    {o.tags.map(t => <span class="tag">{t}</span>)}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar CTA -->
+      <aside class="join-sidebar">
+        <div class="card" style="text-align:center; padding:2rem 1.5rem;">
+          <p style="font-size:2rem; margin-bottom:.75rem;">📬</p>
+          <p style="font-size:.9rem; font-weight:600; margin-bottom:.5rem;">Ready to apply?</p>
+          <p style="font-size:.78rem; color:var(--text-2); line-height:1.65; margin-bottom:1.5rem;">
+            Send a short email describing one project or thing you're proud of.
+            No formal CV needed.
+          </p>
+          <a href="https://aaronsnowberger.com" target="_blank" class="btn-primary btn-full">
+            Get in touch →
+          </a>
+          <a href="/about" class="btn-outline-sm" style="margin-top:.75rem;">
+            About the PI
+          </a>
+        </div>
+
+        <div class="card" style="margin-top:1.25rem;">
+          <p class="app-card-title">BEFORE YOU WRITE</p>
+          <ul class="sidebar-list">
+            <li>Browse the <a href="/research">research</a> to understand what we work on</li>
+            <li>Check the <a href="/projects">projects page</a> for current work</li>
+            <li>Complete one <a href="https://courses.nvidia.com" target="_blank">NVIDIA DLI course</a> (optional but impressive)</li>
+          </ul>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+.join-layout { display:grid; grid-template-columns:1fr 260px; gap:2rem; align-items:start; }
+.join-sidebar { position:sticky; top:calc(var(--nav-h) + 1.5rem); }
+.profile-grid-join { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:.875rem; }
+.profile-card {
+  background:var(--bg-subtle); border-radius:var(--r-md); padding:1rem;
+  display:flex; flex-direction:column;
+}
+.join-list { padding-left:1.25rem; display:flex; flex-direction:column; gap:.5rem; }
+.join-list li { font-size:.82rem; color:var(--text-2); line-height:1.6; }
+.opening-list { display:flex; flex-direction:column; }
+.opening-row { padding:.75rem 0; border-bottom:.5px solid var(--border); }
+.opening-row:last-child { border-bottom:none; }
+.sidebar-list { padding-left:1.25rem; display:flex; flex-direction:column; gap:.5rem; }
+.sidebar-list li { font-size:.78rem; color:var(--text-2); line-height:1.6; }
+.sidebar-list a { color:var(--accent); }
+.btn-primary { background:linear-gradient(135deg,var(--green),#0a9a87); color:#fff; border:none; border-radius:var(--r-md); padding:.7rem 1.5rem; font-size:.82rem; font-weight:600; font-family:var(--font-display); cursor:pointer; text-decoration:none; display:inline-block; }
+.btn-full { display:block; text-align:center; }
+.btn-outline-sm { display:block; text-align:center; font-family:var(--font-mono); font-size:.72rem; color:var(--text-2); text-decoration:none; border:.5px solid var(--border-2); border-radius:var(--r-md); padding:.5rem; transition:border-color .15s; }
+.btn-outline-sm:hover { border-color:var(--cyan); color:var(--cyan); text-decoration:none; }
+@media (max-width:760px) { .join-layout { grid-template-columns:1fr; } .join-sidebar { position:static; } .profile-grid-join { grid-template-columns:1fr; } }
+</style>

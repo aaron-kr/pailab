@@ -99,11 +99,19 @@ export function t(lang: Lang, key: TranslationKey): string {
   return translations[lang][key] ?? translations["en"][key] ?? key;
 }
 
-// Utility: get alternate lang URL
+// ── FIXED altLangUrl ─────────────────────────────────────
+// Bug: clicking /ko toggle repeatedly added /ko/ko/ko...
+// Fix: always strip ALL leading /ko before rebuilding the URL.
+
 export function altLangUrl(currentPath: string, currentLang: Lang): string {
-  const otherLang: Lang = currentLang === "en" ? "ko" : "en";
+  // Strip ALL instances of /ko from the beginning (handles the /ko/ko/ko bug)
+  const cleanPath = currentPath.replace(/^(\/ko)+/, "") || "/";
+
   if (currentLang === "en") {
-    return `/ko${currentPath}`;
+    // Going to Korean: prepend /ko
+    return `/ko${cleanPath}`;
+  } else {
+    // Going to English: just the clean path
+    return cleanPath;
   }
-  return currentPath.replace(/^\/ko/, "") || "/";
 }

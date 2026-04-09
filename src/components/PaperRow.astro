@@ -1,46 +1,140 @@
 ---
 // src/components/PaperRow.astro
-// Editorial list-row style for papers — used on homepage + /research page.
-import type { CollectionEntry } from "astro:content";
-import { type Lang } from "@/i18n/translations";
+// Paper row with optional thumbnail — same editorial row style, 
+// but adds a small image column on the left when thumbnailUrl is set.
+// Thumbnail is 72×72px clipped square — a figure, diagram, or cover excerpt.
+// Completely optional — rows without a thumbnail look identical to before.
+
+import { type CollectionEntry } from "astro:content";
+import type { Lang } from "@/i18n/translations";
 
 interface Props {
   paper: CollectionEntry<"research">;
-  lang: Lang;
+  lang?: Lang;
 }
-const { paper, lang } = Astro.props;
-const { title, title_ko, authors, venue, year, status, doi, pdf, tags } = paper.data;
-const displayTitle = lang === "ko" && title_ko ? title_ko : title;
 
-const pillClass = status === "published" ? "ok" : status === "in-review" ? "warn" : "blue";
-const pillLabel: Record<string, Record<Lang, string>> = {
-  "published": { en:"Published",  ko:"게시됨"  },
-  "in-review": { en:"In review",  ko:"검토 중" },
-  "preprint":  { en:"Preprint",   ko:"프리프린트" },
+const { paper, lang = "en" } = Astro.props;
+const { title, title_ko, authors, venue, year, status, doi, pdf, tags, thumbnailUrl } = paper.data;
+
+const displayTitle = lang === "ko" && title_ko ? title_ko : title;
+const altTitle     = lang === "ko" ? title : title_ko;
+
+const statusColor: Record<string, string> = {
+  "published": "var(--green-glow)",
+  "in-review": "var(--cyan)",
+  "preprint":  "var(--blue)",
 };
 ---
 
-<div class="paper-row">
-  <div>
-    <span class="paper-year">{year}</span>
-  </div>
-  <div>
-    <span class="paper-venue">{venue}</span>
-    <p class="paper-title-row">
-      {doi
-        ? <a href={doi} target="_blank" rel="noopener">{displayTitle}</a>
-        : <span>{displayTitle}</span>
-      }
-      {pdf && !doi && <a href={pdf} target="_blank" rel="noopener">{displayTitle}</a>}
-    </p>
+<div class:list={["paper-row", { "paper-row--has-thumb": !!thumbnailUrl }]}>
+
+  {/* Thumbnail (optional) */}
+  {thumbnailUrl && (
+    <div class="paper-thumb">
+      <img src={thumbnailUrl} alt={displayTitle} loading="lazy" />
+    </div>
+  )}
+
+  {/* Content */}
+  <div class="paper-content">
+    <div class="paper-top">
+      <div class="paper-venue-year">
+        <span class="paper-year">{year}</span>
+        <span class="paper-sep">·</span>
+        <span class="paper-venue">{venue}</span>
+      </div>
+      <span class="status-pill" style={`color:${statusColor[status] ?? "var(--text-3)"}; border-color:${statusColor[status] ?? "var(--border-2)"}`}>
+        {status}
+      </span>
+    </div>
+
+    <h3 class="paper-title">{displayTitle}</h3>
+    {altTitle && <p class="paper-alt-title">{altTitle}</p>}
+
     <p class="paper-authors">{authors}</p>
-    <div>
-      {tags.map((tag) => (
-        <span class={`tag${tag === "Physical AI" ? " green" : tag === "Dataset" ? " pink" : tag === "Vision" || tag === "Script OCR" || tag === "ML" || tag === "Inference" ? " blue" : ""}`}>
-          {tag}
-        </span>
-      ))}
+
+    <div class="paper-footer">
+      <div style="display:flex; gap:5px; flex-wrap:wrap;">
+        {tags.map(tag => <span class="tag">{tag}</span>)}
+      </div>
+      <div class="paper-links">
+        {doi && <a href={doi} target="_blank" rel="noopener" class="paper-link">DOI ↗</a>}
+        {pdf && <a href={pdf} target="_blank" rel="noopener" class="paper-link">PDF ↗</a>}
+      </div>
     </div>
   </div>
-  <span class={`pill ${pillClass}`}>{pillLabel[status][lang]}</span>
+
 </div>
+
+<style>
+.paper-row {
+  display: flex;
+  gap: 1.25rem;
+  padding: 1rem 0;
+  border-top: .5px solid var(--border);
+  align-items: flex-start;
+}
+.paper-row:first-child { border-top: none; }
+
+/* Thumbnail */
+.paper-thumb {
+  width: 68px;
+  height: 68px;
+  flex-shrink: 0;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: var(--bg-subtle);
+  border: .5px solid var(--border);
+}
+.paper-thumb img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+}
+
+/* Content */
+.paper-content { flex: 1; min-width: 0; }
+.paper-top {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: .5rem; margin-bottom: .375rem;
+}
+.paper-venue-year {
+  display: flex; align-items: center; gap: .375rem;
+  font-family: var(--font-mono); font-size: .65rem; color: var(--text-3);
+}
+.paper-sep { opacity: .4; }
+.paper-year { font-weight: 500; }
+.paper-venue { }
+.status-pill {
+  font-family: var(--font-mono); font-size: .58rem;
+  border: .5px solid; border-radius: 3px; padding: 1px 6px;
+  white-space: nowrap; flex-shrink: 0;
+}
+
+.paper-title {
+  font-size: .9rem; font-weight: 500; line-height: 1.45;
+  margin-bottom: .25rem; color: var(--text);
+}
+.paper-alt-title {
+  font-size: .75rem; color: var(--text-3); margin-bottom: .375rem;
+}
+.paper-authors {
+  font-size: .72rem; color: var(--text-2); margin-bottom: .625rem;
+  font-style: italic;
+}
+
+.paper-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: .5rem;
+}
+.paper-links { display: flex; gap: .5rem; flex-shrink: 0; }
+.paper-link {
+  font-family: var(--font-mono); font-size: .65rem; color: var(--cyan);
+  text-decoration: none; border: .5px solid rgba(36,180,255,.2);
+  border-radius: 3px; padding: 1px 7px;
+  transition: background .12s;
+}
+.paper-link:hover { background: rgba(36,180,255,.1); }
+
+/* When no thumbnail, the row is more compact */
+.paper-row:not(.paper-row--has-thumb) .paper-content { padding-left: 0; }
+</style>

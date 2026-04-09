@@ -1,12 +1,13 @@
 ---
 // src/layouts/BaseLayout.astro
-// ─── KEY CHANGE: <main> has NO container class. ───────────────────────────────
-// The homepage uses full-bleed sections with internal .container wrappers.
-// Content pages use <PageHeader> + their own <div class="container page-content">.
-// This way the hero, join section, etc. can be truly full-width.
+// Changes from previous version:
+// • Imports + renders <TranslationBanner /> for ?notranslated=1 redirects
+// • <main> has no container — pages manage their own width
+// (Identical otherwise)
 
 import Nav from "@/components/Nav.astro";
 import Footer from "@/components/Footer.astro";
+import TranslationBanner from "@/components/TranslationBanner.astro";
 import "@/styles/global.css";
 
 interface Props {
@@ -23,7 +24,7 @@ const {
   ogImage = "/og-default.png",
 } = Astro.props;
 
-const siteName = lang === "ko" ? "피지컬 AI 연구소" : "PAI LAB";
+const siteName  = lang === "ko" ? "피지컬 AI 연구소" : "PAI LAB";
 const fullTitle = title.includes("PAI LAB") ? title : `${title} · ${siteName}`;
 ---
 
@@ -43,7 +44,7 @@ const fullTitle = title.includes("PAI LAB") ? title : `${title} · ${siteName}`;
 
   <link rel="canonical" href={Astro.url.href} />
   {lang === "en" && <link rel="alternate" hreflang="ko" href={`/ko${Astro.url.pathname}`} />}
-  {lang === "ko" && <link rel="alternate" hreflang="en" href={Astro.url.pathname.replace(/^\/ko/, "") || "/"} />}
+  {lang === "ko" && <link rel="alternate" hreflang="en" href={Astro.url.pathname.replace(/^(\/ko)+/, "") || "/"} />}
   <link rel="alternate" hreflang="x-default" href={Astro.url.pathname} />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
@@ -53,11 +54,10 @@ const fullTitle = title.includes("PAI LAB") ? title : `${title} · ${siteName}`;
 
   <title>{fullTitle}</title>
 
-  <!-- Theme: read saved preference BEFORE paint to avoid flash -->
   <script is:inline>
     (function () {
       const saved = localStorage.getItem("pailab-theme");
-      const sys = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      const sys   = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
       document.documentElement.setAttribute("data-theme", saved || "dark");
     })();
   </script>
@@ -65,8 +65,8 @@ const fullTitle = title.includes("PAI LAB") ? title : `${title} · ${siteName}`;
 
 <body>
   <Nav lang={lang} currentPath={Astro.url.pathname} />
+  <TranslationBanner />
 
-  <!-- ── NO container here — pages manage their own width ── -->
   <main>
     <slot />
   </main>
@@ -80,15 +80,14 @@ const fullTitle = title.includes("PAI LAB") ? title : `${title} · ${siteName}`;
   <script>
     const btn = document.getElementById("theme-toggle");
     if (btn) {
-      const html = document.documentElement;
       const update = (t: string) => {
-        html.setAttribute("data-theme", t);
+        document.documentElement.setAttribute("data-theme", t);
         localStorage.setItem("pailab-theme", t);
         btn.textContent = t === "dark" ? "☀" : "☾";
       };
-      update(html.getAttribute("data-theme") ?? "dark");
+      update(document.documentElement.getAttribute("data-theme") ?? "dark");
       btn.addEventListener("click", () => {
-        update(html.getAttribute("data-theme") === "dark" ? "light" : "dark");
+        update(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark");
       });
     }
   </script>

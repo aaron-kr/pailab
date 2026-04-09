@@ -1,42 +1,247 @@
 ---
 // src/components/Nav.astro
+// ── HOW TO CONFIGURE NAV ─────────────────────────────────
+// Edit NAV_CONFIG below. Each item is either a direct link or a dropdown.
+//   { label: "Research", href: "/#research" }         ← direct link
+//   { label: "Research", items: [...] }               ← dropdown group
+// Use `prefix` (injected below) to prefix href with /ko when in Korean.
+// ─────────────────────────────────────────────────────────
+
 import { t, altLangUrl, type Lang } from "@/i18n/translations";
 
 interface Props {
   lang: Lang;
   currentPath: string;
 }
+
 const { lang, currentPath } = Astro.props;
 const altUrl = altLangUrl(currentPath, lang);
-const prefix = lang === "ko" ? "/ko" : "";
+const p = lang === "ko" ? "/ko" : ""; // path prefix
+
+// ═══════════════════════════════════════════════════════════
+// NAV CONFIG — edit this to change the navigation structure
+// Set `hideOnKo: true` for items that don't have a Korean version yet
+// ═══════════════════════════════════════════════════════════
+const NAV: Array<
+  | { label: string; href: string; hideOnKo?: boolean }
+  | { label: string; items: { label: string; href: string; hideOnKo?: boolean }[] }
+> = [
+  {
+    label: "Research",
+    items: [
+      { label: "Areas",        href: `${p}/areas` },
+      { label: "Papers",       href: `${p}/research` },
+      { label: "Projects",     href: `${p}/projects` },
+    ],
+  },
+  {
+    label: "Learn",
+    items: [
+      { label: "Curriculum",   href: `${p}/curriculum` },
+      { label: "Modules",      href: `${p}/modules` },
+      { label: "Notes",        href: `${p}/notes` },
+    ],
+  },
+  { label: "Team",   href: `/team` },
+  { label: "Join",   href: `${p}/join` },
+  { label: "About",  href: `${p}/about` },
+];
+// ═══════════════════════════════════════════════════════════
 ---
 
 <nav class="site-nav">
   <div class="nav-inner container">
-    <a href={`${prefix}/`} class="nav-logo">
+
+    <a href={`${p}/`} class="nav-logo">
       <img src="/logo-horz.png" alt="PAI LAB" class="nav-logo-img" />
-      <span class="sub">{t(lang, "nav_subtitle")}</span>
+      <span class="sub">피지컬 AI 연구소</span>
     </a>
 
-    <ul class="nav-links">
-      <li><a href={`${prefix}/#areas`}>{t(lang, "nav_research")}</a></li>
-      <li><a href={`${prefix}/research`}>Papers</a></li>
-      <li><a href={`${prefix}/projects`}>{t(lang, "nav_projects")}</a></li>
-      <li><a href={`${prefix}/curriculum`}>{t(lang, "nav_curriculum")}</a></li>
-      <li><a href={`${prefix}/modules`}>{t(lang, "nav_modules")}</a></li>
-      <li><a href={`${prefix}/team`}>{t(lang, "nav_team")}</a></li>
-      <li><a href={`${prefix}/notes`}>{t(lang, "nav_notes")}</a></li>
-      <li><a href={`${prefix}/#join`}>Join</a></li>
-      <li><a href={`${prefix}/about`}>{t(lang, "nav_about")}</a></li>
+    <ul class="nav-links" id="nav-links">
+      {NAV.map((item) => {
+        if ("href" in item) {
+          // Simple link
+          if (item.hideOnKo && lang === "ko") return null;
+          return (
+            <li>
+              <a href={item.href} class:list={["nav-link", { active: currentPath === item.href }]}>
+                {item.label}
+              </a>
+            </li>
+          );
+        } else {
+          // Dropdown
+          const visibleItems = item.items.filter(i => !(i.hideOnKo && lang === "ko"));
+          if (visibleItems.length === 0) return null;
+          return (
+            <li class="nav-dropdown-wrap">
+              <button class="nav-link nav-dropdown-trigger" aria-expanded="false" aria-haspopup="true">
+                {item.label}
+                <svg class="nav-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none">
+                  <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <ul class="nav-dropdown">
+                {visibleItems.map((sub) => (
+                  <li>
+                    <a href={sub.href} class="nav-dropdown-item">
+                      {sub.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          );
+        }
+      })}
     </ul>
 
     <div class="nav-controls">
-      <a href={altUrl} class="btn-ghost" aria-label="Switch language">
-        {lang === "en" ? "한국어" : "English"}
+      <a href={altUrl} class="btn-ghost lang-toggle" aria-label="Switch language">
+        {lang === "en" ? "한국어" : "EN"}
       </a>
-      <div style="width:.5px;height:16px;background:var(--border-2)"></div>
-      <button id="theme-toggle" class="btn-ghost" aria-label="Toggle theme" style="padding:4px 8px;font-size:.8rem">☀</button>
-      <a id="login-link" class="btn-ghost" href={`${prefix}/login`} style="padding:4px 8px;font-size:.8rem">🔒</a>
+      <div class="nav-sep"></div>
+      <button id="theme-toggle" class="btn-ghost theme-toggle" aria-label="Toggle theme">☀</button>
     </div>
+
   </div>
 </nav>
+
+<script>
+// Dropdown toggle
+document.querySelectorAll<HTMLButtonElement>(".nav-dropdown-trigger").forEach(btn => {
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const wrap = btn.closest(".nav-dropdown-wrap")!;
+    const isOpen = wrap.classList.contains("open");
+
+    // Close all dropdowns first
+    document.querySelectorAll(".nav-dropdown-wrap.open").forEach(w => {
+      w.classList.remove("open");
+      (w.querySelector(".nav-dropdown-trigger") as HTMLButtonElement).setAttribute("aria-expanded", "false");
+    });
+
+    if (!isOpen) {
+      wrap.classList.add("open");
+      btn.setAttribute("aria-expanded", "true");
+    }
+  });
+});
+
+// Close on outside click
+document.addEventListener("click", () => {
+  document.querySelectorAll(".nav-dropdown-wrap.open").forEach(w => {
+    w.classList.remove("open");
+    (w.querySelector(".nav-dropdown-trigger") as HTMLButtonElement).setAttribute("aria-expanded", "false");
+  });
+});
+
+// Close on Escape
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    document.querySelectorAll(".nav-dropdown-wrap.open").forEach(w => {
+      w.classList.remove("open");
+    });
+  }
+});
+</script>
+
+<style>
+/* ── Dropdown ─────────────────────────────────────────────── */
+.nav-dropdown-wrap {
+  position: relative;
+}
+
+.nav-dropdown-trigger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-sans, inherit);
+  /* inherits .nav-link styles via the class */
+}
+
+.nav-chevron {
+  transition: transform .2s ease;
+  opacity: .6;
+}
+.nav-dropdown-wrap.open .nav-chevron {
+  transform: rotate(180deg);
+}
+
+.nav-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 160px;
+  background: var(--bg-surface);
+  border: .5px solid var(--border-2);
+  border-radius: var(--r-lg, 14px);
+  box-shadow: 0 8px 32px rgba(0,0,0,.18), 0 0 0 .5px var(--border);
+  padding: .375rem;
+  z-index: 200;
+  list-style: none;
+  /* Animation */
+  opacity: 0;
+  transform: translateX(-50%) translateY(-6px);
+  transition: opacity .15s ease, transform .15s ease;
+}
+
+.nav-dropdown-wrap.open .nav-dropdown {
+  display: block;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.nav-dropdown-item {
+  display: block;
+  padding: .45rem .875rem;
+  font-size: .78rem;
+  color: var(--text-2);
+  text-decoration: none;
+  border-radius: var(--r-sm, 6px);
+  white-space: nowrap;
+  transition: background .12s, color .12s;
+}
+.nav-dropdown-item:hover {
+  background: var(--bg-subtle);
+  color: var(--text);
+  text-decoration: none;
+}
+
+/* Small chevron separator above dropdown */
+.nav-dropdown::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 8px; height: 8px;
+  background: var(--bg-surface);
+  border-left: .5px solid var(--border-2);
+  border-top: .5px solid var(--border-2);
+}
+
+/* ── Nav misc ─────────────────────────────────────────────── */
+.nav-sep {
+  width: .5px; height: 16px;
+  background: var(--border-2);
+  flex-shrink: 0;
+}
+.nav-link { font-size: .78rem; color: var(--text-2); padding: 0 .6rem; transition: color .15s; }
+.nav-link:hover, .nav-link.active { color: var(--text); text-decoration: none; }
+
+/* Dark mode dropdown */
+[data-theme="dark"] .nav-dropdown {
+  background: var(--bg-surface, #0d1a10);
+  box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 .5px rgba(36,255,252,.1);
+}
+[data-theme="dark"] .nav-dropdown-item:hover {
+  background: var(--bg-subtle, #132018);
+  color: var(--cyan, #24fffc);
+}
+</style>

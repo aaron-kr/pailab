@@ -1,0 +1,15 @@
+---
+// src/pages/ko/404.astro
+// When a /ko/* page doesn't exist, redirect to the EN equivalent
+// with ?notranslated=1 so BaseLayout can show the alert banner.
+---
+<html>
+<head>
+  <script is:inline>
+    // Strip /ko prefix and redirect to EN with alert flag
+    const enPath = window.location.pathname.replace(/^(\/ko)+/, "") || "/";
+    window.location.replace(enPath + "?notranslated=1");
+  </script>
+</head>
+<body></body>
+</html>
