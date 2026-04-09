@@ -42,7 +42,7 @@ export const googleProvider         = new GoogleAuthProvider();
 // ----------------------------------------------------------------
 
 /** Your Google account email — the only admin. */
-export const ADMIN_EMAIL = "aaron.snowberger@gmail.com";
+export const ADMIN_EMAIL = "aaronkr.trainer@gmail.com";
 
 /** Student emails or domains that get member access.
  *  Add student emails here, or use a Firestore allowlist (see auth.ts). */

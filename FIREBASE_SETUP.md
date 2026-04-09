@@ -81,7 +81,7 @@ Add your live domain (e.g. `pailab.io`) — `localhost` is already there by defa
 ## Step 7 — First login & test
 
 1. Deploy or run `npm run dev`
-2. Go to `/login` → sign in with `aaron.snowberger@gmail.com`
+2. Go to `/login` → sign in with `aaronkr.trainer@gmail.com`
 3. You should land on `/admin`
 4. Go to `/admin/tracker` → add your first research idea
 
@@ -105,7 +105,7 @@ To remove access: delete their document from `allowed_members`.
 The admin email is hardcoded in `src/lib/firebase.ts`:
 
 ```ts
-export const ADMIN_EMAIL = "aaron.snowberger@gmail.com";
+export const ADMIN_EMAIL = "aaronkr.trainer@gmail.com";
 ```
 
 Also update `firestore.rules` if you change it.

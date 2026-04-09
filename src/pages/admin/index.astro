@@ -83,12 +83,4 @@ import ProtectedLayout from "../../layouts/ProtectedLayout.astro";
   </div>
 </ProtectedLayout>
 
-<script type="module">
-  import { getAllIdeas } from "../../lib/tracker.ts";
-
-  const ideas = await getAllIdeas();
-  document.getElementById("stat-total").textContent = ideas.length;
-  document.getElementById("stat-active").textContent = ideas.filter(i => i.status === "▶️").length;
-  document.getElementById("stat-done").textContent = ideas.filter(i => i.status === "✅").length;
-  document.getElementById("stat-pai").textContent = ideas.filter(i => i.paiLink?.trim()).length;
-</script>
+<script src="../../scripts/admin-dashboard.ts"></script>

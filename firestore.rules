@@ -18,7 +18,7 @@ service cloud.firestore {
     // this is fine. Swap to custom claims if you want more rigour.
     function isAdmin() {
       return request.auth != null
-          && request.auth.token.email == "aaron.snowberger@gmail.com";
+          && request.auth.token.email == "aaronkr.trainer@gmail.com";
     }
 
     // ── Helper: is the caller a signed-in member or admin? ────────

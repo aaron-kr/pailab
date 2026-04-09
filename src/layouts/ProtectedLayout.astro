@@ -84,25 +84,7 @@ import "../styles/global.css";
       <slot />
     </div>
 
-    <script type="module">
-      import { guardPage, signOut } from "../lib/auth.ts";
-
-      const requiredRole = document.getElementById("auth-loading")
-        ?.dataset.requiredRole ?? "member";
-
-      const { user, role: userRole } = await guardPage(requiredRole);
-
-      document.getElementById("auth-loading").remove();
-      document.getElementById("protected-content").style.display = "block";
-
-      document.querySelectorAll("[data-user-email]")
-        .forEach(el => { el.textContent = user.email ?? ""; });
-      document.querySelectorAll("[data-user-role]")
-        .forEach(el => { el.textContent = userRole; });
-
-      document.querySelectorAll("[data-signout]")
-        .forEach(btn => btn.addEventListener("click", () => signOut()));
-    </script>
+    <script src="../scripts/protected.ts"></script>
 
   </body>
 </html>

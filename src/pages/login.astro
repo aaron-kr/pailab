@@ -116,37 +116,6 @@ import "../styles/global.css";
       <div class="back-link"><a href="/">← Back to PAI Lab</a></div>
     </div>
 
-    <script type="module">
-      import { signInWithGoogle, waitForAuth } from "../lib/auth.ts";
-      import { getRole } from "../lib/firebase.ts";
-
-      // If already signed in, redirect immediately
-      const { user, role } = await waitForAuth();
-      if (user && role !== "public") {
-        redirect(role);
-      }
-
-      document.getElementById("google-signin").addEventListener("click", async () => {
-        try {
-          await signInWithGoogle();
-          const { user: u } = await waitForAuth();
-          const r = getRole(u?.email ?? null);
-          if (r === "public") {
-            document.getElementById("error-msg").style.display = "block";
-          } else {
-            redirect(r);
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      });
-
-      function redirect(role) {
-        const params = new URLSearchParams(window.location.search);
-        const next = params.get("next");
-        if (next) { window.location.href = next; return; }
-        window.location.href = role === "admin" ? "/admin" : "/members";
-      }
-    </script>
+    <script src="../scripts/login.ts"></script>
   </body>
 </html>
