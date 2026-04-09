@@ -10,7 +10,7 @@ import { getCollection } from "astro:content";
 export async function getStaticPaths() {
   const areas = await getCollection("areas");
   return areas.map((area) => ({
-    params: { category: area.data.slug },
+    params: { category: area.slug },
     props:  { area },
   }));
 }
@@ -22,7 +22,7 @@ const lang = "en" as const;
 const allNotes = (await getCollection("notes")).sort(
   (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
 );
-const categoryNotes = allNotes.filter(n => n.data.category === area.data.slug);
+const categoryNotes = allNotes.filter(n => n.data.category === area.slug);
 const featuredNote  = categoryNotes.find(n => n.data.categoryFeatured) ?? null;
 const restNotes     = categoryNotes.filter(n => !n.data.categoryFeatured);
 ---
@@ -37,7 +37,7 @@ const restNotes     = categoryNotes.filter(n => !n.data.categoryFeatured);
     <div class="cat-header-bg" style={`--area-color: ${area.data.color ?? "var(--cyan)"}`}></div>
     <div class="cat-header-grid"></div>
     {area.body && (
-      <div class="cat-header-image" style={`background-image:url('${area.data.slug}-bg.jpg')`}></div>
+      <div class="cat-header-image" style={`background-image:url('${area.slug}-bg.jpg')`}></div>
     )}
     <div class="cat-header-fade"></div>
     <div class="container cat-header-inner">
@@ -99,7 +99,7 @@ const restNotes     = categoryNotes.filter(n => !n.data.categoryFeatured);
       <div style="text-align:center; padding:3rem 0; color:var(--text-3);">
         <p style="font-size:.88rem;">No notes in this category yet.</p>
         <p style="font-size:.78rem; margin-top:.5rem;">
-          Add <code style="font-family:var(--font-mono)">category: "{area.data.slug}"</code>
+          Add <code style="font-family:var(--font-mono)">category: "{area.slug}"</code>
           to a note's frontmatter.
         </p>
       </div>

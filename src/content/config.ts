@@ -1,4 +1,8 @@
 // src/content/config.ts
+// FIX: removed `slug` field from areas schema.
+// Astro auto-generates `slug` from the filename — you cannot declare it in the schema.
+// Access it as `area.slug` (not `area.data.slug`) everywhere.
+
 import { defineCollection, z } from "astro:content";
 
 const research = defineCollection({
@@ -14,8 +18,6 @@ const research = defineCollection({
     pdf:          z.string().url().optional(),
     tags:         z.array(z.string()).default([]),
     featured:     z.boolean().default(false),
-    // Optional thumbnail — a small image from the paper (figure, diagram, etc.)
-    // Use a URL or a path relative to /public/  e.g. "/papers/my-paper-thumb.jpg"
     thumbnailUrl: z.string().optional(),
   }),
 });
@@ -66,47 +68,33 @@ const modules = defineCollection({
 const notes = defineCollection({
   type: "content",
   schema: z.object({
-    title:          z.string(),
-    title_ko:       z.string().optional(),
-    pubDate:        z.date(),
-    lang:           z.enum(["en", "ko", "both"]).default("en"),
-    tags:           z.array(z.string()).default([]),
-    // ── Category links to Research Areas ──────────────────
-    // Matches the slug in src/pages/notes/category/[category].astro
-    // e.g. "embodied-intelligence" | "edge-vision" | "sensor-fusion"
-    category:       z.string().optional(),
-    // ── Summary / metadata ─────────────────────────────────
-    summary:        z.string().optional(),
-    naver_url:      z.string().optional(),
-    // ── Mark as the definitive/featured post for its category ─
+    title:            z.string(),
+    title_ko:         z.string().optional(),
+    pubDate:          z.date(),
+    lang:             z.enum(["en", "ko", "both"]).default("en"),
+    tags:             z.array(z.string()).default([]),
+    category:         z.string().optional(),   // matches area file slug (filename without .md)
+    summary:          z.string().optional(),
+    naver_url:        z.string().optional(),
     categoryFeatured: z.boolean().default(false),
-    // ── Images ────────────────────────────────────────────
-    featuredImage:  z.string().optional(),
-    headerBgImage:  z.string().optional(),
+    featuredImage:    z.string().optional(),
+    headerBgImage:    z.string().optional(),
   }),
 });
 
-// ── Research area categories (for /notes/category/[slug] pages) ──
-// These are defined statically in src/content/areas/ — one .md per area.
 const areas = defineCollection({
   type: "content",
   schema: z.object({
-    title:        z.string(),
-    title_ko:     z.string().optional(),
-    slug:         z.string(),       // must match the category field in notes
-    icon:         z.string().optional(),
-    description:  z.string(),
+    title:          z.string(),
+    title_ko:       z.string().optional(),
+    // ↑ NO `slug` field — Astro auto-generates slug from filename.
+    // Use area.slug (not area.data.slug) when you need the slug value.
+    icon:           z.string().optional(),
+    description:    z.string(),
     description_ko: z.string().optional(),
-    color:        z.string().optional(), // CSS color for the area chip
-    order:        z.number().default(99),
+    color:          z.string().optional(),
+    order:          z.number().default(99),
   }),
 });
 
-export const collections = {
-  research,
-  curriculum,
-  projects,
-  modules,
-  notes,
-  areas,
-};
+export const collections = { research, curriculum, projects, modules, notes, areas };

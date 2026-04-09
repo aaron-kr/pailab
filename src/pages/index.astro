@@ -9,6 +9,7 @@ import ProjectRow from "@/components/ProjectRow.astro";
 import NoteRow from "@/components/NoteRow.astro";
 import JoinSection from "@/components/JoinSection.astro";
 import { getCollection } from "astro:content";
+import TeamSection from "@/components/TeamSection.astro";
 
 const lang = "en" as const;
 const research   = (await getCollection("research")).sort((a,b) => b.data.year - a.data.year);
@@ -165,6 +166,9 @@ const projIcons = { "gesture-robot-arm":"🦾","kasd-dataset":"📜","epib-bench
 
   <!-- Join -->
   <JoinSection lang={lang} />
+
+  <!-- Team -->
+  <!-- <TeamSection lang={lang} /> -->
 
   <!-- 06 About -->
   <section class="section" id="about">

@@ -1,17 +1,44 @@
 ---
 // src/pages/404.astro
+// Handles both:
+// (a) Regular 404s → show error page
+// (b) /ko/* paths that don't exist → redirect to EN equivalent + show banner
+//
+// Note: Astro only uses ONE 404.astro regardless of path depth.
+// The separate ko/404.astro from the previous patch won't reliably trigger
+// because Astro's built-in 404 handling only uses the root 404.astro.
+// This single file handles everything.
 import BaseLayout from "@/layouts/BaseLayout.astro";
 ---
 
 <BaseLayout lang="en" title="Page not found · PAI LAB">
-  <div style="padding: 4rem 0; text-align: center;">
-    <p style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-3); letter-spacing: 0.1em; margin-bottom: 1.5rem;">
-      404
+  <div style="padding:5rem 0; text-align:center; min-height:60vh; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+    <p style="font-family:var(--font-mono); font-size:.72rem; color:var(--text-3); letter-spacing:.1em; margin-bottom:1.5rem;">404</p>
+    <h1 style="font-size:1.5rem; margin-bottom:1rem;">Page not found</h1>
+    <p style="font-size:.9rem; color:var(--text-2); margin-bottom:2.5rem; max-width:400px; line-height:1.7;">
+      The page you're looking for doesn't exist or hasn't been translated yet.
     </p>
-    <h1 style="font-size: 1.5rem; margin-bottom: 1rem;">Page not found</h1>
-    <p style="font-size: 0.9rem; color: var(--text-2); margin-bottom: 2rem;">
-      The page you're looking for doesn't exist or has been moved.
-    </p>
-    <a href="/" class="btn-primary">← Back to PAI LAB</a>
+    <div style="display:flex; gap:.75rem; flex-wrap:wrap; justify-content:center;">
+      <a href="/" class="btn-primary">← Home</a>
+      <a href="/ko/" class="btn-ghost-sm">한국어 홈</a>
+    </div>
   </div>
 </BaseLayout>
+
+<!-- Redirect /ko/* paths to EN equivalent with notranslated banner -->
+<script is:inline>
+  (function() {
+    var path = window.location.pathname;
+    // If we landed here from a /ko/ path, redirect to EN + show banner
+    if (path.startsWith("/ko")) {
+      var enPath = path.replace(/^(\/ko)+/, "") || "/";
+      window.location.replace(enPath + "?notranslated=1");
+    }
+  })();
+</script>
+
+<style>
+.btn-primary { background:linear-gradient(135deg,var(--green,#0a7c6e),#0a9a87); color:#fff; border:none; border-radius:10px; padding:.7rem 1.5rem; font-size:.85rem; font-weight:600; text-decoration:none; display:inline-block; }
+.btn-ghost-sm { background:none; border:.5px solid var(--border-2); border-radius:10px; padding:.7rem 1.5rem; font-size:.85rem; color:var(--text-2); text-decoration:none; transition:border-color .15s; }
+.btn-ghost-sm:hover { border-color:var(--accent); color:var(--accent); }
+</style>

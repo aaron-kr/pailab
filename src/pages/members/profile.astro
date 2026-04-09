@@ -1,53 +1,34 @@
 ---
 // src/pages/members/profile.astro
-// Saves to Firestore users/{uid} — the single source of truth.
-// Photo = URL string (no Firebase Storage).
 import ProtectedLayout from "@/layouts/ProtectedLayout.astro";
 ---
 
 <ProtectedLayout title="My Profile" description="Update your lab profile and photo." area="members">
   <div class="profile-grid">
-
-    <!-- Left: avatar -->
     <div class="app-card profile-avatar-card">
       <p class="app-card-title">PROFILE PHOTO</p>
-      <div class="avatar-preview" id="avatar-preview">
-        <span id="avatar-initials">?</span>
-      </div>
+      <div class="avatar-preview" id="avatar-preview"><span id="avatar-initials">?</span></div>
       <div class="form-field" style="margin-top:1rem;">
         <label class="form-label">Photo URL</label>
-        <input class="form-input" id="f-photo-url" type="url"
-          placeholder="https://avatars.githubusercontent.com/u/…" />
-        <p class="avatar-hint">Paste any public image URL — GitHub avatar, Google Photos share link, etc.</p>
+        <input class="form-input" id="f-photo-url" type="url" placeholder="https://avatars.githubusercontent.com/u/…" />
+        <p class="avatar-hint">Paste any public image URL — GitHub avatar, Google Photos, etc.</p>
       </div>
       <button class="btn-preview" id="preview-photo-btn">Preview</button>
       <hr class="divider" />
-      <div style="font-size:.75rem; color:rgba(208,228,240,.4); display:flex; flex-direction:column; gap:3px;">
+      <div style="font-size:.75rem;color:rgba(208,228,240,.4);display:flex;flex-direction:column;gap:3px;">
         <span id="profile-name-display">—</span>
-        <span id="profile-email-display" style="font-family:var(--font-mono); font-size:.68rem;"></span>
+        <span id="profile-email-display" style="font-family:var(--font-mono);font-size:.68rem;"></span>
         <span id="profile-role-badge" class="role-badge" style="margin-top:4px;"></span>
       </div>
     </div>
-
-    <!-- Right: fields -->
-    <div style="display:flex; flex-direction:column; gap:1.25rem;">
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
       <div class="app-card">
         <p class="app-card-title">BASIC INFO</p>
         <div class="form-grid">
-          <div class="form-field">
-            <label class="form-label">Display name</label>
-            <input class="form-input" id="f-name" type="text" placeholder="Your Name" />
-          </div>
-          <div class="form-field">
-            <label class="form-label">University</label>
-            <input class="form-input" id="f-university" type="text" placeholder="전북대학교" />
-          </div>
-          <div class="form-field">
-            <label class="form-label">Major / Dept</label>
-            <input class="form-input" id="f-major" type="text" placeholder="Computer Engineering" />
-          </div>
-          <div class="form-field">
-            <label class="form-label">Year / Status</label>
+          <div class="form-field"><label class="form-label">Display name</label><input class="form-input" id="f-name" type="text" /></div>
+          <div class="form-field"><label class="form-label">University</label><input class="form-input" id="f-university" type="text" /></div>
+          <div class="form-field"><label class="form-label">Major / Dept</label><input class="form-input" id="f-major" type="text" /></div>
+          <div class="form-field"><label class="form-label">Year / Status</label>
             <select class="form-input" id="f-year">
               <option value="">Select…</option>
               <option value="undergraduate-1">Undergrad 1st</option>
@@ -59,45 +40,23 @@ import ProtectedLayout from "@/layouts/ProtectedLayout.astro";
               <option value="faculty">Faculty</option>
             </select>
           </div>
-          <div class="form-field form-field--full">
-            <label class="form-label">Short bio</label>
-            <textarea class="form-input" id="f-bio" rows="3"
-              placeholder="2–3 sentences about your background and current work."></textarea>
-          </div>
+          <div class="form-field form-field--full"><label class="form-label">Short bio</label><textarea class="form-input" id="f-bio" rows="3"></textarea></div>
         </div>
       </div>
-
       <div class="app-card">
         <p class="app-card-title">RESEARCH INTERESTS</p>
-        <p style="font-size:.72rem; color:rgba(208,228,240,.4); margin-bottom:.75rem;">
-          Comma-separated. Shown on the public Team page.
-        </p>
-        <input class="form-input" id="f-interests" type="text"
-          placeholder="Edge AI, Sensor Fusion, ROS 2, Computer Vision" />
+        <p style="font-size:.72rem;color:rgba(208,228,240,.4);margin-bottom:.75rem;">Comma-separated. Shown on the public Team page.</p>
+        <input class="form-input" id="f-interests" type="text" placeholder="Edge AI, Sensor Fusion, ROS 2" />
       </div>
-
       <div class="app-card">
         <p class="app-card-title">LINKS</p>
         <div class="form-grid">
-          <div class="form-field">
-            <label class="form-label">GitHub</label>
-            <input class="form-input" id="f-github" type="url" placeholder="https://github.com/…" />
-          </div>
-          <div class="form-field">
-            <label class="form-label">Google Scholar</label>
-            <input class="form-input" id="f-scholar" type="url" placeholder="https://scholar.google.com/…" />
-          </div>
-          <div class="form-field">
-            <label class="form-label">LinkedIn (optional)</label>
-            <input class="form-input" id="f-linkedin" type="url" />
-          </div>
-          <div class="form-field">
-            <label class="form-label">Personal site (optional)</label>
-            <input class="form-input" id="f-website" type="url" />
-          </div>
+          <div class="form-field"><label class="form-label">GitHub</label><input class="form-input" id="f-github" type="url" /></div>
+          <div class="form-field"><label class="form-label">Google Scholar</label><input class="form-input" id="f-scholar" type="url" /></div>
+          <div class="form-field"><label class="form-label">LinkedIn</label><input class="form-input" id="f-linkedin" type="url" /></div>
+          <div class="form-field"><label class="form-label">Personal site</label><input class="form-input" id="f-website" type="url" /></div>
         </div>
       </div>
-
       <div class="app-card">
         <p class="app-card-title">VISIBILITY</p>
         <label class="toggle-row">
@@ -106,8 +65,7 @@ import ProtectedLayout from "@/layouts/ProtectedLayout.astro";
           <span class="toggle-slider"></span>
         </label>
       </div>
-
-      <div style="display:flex; justify-content:flex-end; gap:.75rem; align-items:center;">
+      <div style="display:flex;justify-content:flex-end;gap:.75rem;align-items:center;">
         <span id="save-status" class="save-status"></span>
         <button class="btn-primary" id="save-btn">Save profile</button>
       </div>
@@ -116,151 +74,130 @@ import ProtectedLayout from "@/layouts/ProtectedLayout.astro";
 </ProtectedLayout>
 
 <script>
-import { getAuth, onAuthStateChanged, updateProfile } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { app } from "@/lib/firebase";
+  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+  import { getAuth, updateProfile } from "firebase/auth";
 
-const auth = getAuth(app);
-const db   = getFirestore(app);
+  document.addEventListener("pailab:auth-ready", async (e: Event) => {
+    const { user, db } = (e as CustomEvent).detail;
+    const auth = getAuth();
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return;
+    const snap = await getDoc(doc(db, "users", user.uid));
+    const d = snap.data() ?? {};
 
-  const snap = await getDoc(doc(db, "users", user.uid));
-  const d    = snap.data() ?? {};
+    (document.getElementById("f-name")       as HTMLInputElement).value    = d.displayName   ?? user.displayName ?? "";
+    (document.getElementById("f-university") as HTMLInputElement).value    = d.university     ?? "";
+    (document.getElementById("f-major")      as HTMLInputElement).value    = d.major          ?? "";
+    (document.getElementById("f-year")       as HTMLSelectElement).value   = d.year           ?? "";
+    (document.getElementById("f-bio")        as HTMLTextAreaElement).value = d.bio            ?? "";
+    (document.getElementById("f-interests")  as HTMLInputElement).value    = (d.interests     ?? []).join(", ");
+    (document.getElementById("f-github")     as HTMLInputElement).value    = d.github         ?? "";
+    (document.getElementById("f-scholar")    as HTMLInputElement).value    = d.scholar        ?? "";
+    (document.getElementById("f-linkedin")   as HTMLInputElement).value    = d.linkedin       ?? "";
+    (document.getElementById("f-website")    as HTMLInputElement).value    = d.website        ?? "";
+    (document.getElementById("f-photo-url")  as HTMLInputElement).value    = d.photoURL       ?? user.photoURL ?? "";
+    (document.getElementById("f-public")     as HTMLInputElement).checked  = d.public_profile ?? false;
 
-  // Populate form
-  (document.getElementById("f-name")       as HTMLInputElement).value     = d.displayName   ?? user.displayName ?? "";
-  (document.getElementById("f-university") as HTMLInputElement).value     = d.university     ?? "";
-  (document.getElementById("f-major")      as HTMLInputElement).value     = d.major          ?? "";
-  (document.getElementById("f-year")       as HTMLSelectElement).value    = d.year           ?? "";
-  (document.getElementById("f-bio")        as HTMLTextAreaElement).value  = d.bio            ?? "";
-  (document.getElementById("f-interests")  as HTMLInputElement).value     = (d.interests     ?? []).join(", ");
-  (document.getElementById("f-github")     as HTMLInputElement).value     = d.github         ?? "";
-  (document.getElementById("f-scholar")    as HTMLInputElement).value     = d.scholar        ?? "";
-  (document.getElementById("f-linkedin")   as HTMLInputElement).value     = d.linkedin       ?? "";
-  (document.getElementById("f-website")    as HTMLInputElement).value     = d.website        ?? "";
-  (document.getElementById("f-photo-url")  as HTMLInputElement).value     = d.photoURL       ?? user.photoURL ?? "";
-  (document.getElementById("f-public")     as HTMLInputElement).checked   = d.public_profile ?? false;
+    updateAvatarPreview(d.photoURL || user.photoURL || "", d.displayName || user.displayName || "");
 
-  updateAvatarPreview(d.photoURL || user.photoURL || "", d.displayName || user.displayName || "");
+    const nameEl  = document.getElementById("profile-name-display");
+    const emailEl = document.getElementById("profile-email-display");
+    const roleEl  = document.getElementById("profile-role-badge");
+    if (nameEl)  nameEl.textContent  = d.displayName ?? user.displayName ?? "";
+    if (emailEl) emailEl.textContent = user.email ?? "";
+    if (roleEl) {
+      const role = d.role ?? "member";
+      roleEl.textContent = role.toUpperCase();
+      roleEl.className   = `role-badge role-badge--${role}`;
+    }
 
-  const nameEl  = document.getElementById("profile-name-display");
-  const emailEl = document.getElementById("profile-email-display");
-  const roleEl  = document.getElementById("profile-role-badge");
-  if (nameEl)  nameEl.textContent  = d.displayName ?? user.displayName ?? "";
-  if (emailEl) emailEl.textContent = user.email ?? "";
-  if (roleEl) {
-    const role = d.role ?? "member";
-    roleEl.textContent = role.toUpperCase();
-    roleEl.className   = `role-badge role-badge--${role}`;
+    document.getElementById("preview-photo-btn")?.addEventListener("click", () => {
+      updateAvatarPreview(
+        (document.getElementById("f-photo-url") as HTMLInputElement).value.trim(),
+        (document.getElementById("f-name")      as HTMLInputElement).value.trim()
+      );
+    });
+
+    document.getElementById("save-btn")?.addEventListener("click", async () => {
+      const btn = document.getElementById("save-btn") as HTMLButtonElement;
+      btn.disabled = true;
+      setStatus("Saving…","muted");
+      try {
+        const interests = (document.getElementById("f-interests") as HTMLInputElement).value.split(",").map(s=>s.trim()).filter(Boolean);
+        const photoURL  = (document.getElementById("f-photo-url") as HTMLInputElement).value.trim();
+        const displayName = (document.getElementById("f-name") as HTMLInputElement).value.trim();
+        const data = {
+          displayName, interests, photoURL,
+          university:    (document.getElementById("f-university") as HTMLInputElement).value.trim(),
+          major:         (document.getElementById("f-major")      as HTMLInputElement).value.trim(),
+          year:          (document.getElementById("f-year")       as HTMLSelectElement).value,
+          bio:           (document.getElementById("f-bio")        as HTMLTextAreaElement).value.trim(),
+          github:        (document.getElementById("f-github")     as HTMLInputElement).value.trim(),
+          scholar:       (document.getElementById("f-scholar")    as HTMLInputElement).value.trim(),
+          linkedin:      (document.getElementById("f-linkedin")   as HTMLInputElement).value.trim(),
+          website:       (document.getElementById("f-website")    as HTMLInputElement).value.trim(),
+          public_profile:(document.getElementById("f-public")     as HTMLInputElement).checked,
+          updated_at:    serverTimestamp(),
+        };
+        await setDoc(doc(db,"users",user.uid), data, {merge:true});
+        if (displayName) await updateProfile(user, {displayName, photoURL: photoURL || null});
+        sessionStorage.setItem("pailab-uid", user.uid); // refresh cache
+        updateAvatarPreview(photoURL, displayName);
+        setStatus("Saved ✓","ok");
+      } catch(err:any) { setStatus("Error: "+err.message,"error"); }
+      finally { btn.disabled = false; }
+    });
+  });
+
+  function updateAvatarPreview(url:string, name:string) {
+    const preview  = document.getElementById("avatar-preview") as HTMLElement;
+    const initials = document.getElementById("avatar-initials") as HTMLElement;
+    if (url) {
+      preview.style.backgroundImage = `url('${url}')`;
+      preview.style.backgroundSize  = "cover";
+      initials.style.display = "none";
+    } else {
+      preview.style.backgroundImage = "";
+      initials.style.display = "";
+      initials.textContent = name.split(" ").map(n=>n[0]).join("").slice(0,2).toUpperCase() || "?";
+    }
   }
-});
 
-function updateAvatarPreview(url: string, name: string) {
-  const preview  = document.getElementById("avatar-preview")  as HTMLElement;
-  const initials = document.getElementById("avatar-initials") as HTMLElement;
-  if (url) {
-    preview.style.backgroundImage = `url('${url}')`;
-    preview.style.backgroundSize  = "cover";
-    initials.style.display = "none";
-  } else {
-    preview.style.backgroundImage = "";
-    initials.style.display = "";
-    initials.textContent = name.split(" ").map(n => n[0]).join("").slice(0,2).toUpperCase() || "?";
+  function setStatus(msg:string, type:"ok"|"error"|"muted") {
+    const el = document.getElementById("save-status")!;
+    el.textContent = msg;
+    el.className   = `save-status save-status--${type}`;
+    if (type==="ok") setTimeout(()=>{el.textContent="";},3000);
   }
-}
-
-document.getElementById("preview-photo-btn")?.addEventListener("click", () => {
-  const url  = (document.getElementById("f-photo-url") as HTMLInputElement).value.trim();
-  const name = (document.getElementById("f-name")      as HTMLInputElement).value.trim();
-  updateAvatarPreview(url, name);
-});
-
-document.getElementById("save-btn")?.addEventListener("click", async () => {
-  const user = auth.currentUser;
-  if (!user) return;
-
-  const btn = document.getElementById("save-btn") as HTMLButtonElement;
-  btn.disabled = true;
-  setStatus("Saving…", "muted");
-
-  try {
-    const interests = (document.getElementById("f-interests") as HTMLInputElement).value
-      .split(",").map(s => s.trim()).filter(Boolean);
-    const photoURL  = (document.getElementById("f-photo-url") as HTMLInputElement).value.trim();
-    const displayName = (document.getElementById("f-name") as HTMLInputElement).value.trim();
-
-    const data: Record<string, any> = {
-      displayName,
-      university:     (document.getElementById("f-university") as HTMLInputElement).value.trim(),
-      major:          (document.getElementById("f-major")      as HTMLInputElement).value.trim(),
-      year:           (document.getElementById("f-year")       as HTMLSelectElement).value,
-      bio:            (document.getElementById("f-bio")        as HTMLTextAreaElement).value.trim(),
-      interests,
-      github:         (document.getElementById("f-github")     as HTMLInputElement).value.trim(),
-      scholar:        (document.getElementById("f-scholar")    as HTMLInputElement).value.trim(),
-      linkedin:       (document.getElementById("f-linkedin")   as HTMLInputElement).value.trim(),
-      website:        (document.getElementById("f-website")    as HTMLInputElement).value.trim(),
-      photoURL,
-      public_profile: (document.getElementById("f-public")    as HTMLInputElement).checked,
-      updated_at:     serverTimestamp(),
-    };
-
-    await setDoc(doc(db, "users", user.uid), data, { merge: true });
-
-    // Keep Firebase Auth displayName in sync
-    if (displayName) await updateProfile(user, { displayName, photoURL: photoURL || null });
-
-    // Update session cache
-    sessionStorage.setItem("pailab-uid", user.uid);
-
-    updateAvatarPreview(photoURL, displayName);
-    setStatus("Saved ✓", "ok");
-  } catch (e: any) {
-    setStatus("Error: " + e.message, "error");
-  } finally {
-    btn.disabled = false;
-  }
-});
-
-function setStatus(msg: string, type: "ok"|"error"|"muted") {
-  const el = document.getElementById("save-status")!;
-  el.textContent = msg;
-  el.className   = `save-status save-status--${type}`;
-  if (type === "ok") setTimeout(() => { el.textContent = ""; }, 3000);
-}
 </script>
 
 <style>
-.profile-grid { display:grid; grid-template-columns:240px 1fr; gap:1.5rem; align-items:start; }
-.profile-avatar-card { text-align:center; }
-.avatar-preview { width:120px; height:120px; border-radius:50%; background:rgba(36,180,255,.15); border:2px solid rgba(36,180,255,.3); margin:0 auto 1rem; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-size:2.2rem; font-weight:800; color:var(--cyan); overflow:hidden; background-size:cover; background-position:center; }
-.avatar-hint { font-size:.65rem; color:rgba(208,228,240,.3); margin-top:.5rem; line-height:1.5; }
-.btn-preview { margin-top:.75rem; background:rgba(36,180,255,.1); border:.5px solid rgba(36,180,255,.25); border-radius:var(--r-sm); padding:.4rem 1rem; font-size:.68rem; font-family:var(--font-mono); color:var(--cyan); cursor:pointer; }
-.btn-preview:hover { background:rgba(36,180,255,.2); }
-.divider { border:none; border-top:.5px solid rgba(36,180,255,.12); margin:1.25rem 0; }
-.role-badge { display:inline-block; font-family:var(--font-mono); font-size:.6rem; padding:2px 6px; border-radius:3px; }
-.role-badge--admin  { background:rgba(240,18,122,.2); color:var(--pink); }
-.role-badge--member { background:rgba(36,180,255,.1); color:var(--cyan); }
-.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:.875rem; }
-.form-field { display:flex; flex-direction:column; gap:.35rem; }
-.form-field--full { grid-column:1/-1; }
-.form-label { font-family:var(--font-mono); font-size:.62rem; color:rgba(208,228,240,.4); letter-spacing:.1em; }
-.form-input { background:rgba(4,12,26,.5); border:.5px solid rgba(36,180,255,.2); border-radius:var(--r-md); padding:.55rem .875rem; font-family:var(--font-body); font-size:.82rem; color:#d0e4f0; width:100%; }
-.form-input:focus { outline:none; border-color:rgba(36,180,255,.5); }
-textarea.form-input { resize:vertical; min-height:80px; }
-.toggle-row { display:flex; align-items:center; justify-content:space-between; cursor:pointer; }
-.toggle-row input[type=checkbox] { display:none; }
-.toggle-slider { width:42px; height:22px; background:rgba(36,180,255,.15); border:.5px solid rgba(36,180,255,.25); border-radius:11px; position:relative; }
-.toggle-slider::after { content:''; position:absolute; left:2px; top:2px; width:16px; height:16px; border-radius:50%; background:rgba(36,180,255,.4); transition:left .2s,background .2s; }
-.toggle-row input:checked + .toggle-slider { background:rgba(45,212,191,.25); border-color:var(--cyan); }
-.toggle-row input:checked + .toggle-slider::after { left:22px; background:var(--cyan); }
-.save-status { font-size:.72rem; font-family:var(--font-mono); }
-.save-status--ok { color:var(--green-glow); }
-.save-status--error { color:var(--pink); }
-.save-status--muted { color:rgba(208,228,240,.4); }
-.btn-primary { background:linear-gradient(135deg,var(--green),#0a9a87); color:#fff; border:none; border-radius:var(--r-md); padding:.65rem 1.5rem; font-size:.82rem; font-weight:600; font-family:var(--font-display); cursor:pointer; }
-.btn-primary:disabled { opacity:.4; cursor:not-allowed; }
-@media (max-width:720px) { .profile-grid { grid-template-columns:1fr; } .form-grid { grid-template-columns:1fr; } }
+.profile-grid{display:grid;grid-template-columns:240px 1fr;gap:1.5rem;align-items:start;}
+.profile-avatar-card{text-align:center;}
+.avatar-preview{width:120px;height:120px;border-radius:50%;background:rgba(36,180,255,.15);border:2px solid rgba(36,180,255,.3);margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:2.2rem;font-weight:800;color:var(--cyan);overflow:hidden;background-size:cover;background-position:center;}
+.avatar-hint{font-size:.65rem;color:rgba(208,228,240,.3);margin-top:.5rem;line-height:1.5;}
+.btn-preview{margin-top:.75rem;background:rgba(36,180,255,.1);border:.5px solid rgba(36,180,255,.25);border-radius:var(--r-sm);padding:.4rem 1rem;font-size:.68rem;font-family:var(--font-mono);color:var(--cyan);cursor:pointer;}
+.divider{border:none;border-top:.5px solid rgba(36,180,255,.12);margin:1.25rem 0;}
+.role-badge{display:inline-block;font-family:var(--font-mono);font-size:.6rem;padding:2px 6px;border-radius:3px;}
+.role-badge--admin{background:rgba(240,18,122,.2);color:var(--pink);}
+.role-badge--member{background:rgba(36,180,255,.1);color:var(--cyan);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.875rem;}
+.form-field{display:flex;flex-direction:column;gap:.35rem;}
+.form-field--full{grid-column:1/-1;}
+.form-label{font-family:var(--font-mono);font-size:.62rem;color:rgba(208,228,240,.4);letter-spacing:.1em;}
+.form-input{background:rgba(4,12,26,.5);border:.5px solid rgba(36,180,255,.2);border-radius:var(--r-md);padding:.55rem .875rem;font-family:var(--font-body);font-size:.82rem;color:#d0e4f0;width:100%;}
+.form-input:focus{outline:none;border-color:rgba(36,180,255,.5);}
+textarea.form-input{resize:vertical;min-height:80px;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.toggle-row input[type=checkbox]{display:none;}
+.toggle-slider{width:42px;height:22px;background:rgba(36,180,255,.15);border:.5px solid rgba(36,180,255,.25);border-radius:11px;position:relative;}
+.toggle-slider::after{content:'';position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:rgba(36,180,255,.4);transition:left .2s,background .2s;}
+.toggle-row input:checked+.toggle-slider{background:rgba(45,212,191,.25);border-color:var(--cyan);}
+.toggle-row input:checked+.toggle-slider::after{left:22px;background:var(--cyan);}
+.save-status{font-size:.72rem;font-family:var(--font-mono);}
+.save-status--ok{color:var(--green-glow);}
+.save-status--error{color:var(--pink);}
+.save-status--muted{color:rgba(208,228,240,.4);}
+.btn-primary{background:linear-gradient(135deg,var(--green),#0a9a87);color:#fff;border:none;border-radius:var(--r-md);padding:.65rem 1.5rem;font-size:.82rem;font-weight:600;font-family:var(--font-display);cursor:pointer;}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+@media(max-width:720px){.profile-grid{grid-template-columns:1fr;}.form-grid{grid-template-columns:1fr;}}
 </style>

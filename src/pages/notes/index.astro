@@ -40,15 +40,15 @@ const allTags = Array.from(new Set(notes.flatMap(n => n.data.tags ?? []))).sort(
             All ({notes.length})
           </button>
           {areas.map(area => {
-            const count = notes.filter(n => n.data.category === area.data.slug).length;
+            const count = notes.filter(n => n.data.category === area.slug).length;
             if (count === 0) return null;
             return (
               <a
-                href={`/notes/category/${area.data.slug}`}
+                href={`/notes/category/${area.slug}`}
                 class="chip chip--category"
                 style={`--chip-color: ${area.data.color ?? "var(--cyan)"}`}
                 data-filter-type="category"
-                data-filter-value={area.data.slug}
+                data-filter-value={area.slug}
               >
                 {area.data.icon} {area.data.title}
                 <span class="chip-count">{count}</span>

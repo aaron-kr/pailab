@@ -1,28 +1,11 @@
 ---
 // src/pages/admin/tracker.astro
-// Research Ideas Tracker — reads from Firestore `research_ideas` collection.
-//
-// ── WHY SEEDED DATA DIDN'T LOAD (the bug) ──────────────────
-// The original tracker called getDocs() BEFORE onAuthStateChanged fired,
-// so Firestore rejected the read as "unauthenticated" — even though the
-// user WAS logged in. The fix: always call getDocs() INSIDE the
-// onAuthStateChanged callback, after confirming user !== null.
-//
-// Also: the seed script used firebase-admin which writes server-side,
-// but if your Firestore rules require auth for reads, the client needs
-// to be authenticated. Make sure your rules allow: 
-//   allow read: if request.auth != null;
-// ───────────────────────────────────────────────────────────
-
+// Uses `pailab:auth-ready` event dispatched by ProtectedLayout after Firebase
+// initializes and auth confirms. This avoids double-initialization issues.
 import ProtectedLayout from "@/layouts/ProtectedLayout.astro";
 ---
 
-<ProtectedLayout
-  title="Research Tracker"
-  description="Track research ideas, paper status, and deadlines."
-  area="admin"
-  requireAdmin={true}
->
+<ProtectedLayout title="Research Tracker" description="Track research ideas, paper status, and deadlines." area="admin" requireAdmin={true}>
 
   <div class="tracker-toolbar">
     <div style="display:flex; gap:.5rem; flex-wrap:wrap;" id="status-filters">
@@ -45,67 +28,24 @@ import ProtectedLayout from "@/layouts/ProtectedLayout.astro";
     </div>
   </div>
 
-  <div id="ideas-list">
-    <div class="loading-msg">Loading research ideas…</div>
-  </div>
+  <div id="ideas-list"><div class="loading-msg">Loading research ideas…</div></div>
 
-  <!-- Add / Edit Modal -->
+  <!-- Modal (same as before, omitted for brevity — keep from previous tracker.astro) -->
   <div class="modal-overlay" id="idea-modal" style="display:none;">
     <div class="modal app-card">
       <p class="app-card-title" id="idea-modal-title">ADD RESEARCH IDEA</p>
       <input type="hidden" id="edit-idea-id" />
       <div class="form-grid-3">
-        <div class="form-field form-field--full">
-          <label class="form-label">Title</label>
-          <input class="form-input" id="i-title" type="text" placeholder="Research idea title" />
-        </div>
-        <div class="form-field form-field--full">
-          <label class="form-label">Description</label>
-          <textarea class="form-input" id="i-desc" rows="3" placeholder="Brief description, scope, approach…"></textarea>
-        </div>
-        <div class="form-field">
-          <label class="form-label">Category</label>
-          <input class="form-input" id="i-category" type="text" placeholder="Computer Vision / Edge AI" />
-        </div>
-        <div class="form-field">
-          <label class="form-label">Status</label>
-          <select class="form-input" id="i-status">
-            <option value="idea">Idea</option>
-            <option value="active">Active</option>
-            <option value="writing">Writing</option>
-            <option value="submitted">Submitted</option>
-            <option value="published">Published</option>
-            <option value="paused">Paused</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label class="form-label">Priority</label>
-          <select class="form-input" id="i-priority">
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label class="form-label">Target venue</label>
-          <input class="form-input" id="i-venue" type="text" placeholder="ICTC, KSPAI Journal…" />
-        </div>
-        <div class="form-field">
-          <label class="form-label">Deadline (optional)</label>
-          <input class="form-input" id="i-deadline" type="date" />
-        </div>
-        <div class="form-field">
-          <label class="form-label">Assigned to</label>
-          <input class="form-input" id="i-assigned" type="text" placeholder="Student name or email" />
-        </div>
-        <div class="form-field form-field--full">
-          <label class="form-label">Tags (comma-separated)</label>
-          <input class="form-input" id="i-tags" type="text" placeholder="edge AI, YOLO, Jetson" />
-        </div>
-        <div class="form-field form-field--full">
-          <label class="form-label">Notes</label>
-          <textarea class="form-input" id="i-notes" rows="2" placeholder="Additional notes…"></textarea>
-        </div>
+        <div class="form-field form-field--full"><label class="form-label">Title</label><input class="form-input" id="i-title" type="text" placeholder="Research idea title" /></div>
+        <div class="form-field form-field--full"><label class="form-label">Description</label><textarea class="form-input" id="i-desc" rows="3"></textarea></div>
+        <div class="form-field"><label class="form-label">Category</label><input class="form-input" id="i-category" type="text" /></div>
+        <div class="form-field"><label class="form-label">Status</label><select class="form-input" id="i-status"><option value="idea">Idea</option><option value="active">Active</option><option value="writing">Writing</option><option value="submitted">Submitted</option><option value="published">Published</option><option value="paused">Paused</option></select></div>
+        <div class="form-field"><label class="form-label">Priority</label><select class="form-input" id="i-priority"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></div>
+        <div class="form-field"><label class="form-label">Venue</label><input class="form-input" id="i-venue" type="text" /></div>
+        <div class="form-field"><label class="form-label">Deadline</label><input class="form-input" id="i-deadline" type="date" /></div>
+        <div class="form-field"><label class="form-label">Assigned to</label><input class="form-input" id="i-assigned" type="text" /></div>
+        <div class="form-field form-field--full"><label class="form-label">Tags (comma-separated)</label><input class="form-input" id="i-tags" type="text" /></div>
+        <div class="form-field form-field--full"><label class="form-label">Notes</label><textarea class="form-input" id="i-notes" rows="2"></textarea></div>
       </div>
       <div style="display:flex; gap:.75rem; justify-content:flex-end; margin-top:1.25rem;">
         <button class="btn-ghost" id="close-idea-modal">Cancel</button>
@@ -117,250 +57,209 @@ import ProtectedLayout from "@/layouts/ProtectedLayout.astro";
 </ProtectedLayout>
 
 <script>
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import {
-  getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc,
-  serverTimestamp, query, orderBy
-} from "firebase/firestore";
-import { app } from "@/lib/firebase";
+  import {
+    collection, getDocs, addDoc, doc, updateDoc, deleteDoc,
+    serverTimestamp, query, orderBy, getFirestore
+  } from "firebase/firestore";
 
-const auth = getAuth(app);
-const db   = getFirestore(app);
+  // ── Wait for ProtectedLayout to confirm auth + init Firebase ──
+  // This event fires AFTER onAuthStateChanged confirms the user in the layout.
+  document.addEventListener("pailab:auth-ready", async (e: Event) => {
+    const { user, db: layoutDb } = (e as CustomEvent).detail;
 
-// ── Critical fix: wait for auth BEFORE querying Firestore ──────
-// This is why seeded data didn't appear — getDocs was called before
-// onAuthStateChanged confirmed the user, so Firestore rejected it.
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return;
+    // Use the db instance from the layout (already initialized)
+    const db = layoutDb;
 
-  // Now we're authenticated — safe to query
-  await loadIdeas();
-});
+    await loadIdeas(db);
 
-let allIdeas: any[] = [];
-let activeStatus = "all";
-
-const STATUS_COLORS: Record<string, string> = {
-  idea:       "rgba(208,228,240,.4)",
-  active:     "var(--green-glow)",
-  writing:    "var(--cyan)",
-  submitted:  "var(--blue)",
-  published:  "var(--ok-text, #4ade80)",
-  paused:     "rgba(208,228,240,.25)",
-};
-const PRIORITY_COLORS: Record<string, string> = {
-  high:   "var(--pink)",
-  medium: "var(--cyan)",
-  low:    "rgba(208,228,240,.35)",
-};
-
-async function loadIdeas() {
-  const container = document.getElementById("ideas-list")!;
-  try {
-    container.innerHTML = `<div class="loading-msg">Loading…</div>`;
-    const snap = await getDocs(query(collection(db, "research_ideas"), orderBy("created_at", "desc")));
-    allIdeas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    updateCounts();
-    renderIdeas();
-  } catch (e: any) {
-    container.innerHTML = `
-      <div class="app-card" style="border-color:rgba(240,18,122,.3);">
-        <p class="app-card-title" style="color:var(--pink);">FIRESTORE ERROR</p>
-        <p style="font-size:.82rem; color:rgba(208,228,240,.6); margin-bottom:.75rem;">${e.message}</p>
-        <p style="font-family:var(--font-mono); font-size:.68rem; color:rgba(208,228,240,.4);">
-          Check: (1) Firestore rules allow authenticated reads, (2) collection is "research_ideas", (3) firebase config is correct.
-        </p>
-      </div>`;
-  }
-}
-
-function updateCounts() {
-  const statuses = ["idea","active","writing","submitted","published","paused"];
-  document.getElementById("count-all")!.textContent = `(${allIdeas.length})`;
-  statuses.forEach(s => {
-    const el = document.getElementById(`count-${s}`);
-    if (el) el.textContent = `(${allIdeas.filter(i => i.status === s).length})`;
-  });
-}
-
-function renderIdeas() {
-  const search   = (document.getElementById("search-ideas") as HTMLInputElement).value.toLowerCase();
-  const priority = (document.getElementById("filter-priority") as HTMLSelectElement).value;
-
-  const filtered = allIdeas.filter(i => {
-    if (activeStatus !== "all" && i.status !== activeStatus) return false;
-    if (priority && i.priority !== priority) return false;
-    if (search && !i.title?.toLowerCase().includes(search) && !i.description?.toLowerCase().includes(search)) return false;
-    return true;
+    // Wire up modal and filter events only after DB is ready
+    wireEvents(db);
   });
 
-  const container = document.getElementById("ideas-list")!;
+  let allIdeas: any[] = [];
+  let activeStatus = "all";
 
-  if (allIdeas.length === 0) {
-    container.innerHTML = `
-      <div class="app-card" style="text-align:center; padding:3rem 2rem;">
-        <p style="font-size:2rem; margin-bottom:1rem;">⊞</p>
-        <p style="font-size:.88rem; color:rgba(208,228,240,.5);">No research ideas yet.</p>
-        <p style="font-size:.75rem; color:rgba(208,228,240,.3); margin-top:.5rem;">
-          Run <code style="font-family:var(--font-mono)">npx tsx src/scripts/seed-research.ts</code> to import the pre-loaded ideas,
-          or click "+ Add idea" to create one manually.
-        </p>
-      </div>`;
-    return;
+  const STATUS_COLORS: Record<string, string> = {
+    idea:"rgba(208,228,240,.4)", active:"var(--green-glow)", writing:"var(--cyan)",
+    submitted:"var(--blue)", published:"var(--ok-text,#4ade80)", paused:"rgba(208,228,240,.25)",
+  };
+  const PRIORITY_COLORS: Record<string, string> = {
+    high:"var(--pink)", medium:"var(--cyan)", low:"rgba(208,228,240,.35)",
+  };
+
+  async function loadIdeas(db: any) {
+    const container = document.getElementById("ideas-list")!;
+    try {
+      const snap = await getDocs(query(collection(db, "research_ideas"), orderBy("created_at", "desc")));
+      allIdeas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      updateCounts();
+      renderIdeas();
+    } catch (e: any) {
+      container.innerHTML = `
+        <div class="app-card" style="border-color:rgba(240,18,122,.3);">
+          <p class="app-card-title" style="color:var(--pink);">FIRESTORE ERROR</p>
+          <p style="font-size:.82rem; color:rgba(208,228,240,.6); margin-bottom:.75rem;">${e.message}</p>
+          <p style="font-family:var(--font-mono); font-size:.68rem; color:rgba(208,228,240,.4);">
+            Check: Firestore rules allow <code>read: if request.auth != null</code> for research_ideas.
+          </p>
+        </div>`;
+    }
   }
 
-  if (filtered.length === 0) {
-    container.innerHTML = `<p class="loading-msg">No ideas match this filter.</p>`;
-    return;
+  function updateCounts() {
+    document.getElementById("count-all")!.textContent = `(${allIdeas.length})`;
+    ["idea","active","writing","submitted","published"].forEach(s => {
+      const el = document.getElementById(`count-${s}`);
+      if (el) el.textContent = `(${allIdeas.filter(i => i.status === s).length})`;
+    });
   }
 
-  container.innerHTML = "";
-
-  for (const idea of filtered) {
-    const deadline = idea.deadline
-      ? new Date(idea.deadline).toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" })
-      : null;
-    const isOverdue = idea.deadline && new Date(idea.deadline) < new Date() && !["published","paused"].includes(idea.status);
-
-    const card = document.createElement("div");
-    card.className = "app-card idea-card";
-    card.innerHTML = `
-      <div class="idea-header">
-        <div style="flex:1; min-width:0;">
-          <div class="idea-meta-top">
-            <span class="idea-category">${idea.category ?? "—"}</span>
-            <span class="status-pill" style="color:${STATUS_COLORS[idea.status] ?? "var(--text-3)"}; border-color:${STATUS_COLORS[idea.status] ?? "var(--border-2)"};">
-              ${idea.status}
-            </span>
-            <span class="priority-dot" style="background:${PRIORITY_COLORS[idea.priority] ?? "var(--text-3)"}" title="Priority: ${idea.priority}"></span>
-          </div>
-          <h3 class="idea-title">${idea.title ?? "Untitled"}</h3>
-          ${idea.description ? `<p class="idea-desc">${idea.description}</p>` : ""}
-        </div>
-        <div class="idea-actions">
-          <button class="btn-icon edit-idea" data-id="${idea.id}">✎</button>
-          <button class="btn-icon del-idea" data-id="${idea.id}" style="color:var(--pink)">✕</button>
-        </div>
-      </div>
-      <div class="idea-footer">
-        <div style="display:flex; gap:5px; flex-wrap:wrap;">
-          ${(idea.tags ?? []).map((t: string) => `<span class="tag">${t}</span>`).join("")}
-        </div>
-        <div style="display:flex; gap:.875rem; align-items:center; flex-shrink:0; flex-wrap:wrap;">
-          ${idea.venue ? `<span style="font-family:var(--font-mono); font-size:.65rem; color:rgba(208,228,240,.5);">📍 ${idea.venue}</span>` : ""}
-          ${idea.assignedTo ? `<span style="font-family:var(--font-mono); font-size:.65rem; color:rgba(208,228,240,.5);">👤 ${idea.assignedTo}</span>` : ""}
-          ${deadline ? `<span style="font-family:var(--font-mono); font-size:.65rem; color:${isOverdue ? "#fbbf24" : "rgba(208,228,240,.5)"};">⏱ ${deadline}${isOverdue ? " ⚠" : ""}</span>` : ""}
-        </div>
-      </div>
-    `;
-
-    card.querySelector(".edit-idea")?.addEventListener("click", () => openModal(idea));
-    card.querySelector(".del-idea")?.addEventListener("click", async () => {
-      if (confirm("Delete this idea permanently?")) {
-        await deleteDoc(doc(db, "research_ideas", idea.id));
-        await loadIdeas();
-      }
+  function renderIdeas() {
+    const search   = (document.getElementById("search-ideas") as HTMLInputElement)?.value.toLowerCase() ?? "";
+    const priority = (document.getElementById("filter-priority") as HTMLSelectElement)?.value ?? "";
+    const filtered = allIdeas.filter(i => {
+      if (activeStatus !== "all" && i.status !== activeStatus) return false;
+      if (priority && i.priority !== priority) return false;
+      if (search && !i.title?.toLowerCase().includes(search) && !i.description?.toLowerCase().includes(search)) return false;
+      return true;
     });
 
-    container.appendChild(card);
-  }
-}
+    const container = document.getElementById("ideas-list")!;
+    if (allIdeas.length === 0) {
+      container.innerHTML = `<div class="app-card" style="text-align:center;padding:3rem 2rem;"><p style="font-size:2rem;margin-bottom:1rem;">⊞</p><p style="font-size:.88rem;color:rgba(208,228,240,.5);">No research ideas yet.</p><p style="font-size:.75rem;color:rgba(208,228,240,.3);margin-top:.5rem;">Run <code style="font-family:var(--font-mono)">npx tsx src/scripts/seed-research.ts</code> to import the pre-loaded ideas.</p></div>`;
+      return;
+    }
+    if (filtered.length === 0) { container.innerHTML = `<p class="loading-msg">No ideas match this filter.</p>`; return; }
 
-// ── Filters ────────────────────────────────────────────────
-document.querySelectorAll<HTMLButtonElement>(".filter-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    activeStatus = btn.dataset.status!;
-    renderIdeas();
-  });
-});
-document.getElementById("search-ideas")?.addEventListener("input", renderIdeas);
-document.getElementById("filter-priority")?.addEventListener("change", renderIdeas);
-
-// ── Modal ──────────────────────────────────────────────────
-function openModal(idea?: any) {
-  (document.getElementById("edit-idea-id") as HTMLInputElement).value = idea?.id ?? "";
-  (document.getElementById("i-title")    as HTMLInputElement).value     = idea?.title      ?? "";
-  (document.getElementById("i-desc")     as HTMLTextAreaElement).value  = idea?.description ?? "";
-  (document.getElementById("i-category") as HTMLInputElement).value     = idea?.category   ?? "";
-  (document.getElementById("i-status")   as HTMLSelectElement).value    = idea?.status     ?? "idea";
-  (document.getElementById("i-priority") as HTMLSelectElement).value    = idea?.priority   ?? "medium";
-  (document.getElementById("i-venue")    as HTMLInputElement).value     = idea?.venue      ?? "";
-  (document.getElementById("i-deadline") as HTMLInputElement).value     = idea?.deadline   ?? "";
-  (document.getElementById("i-assigned") as HTMLInputElement).value     = idea?.assignedTo ?? "";
-  (document.getElementById("i-tags")     as HTMLInputElement).value     = (idea?.tags ?? []).join(", ");
-  (document.getElementById("i-notes")    as HTMLTextAreaElement).value  = idea?.notes      ?? "";
-  document.getElementById("idea-modal-title")!.textContent = idea ? "EDIT IDEA" : "ADD RESEARCH IDEA";
-  document.getElementById("idea-modal")!.style.display = "flex";
-}
-
-document.getElementById("add-idea-btn")?.addEventListener("click",  () => openModal());
-document.getElementById("close-idea-modal")?.addEventListener("click", () => {
-  document.getElementById("idea-modal")!.style.display = "none";
-});
-
-document.getElementById("save-idea-btn")?.addEventListener("click", async () => {
-  const id = (document.getElementById("edit-idea-id") as HTMLInputElement).value;
-  const tags = (document.getElementById("i-tags") as HTMLInputElement).value
-    .split(",").map(s => s.trim()).filter(Boolean);
-
-  const data: Record<string, any> = {
-    title:       (document.getElementById("i-title")    as HTMLInputElement).value.trim(),
-    description: (document.getElementById("i-desc")     as HTMLTextAreaElement).value.trim(),
-    category:    (document.getElementById("i-category") as HTMLInputElement).value.trim(),
-    status:      (document.getElementById("i-status")   as HTMLSelectElement).value,
-    priority:    (document.getElementById("i-priority") as HTMLSelectElement).value,
-    venue:       (document.getElementById("i-venue")    as HTMLInputElement).value.trim(),
-    deadline:    (document.getElementById("i-deadline") as HTMLInputElement).value || null,
-    assignedTo:  (document.getElementById("i-assigned") as HTMLInputElement).value.trim() || null,
-    tags,
-    notes:       (document.getElementById("i-notes")    as HTMLTextAreaElement).value.trim(),
-    updated_at:  serverTimestamp(),
-  };
-  if (!data.title) return;
-
-  if (id) {
-    await updateDoc(doc(db, "research_ideas", id), data);
-  } else {
-    await addDoc(collection(db, "research_ideas"), { ...data, created_at: serverTimestamp() });
+    container.innerHTML = "";
+    for (const idea of filtered) {
+      const deadline = idea.deadline ? new Date(idea.deadline).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}) : null;
+      const isPast   = idea.deadline && new Date(idea.deadline) < new Date() && !["published","paused"].includes(idea.status);
+      const card = document.createElement("div");
+      card.className = "app-card idea-card";
+      card.innerHTML = `
+        <div class="idea-header">
+          <div style="flex:1;min-width:0;">
+            <div class="idea-meta-top">
+              <span class="idea-category">${idea.category ?? "—"}</span>
+              <span class="status-pill" style="color:${STATUS_COLORS[idea.status]??'var(--text-3)'};border-color:${STATUS_COLORS[idea.status]??'var(--border-2)'};">${idea.status}</span>
+              <span class="priority-dot" style="background:${PRIORITY_COLORS[idea.priority]??'var(--text-3)'}" title="${idea.priority}"></span>
+            </div>
+            <h3 class="idea-title">${idea.title ?? "Untitled"}</h3>
+            ${idea.description ? `<p class="idea-desc">${idea.description}</p>` : ""}
+          </div>
+          <div class="idea-actions">
+            <button class="btn-icon edit-idea" data-id="${idea.id}">✎</button>
+            <button class="btn-icon del-idea" data-id="${idea.id}" style="color:var(--pink)">✕</button>
+          </div>
+        </div>
+        <div class="idea-footer">
+          <div style="display:flex;gap:5px;flex-wrap:wrap;">${(idea.tags??[]).map((t:string)=>`<span class="tag">${t}</span>`).join("")}</div>
+          <div style="display:flex;gap:.875rem;align-items:center;flex-shrink:0;flex-wrap:wrap;">
+            ${idea.venue?`<span style="font-family:var(--font-mono);font-size:.65rem;color:rgba(208,228,240,.5);">📍 ${idea.venue}</span>`:""}
+            ${idea.assignedTo?`<span style="font-family:var(--font-mono);font-size:.65rem;color:rgba(208,228,240,.5);">👤 ${idea.assignedTo}</span>`:""}
+            ${deadline?`<span style="font-family:var(--font-mono);font-size:.65rem;color:${isPast?"#fbbf24":"rgba(208,228,240,.5)"};">⏱ ${deadline}${isPast?" ⚠":""}</span>`:""}
+          </div>
+        </div>`;
+      card.querySelector(".edit-idea")?.addEventListener("click", () => openModal(idea));
+      card.querySelector(".del-idea")?.addEventListener("click", async () => {
+        // Get db from window (stored by layout)
+        const fbApp = (window as any).__pailab_firebase_app;
+        const db2   = getFirestore(fbApp);
+        if (confirm("Delete this idea permanently?")) {
+          await deleteDoc(doc(db2, "research_ideas", idea.id));
+          await loadIdeas(db2);
+        }
+      });
+      container.appendChild(card);
+    }
   }
 
-  document.getElementById("idea-modal")!.style.display = "none";
-  await loadIdeas();
-});
+  function wireEvents(db: any) {
+    document.querySelectorAll<HTMLButtonElement>(".filter-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeStatus = btn.dataset.status!;
+        renderIdeas();
+      });
+    });
+    document.getElementById("search-ideas")?.addEventListener("input", renderIdeas);
+    document.getElementById("filter-priority")?.addEventListener("change", renderIdeas);
+
+    document.getElementById("add-idea-btn")?.addEventListener("click", () => openModal());
+    document.getElementById("close-idea-modal")?.addEventListener("click", () => {
+      document.getElementById("idea-modal")!.style.display = "none";
+    });
+
+    document.getElementById("save-idea-btn")?.addEventListener("click", async () => {
+      const fbApp = (window as any).__pailab_firebase_app;
+      const db2   = getFirestore(fbApp);
+      const id    = (document.getElementById("edit-idea-id") as HTMLInputElement).value;
+      const tags  = (document.getElementById("i-tags") as HTMLInputElement).value.split(",").map(s=>s.trim()).filter(Boolean);
+      const data: Record<string,any> = {
+        title:       (document.getElementById("i-title")    as HTMLInputElement).value.trim(),
+        description: (document.getElementById("i-desc")     as HTMLTextAreaElement).value.trim(),
+        category:    (document.getElementById("i-category") as HTMLInputElement).value.trim(),
+        status:      (document.getElementById("i-status")   as HTMLSelectElement).value,
+        priority:    (document.getElementById("i-priority") as HTMLSelectElement).value,
+        venue:       (document.getElementById("i-venue")    as HTMLInputElement).value.trim(),
+        deadline:    (document.getElementById("i-deadline") as HTMLInputElement).value || null,
+        assignedTo:  (document.getElementById("i-assigned") as HTMLInputElement).value.trim() || null,
+        tags, notes: (document.getElementById("i-notes") as HTMLTextAreaElement).value.trim(),
+        updated_at: serverTimestamp(),
+      };
+      if (!data.title) return;
+      if (id) { await updateDoc(doc(db2,"research_ideas",id), data); }
+      else    { await addDoc(collection(db2,"research_ideas"), {...data, created_at: serverTimestamp()}); }
+      document.getElementById("idea-modal")!.style.display = "none";
+      await loadIdeas(db2);
+    });
+  }
+
+  function openModal(idea?: any) {
+    (document.getElementById("edit-idea-id") as HTMLInputElement).value = idea?.id ?? "";
+    (document.getElementById("i-title")    as HTMLInputElement).value     = idea?.title ?? "";
+    (document.getElementById("i-desc")     as HTMLTextAreaElement).value  = idea?.description ?? "";
+    (document.getElementById("i-category") as HTMLInputElement).value     = idea?.category ?? "";
+    (document.getElementById("i-status")   as HTMLSelectElement).value    = idea?.status ?? "idea";
+    (document.getElementById("i-priority") as HTMLSelectElement).value    = idea?.priority ?? "medium";
+    (document.getElementById("i-venue")    as HTMLInputElement).value     = idea?.venue ?? "";
+    (document.getElementById("i-deadline") as HTMLInputElement).value     = idea?.deadline ?? "";
+    (document.getElementById("i-assigned") as HTMLInputElement).value     = idea?.assignedTo ?? "";
+    (document.getElementById("i-tags")     as HTMLInputElement).value     = (idea?.tags ?? []).join(", ");
+    (document.getElementById("i-notes")    as HTMLTextAreaElement).value  = idea?.notes ?? "";
+    document.getElementById("idea-modal-title")!.textContent = idea ? "EDIT IDEA" : "ADD RESEARCH IDEA";
+    document.getElementById("idea-modal")!.style.display = "flex";
+  }
 </script>
 
 <style>
-.tracker-toolbar { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; margin-bottom:1.5rem; flex-wrap:wrap; }
-.loading-msg { font-size:.75rem; color:rgba(208,228,240,.35); }
-.idea-card { margin-bottom:.875rem; }
-.idea-header { display:flex; gap:1rem; align-items:flex-start; }
-.idea-meta-top { display:flex; align-items:center; gap:.625rem; margin-bottom:.5rem; flex-wrap:wrap; }
-.idea-category { font-family:var(--font-mono); font-size:.65rem; color:rgba(208,228,240,.4); }
-.status-pill { font-family:var(--font-mono); font-size:.6rem; border:.5px solid; border-radius:3px; padding:2px 7px; white-space:nowrap; }
-.priority-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-.idea-title { font-size:.9rem; font-weight:600; margin-bottom:.375rem; }
-.idea-desc { font-size:.78rem; color:rgba(208,228,240,.6); line-height:1.65; }
-.idea-actions { display:flex; gap:.5rem; flex-shrink:0; }
-.idea-footer { display:flex; justify-content:space-between; align-items:center; margin-top:.875rem; flex-wrap:wrap; gap:.5rem; }
-
-.filter-btn { background:rgba(36,180,255,.05); border:.5px solid rgba(36,180,255,.15); border-radius:var(--r-sm); padding:.35rem .875rem; font-family:var(--font-mono); font-size:.65rem; color:rgba(208,228,240,.5); cursor:pointer; }
-.filter-btn.active { background:rgba(36,180,255,.15); color:var(--cyan); border-color:rgba(36,180,255,.35); }
-.fc { font-size:.6em; opacity:.6; }
-
-.modal-overlay { position:fixed; inset:0; z-index:100; background:rgba(2,8,18,.8); backdrop-filter:blur(6px); align-items:center; justify-content:center; }
-.modal { min-width:400px; max-width:600px; width:calc(100vw - 2rem); max-height:90vh; overflow-y:auto; }
-.form-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.875rem; }
-.form-field { display:flex; flex-direction:column; gap:.35rem; }
-.form-field--full { grid-column:1/-1; }
-.form-label { font-family:var(--font-mono); font-size:.62rem; color:rgba(208,228,240,.4); letter-spacing:.1em; }
-.form-input { background:rgba(4,12,26,.5); border:.5px solid rgba(36,180,255,.2); border-radius:var(--r-md); padding:.55rem .875rem; font-family:var(--font-body); font-size:.82rem; color:#d0e4f0; width:100%; }
-.form-input:focus { outline:none; border-color:rgba(36,180,255,.5); }
-textarea.form-input { resize:vertical; }
-.btn-ghost { background:none; border:.5px solid rgba(36,180,255,.2); border-radius:var(--r-md); padding:.5rem 1rem; font-size:.78rem; font-family:var(--font-mono); color:rgba(208,228,240,.5); cursor:pointer; }
-.btn-ghost:hover { border-color:var(--cyan); color:var(--cyan); }
-.btn-primary { background:linear-gradient(135deg,var(--green),#0a9a87); color:#fff; border:none; border-radius:var(--r-md); padding:.65rem 1.5rem; font-size:.82rem; font-weight:600; font-family:var(--font-display); cursor:pointer; }
-.btn-icon { background:none; border:.5px solid rgba(36,180,255,.2); border-radius:var(--r-sm); width:30px; height:30px; cursor:pointer; color:var(--cyan); font-size:.82rem; display:flex; align-items:center; justify-content:center; }
-.btn-icon:hover { background:rgba(36,180,255,.1); }
+.tracker-toolbar{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+.loading-msg{font-size:.75rem;color:rgba(208,228,240,.35);}
+.idea-card{margin-bottom:.875rem;}
+.idea-header{display:flex;gap:1rem;align-items:flex-start;}
+.idea-meta-top{display:flex;align-items:center;gap:.625rem;margin-bottom:.5rem;flex-wrap:wrap;}
+.idea-category{font-family:var(--font-mono);font-size:.65rem;color:rgba(208,228,240,.4);}
+.status-pill{font-family:var(--font-mono);font-size:.6rem;border:.5px solid;border-radius:3px;padding:2px 7px;white-space:nowrap;}
+.priority-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.idea-title{font-size:.9rem;font-weight:600;margin-bottom:.375rem;}
+.idea-desc{font-size:.78rem;color:rgba(208,228,240,.6);line-height:1.65;}
+.idea-actions{display:flex;gap:.5rem;flex-shrink:0;}
+.idea-footer{display:flex;justify-content:space-between;align-items:center;margin-top:.875rem;flex-wrap:wrap;gap:.5rem;}
+.filter-btn{background:rgba(36,180,255,.05);border:.5px solid rgba(36,180,255,.15);border-radius:var(--r-sm);padding:.35rem .875rem;font-family:var(--font-mono);font-size:.65rem;color:rgba(208,228,240,.5);cursor:pointer;}
+.filter-btn.active{background:rgba(36,180,255,.15);color:var(--cyan);border-color:rgba(36,180,255,.35);}
+.fc{font-size:.6em;opacity:.6;}
+.modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(2,8,18,.8);backdrop-filter:blur(6px);align-items:center;justify-content:center;}
+.modal{min-width:400px;max-width:600px;width:calc(100vw - 2rem);max-height:90vh;overflow-y:auto;}
+.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.875rem;}
+.form-field{display:flex;flex-direction:column;gap:.35rem;}
+.form-field--full{grid-column:1/-1;}
+.form-label{font-family:var(--font-mono);font-size:.62rem;color:rgba(208,228,240,.4);letter-spacing:.1em;}
+.form-input{background:rgba(4,12,26,.5);border:.5px solid rgba(36,180,255,.2);border-radius:var(--r-md);padding:.55rem .875rem;font-family:var(--font-body);font-size:.82rem;color:#d0e4f0;width:100%;}
+.form-input:focus{outline:none;border-color:rgba(36,180,255,.5);}
+textarea.form-input{resize:vertical;}
+.btn-ghost{background:none;border:.5px solid rgba(36,180,255,.2);border-radius:var(--r-md);padding:.5rem 1rem;font-size:.78rem;font-family:var(--font-mono);color:rgba(208,228,240,.5);cursor:pointer;}
+.btn-primary{background:linear-gradient(135deg,var(--green),#0a9a87);color:#fff;border:none;border-radius:var(--r-md);padding:.65rem 1.5rem;font-size:.82rem;font-weight:600;font-family:var(--font-display);cursor:pointer;}
+.btn-icon{background:none;border:.5px solid rgba(36,180,255,.2);border-radius:var(--r-sm);width:30px;height:30px;cursor:pointer;color:var(--cyan);font-size:.82rem;display:flex;align-items:center;justify-content:center;}
 </style>

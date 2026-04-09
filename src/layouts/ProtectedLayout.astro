@@ -1,9 +1,25 @@
 ---
 // src/layouts/ProtectedLayout.astro
+// ── WHY FIRESTORE WASN'T LOADING & SIGN-OUT DIDN'T WORK ──
+//
+// Root cause #1: `<script src="../scripts/protected.ts">` treated as static asset.
+//   → TypeScript not compiled, Firebase never initialized. (Fixed in last patch.)
+//
+// Root cause #2 (this patch): `import { app } from "@/lib/firebase"` inside
+//   a layout's <script> block resolves differently than in page <script> blocks.
+//   The layout and page scripts bundle SEPARATELY, so "@/lib/firebase" could
+//   produce two separate Firebase app instances, causing "app already exists" 
+//   errors OR the getAuth()/getFirestore() in page scripts to see no initialized app.
+//
+// Fix: Initialize Firebase ONCE in ProtectedLayout using the getApps() guard.
+//   Page-level scripts (tracker, grants, etc.) then call getAuth()/getFirestore()
+//   WITHOUT passing an `app` argument — they use the already-initialized default app.
+//   This is the Firebase SDK's intended pattern for multi-module apps.
+// ────────────────────────────────────────────────────────────────────────────────
+
 import "@/styles/global.css";
 
 interface NavItem { href: string; label: string; icon: string; }
-
 interface Props {
   title: string;
   description?: string;
@@ -28,7 +44,6 @@ const adminNav: NavItem[] = [
   { href: "/admin/content",      label: "Content",      icon: "≡" },
   { href: "/admin/settings",     label: "Settings",     icon: "⚙" },
 ];
-
 const membersNav: NavItem[] = [
   { href: "/members",           label: "Dashboard", icon: "◈" },
   { href: "/members/projects",  label: "Projects",  icon: "⊞" },
@@ -38,6 +53,17 @@ const membersNav: NavItem[] = [
 
 const navItems  = resolvedArea === "admin" ? adminNav : membersNav;
 const siteLabel = resolvedArea === "admin" ? "ADMIN" : "MEMBERS";
+
+// Pass Firebase config to client via server-rendered data attributes
+// (avoids @/ alias resolution issues in bundled scripts)
+const fbConfig = {
+  apiKey:            import.meta.env.PUBLIC_FIREBASE_API_KEY ?? "",
+  authDomain:        import.meta.env.PUBLIC_FIREBASE_AUTH_DOMAIN ?? "",
+  projectId:         import.meta.env.PUBLIC_FIREBASE_PROJECT_ID ?? "",
+  storageBucket:     import.meta.env.PUBLIC_FIREBASE_STORAGE_BUCKET ?? "",
+  messagingSenderId: import.meta.env.PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? "",
+  appId:             import.meta.env.PUBLIC_FIREBASE_APP_ID ?? "",
+};
 ---
 
 <!doctype html>
@@ -70,40 +96,32 @@ const siteLabel = resolvedArea === "admin" ? "ADMIN" : "MEMBERS";
 
       <nav class="app-nav">
         {navItems.map((item) => (
-          <a
-            href={item.href}
-            class:list={["app-nav-link", {
-              active: activeHref === item.href || Astro.url.pathname === item.href
-            }]}
-          >
+          <a href={item.href}
+             class:list={["app-nav-link", {
+               active: activeHref === item.href || Astro.url.pathname === item.href
+             }]}>
             <span class="app-nav-icon">{item.icon}</span>
             <span>{item.label}</span>
           </a>
         ))}
-
         <div class="app-nav-divider"></div>
-
         {resolvedArea === "admin" ? (
           <a href="/members" class="app-nav-link app-nav-link--dim">
-            <span class="app-nav-icon">↓</span>
-            <span>Members view</span>
+            <span class="app-nav-icon">↓</span><span>Members view</span>
           </a>
         ) : (
           <a href="/admin" class="app-nav-link app-nav-link--dim" id="admin-link" style="display:none">
-            <span class="app-nav-icon">↑</span>
-            <span>Admin view</span>
+            <span class="app-nav-icon">↑</span><span>Admin view</span>
           </a>
         )}
       </nav>
 
       <div class="app-sidebar-bottom">
         <a href="/" class="app-nav-link">
-          <span class="app-nav-icon">←</span>
-          <span>Public site</span>
+          <span class="app-nav-icon">←</span><span>Public site</span>
         </a>
         <button id="app-logout" class="app-nav-link app-logout" type="button">
-          <span class="app-nav-icon">⏻</span>
-          <span>Sign out</span>
+          <span class="app-nav-icon">⏻</span><span>Sign out</span>
         </button>
       </div>
     </aside>
@@ -122,34 +140,130 @@ const siteLabel = resolvedArea === "admin" ? "ADMIN" : "MEMBERS";
           </div>
         </div>
       </header>
-
-      <main class="app-main">
-        <slot />
-      </main>
+      <main class="app-main"><slot /></main>
     </div>
   </div>
 
-  <div id="layout-config"
+  <!-- Config injected server-side as a JSON data attribute -->
+  <script
+    id="pailab-config"
+    type="application/json"
     data-require-admin={requireAdmin ? "true" : "false"}
     data-resolved-area={resolvedArea}
-    style="display:none"
-  ></div>
+    set:html={JSON.stringify(fbConfig)}
+  ></script>
 
-  <!-- Single shared auth script -->
-  <script src="../scripts/protected.ts"></script>
+  <script>
+    // ── Firebase initialization ─────────────────────────────
+    // Read config from server-injected JSON (avoids @/ alias issues in bundled scripts)
+    import {
+      initializeApp, getApps, getApp
+    } from "firebase/app";
+    import {
+      getAuth, signOut, onAuthStateChanged
+    } from "firebase/auth";
+    import {
+      getFirestore, doc, getDoc, setDoc, serverTimestamp
+    } from "firebase/firestore";
+
+    const configEl = document.getElementById("pailab-config")!;
+    const fbConfig = JSON.parse(configEl.textContent || "{}");
+    const requireAdmin = configEl.dataset.requireAdmin === "true";
+
+    // Safe init: only create app if it doesn't exist yet
+    const firebaseApp = getApps().length === 0
+      ? initializeApp(fbConfig)
+      : getApp();
+
+    // Store on window so page-level scripts can reuse without re-initializing
+    (window as any).__pailab_firebase_app = firebaseApp;
+
+    const auth = getAuth(firebaseApp);
+    const db   = getFirestore(firebaseApp);
+
+    // ── Sign-out ──────────────────────────────────────────────
+    async function doSignOut() {
+      sessionStorage.removeItem("pailab-role");
+      sessionStorage.removeItem("pailab-uid");
+      try { await signOut(auth); } catch (e) { console.error("signOut error", e); }
+      window.location.href = "/login";
+    }
+    document.getElementById("app-logout")?.addEventListener("click", doSignOut);
+    document.getElementById("app-logout-top")?.addEventListener("click", doSignOut);
+
+    // ── Auth guard ────────────────────────────────────────────
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "/login";
+        return;
+      }
+
+      // Role: session cache → Firestore
+      let role = sessionStorage.getItem("pailab-role");
+      if (!role || sessionStorage.getItem("pailab-uid") !== user.uid) {
+        try {
+          const snap = await getDoc(doc(db, "users", user.uid));
+          if (snap.exists()) {
+            role = snap.data().role ?? "member";
+          } else {
+            role = "member";
+            await setDoc(doc(db, "users", user.uid), {
+              displayName: user.displayName ?? "",
+              email: user.email ?? "",
+              photoURL: user.photoURL ?? "",
+              role: "member",
+              public_profile: false,
+              team_order: 99,
+              joined_at: serverTimestamp(),
+              updated_at: serverTimestamp(),
+            }, { merge: true });
+          }
+        } catch {
+          role = "member";
+        }
+        sessionStorage.setItem("pailab-role", role!);
+        sessionStorage.setItem("pailab-uid", user.uid);
+      }
+
+      // Guard admin pages
+      if (requireAdmin && role !== "admin") {
+        window.location.href = "/members";
+        return;
+      }
+
+      // Show admin link for admins
+      if (role === "admin") {
+        const adminLink = document.getElementById("admin-link");
+        if (adminLink) adminLink.style.display = "flex";
+      }
+
+      // Avatar
+      const avatarEl = document.getElementById("app-user-avatar");
+      if (avatarEl) {
+        if (user.photoURL) {
+          avatarEl.innerHTML = `<img src="${user.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
+        } else if (user.displayName) {
+          avatarEl.textContent = user.displayName.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase();
+        } else {
+          avatarEl.textContent = user.email?.[0]?.toUpperCase() ?? "?";
+        }
+      }
+      const badge = document.getElementById("app-user-badge");
+      if (badge && user.email) badge.setAttribute("title", user.email);
+
+      // Signal to page scripts that auth + Firebase are ready
+      document.dispatchEvent(new CustomEvent("pailab:auth-ready", { detail: { user, role, db, auth } }));
+    });
+  </script>
+
 </body>
 </html>
 
 <style>
-.app-logout-btn {
-  background: none; border: .5px solid rgba(240,18,122,.25);
-  border-radius: var(--r-sm); padding: .35rem .875rem;
-  font-family: var(--font-mono); font-size: .65rem;
-  color: rgba(240,18,122,.6); cursor: pointer;
-  transition: background .15s, color .15s;
-}
-.app-logout-btn:hover { background: rgba(240,18,122,.1); color: var(--pink); }
-.app-nav-divider { height: .5px; background: rgba(36,180,255,.12); margin: .5rem .75rem; }
-.app-nav-link--dim { opacity: .45; font-size: .68rem !important; }
-.app-nav-link--dim:hover { opacity: 1; }
+.members-logo-img { height:32px; width:auto; display:block; filter:brightness(0) invert(1) drop-shadow(0 0 6px rgba(36,255,252,.4)); }
+.app-logout-btn { background:none; border:.5px solid rgba(240,18,122,.25); border-radius:var(--r-sm); padding:.35rem .875rem; font-family:var(--font-mono); font-size:.65rem; color:rgba(240,18,122,.6); cursor:pointer; transition:background .15s,color .15s; }
+.app-logout-btn:hover { background:rgba(240,18,122,.1); color:var(--pink); }
+.app-nav-divider { height:.5px; background:rgba(36,180,255,.12); margin:.5rem .75rem; }
+.app-nav-link--dim { opacity:.45; font-size:.68rem !important; }
+.app-nav-link--dim:hover { opacity:1; }
 </style>

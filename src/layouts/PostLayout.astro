@@ -1,8 +1,10 @@
 ---
 // src/layouts/PostLayout.astro
-// New: right sidebar with post metadata, related posts (same category/tags),
-// and a ToC placeholder (can be wired up with rehype-toc if needed).
-// Sidebar items placed with CSS that mirrors their scroll position ("in-flow sidebar").
+// Fixes in this version:
+// • Breadcrumb: Home → Notes → [Category] above the title area
+// • Naver / language link uses font-family:var(--font-sans) + explicit small font-size
+//   so Hangul glyphs render the same size as Latin text
+// • PageHeader size is now "md" (was "sm") — change here for all notes at once
 
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
@@ -36,40 +38,50 @@ const dateStr   = pubDate.toLocaleDateString(lang === "ko" ? "ko-KR" : "en-US", 
   year: "numeric", month: "long", day: "numeric",
 });
 
-// Related posts: same category first, then same tags
+// Related posts
 let relatedNotes: any[] = [];
 try {
   const allNotes = (await getCollection("notes"))
     .filter(n => n.data.lang !== "ko")
     .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
-
   const sameCategory = category
     ? allNotes.filter(n => n.data.category === category && n.data.title !== title)
     : [];
-
   const sameTags = tags.length > 0
     ? allNotes.filter(n =>
         n.data.title !== title &&
         !sameCategory.find(c => c.data.title === n.data.title) &&
-        n.data.tags?.some(t => tags.includes(t))
+        n.data.tags?.some((t: string) => tags.includes(t))
       )
     : [];
-
   relatedNotes = [...sameCategory, ...sameTags].slice(0, 4);
 } catch {}
 
-// Area info for category badge
+// Area info
 let areaInfo: any = null;
 if (category) {
   try {
     const areas = await getCollection("areas" as any);
-    areaInfo = areas.find((a: any) => a.data.slug === category)?.data ?? null;
+    areaInfo = (areas as any[]).find((a: any) => a.data.slug === category)?.data ?? null;
   } catch {}
 }
+
+// Breadcrumb segments
+const breadcrumbs = [
+  { label: "Home",  href: lang === "ko" ? "/ko/" : "/" },
+  { label: "Notes", href: notesPath },
+  ...(areaInfo ? [{ label: areaInfo.title, href: `/notes/category/${category}`, color: areaInfo.color }] : []),
+];
 ---
 
 <BaseLayout lang={lang} title={`${title} · PAI LAB`} description={description}>
 
+  <!-- ── PAGE HEADER SIZE ─────────────────────────────────────
+       Change "md" here to affect ALL notes pages at once:
+         sm  = ~200px  (compact)
+         md  = ~280px  (default — was "sm" in the previous version, now fixed)
+         lg  = ~380px  (spacious)
+       ─────────────────────────────────────────────────────── -->
   <PageHeader
     title={title}
     eyebrow={dateStr}
@@ -80,10 +92,26 @@ if (category) {
   <div class="container page-content">
     <div class="post-layout">
 
-      <!-- ── Article ───────────────────────────────────── -->
       <article class="post-article">
 
-        <!-- Meta row under title -->
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          {breadcrumbs.map((crumb, i) => (
+            <>
+              {i > 0 && <span class="breadcrumb-sep" aria-hidden="true">/</span>}
+              {i < breadcrumbs.length - 1 ? (
+                <a href={crumb.href} class="breadcrumb-link">{crumb.label}</a>
+              ) : (
+                <span class="breadcrumb-current"
+                      style={crumb.color ? `color:${crumb.color}` : ""}>
+                  {crumb.label}
+                </span>
+              )}
+            </>
+          ))}
+        </nav>
+
+        <!-- Tags + meta row (AFTER breadcrumb, BEFORE featured image) -->
         <div class="post-meta-row">
           {category && areaInfo && (
             <a href={`/notes/category/${category}`} class="category-chip"
@@ -92,12 +120,10 @@ if (category) {
             </a>
           )}
           {tags.map(tag => <span class="tag">{tag}</span>)}
-          {categoryFeatured && (
-            <span class="featured-badge">⭐ Featured</span>
-          )}
+          {categoryFeatured && <span class="featured-badge">⭐ Featured</span>}
           {naverUrl && (
             <a href={naverUrl} target="_blank" rel="noopener" class="naver-link">
-              {lang === "ko" ? "영어로 읽기 ↗" : "한국어로 읽기 ↗"}
+              한국어로 읽기 ↗
             </a>
           )}
         </div>
@@ -141,10 +167,8 @@ if (category) {
         </div>
       </article>
 
-      <!-- ── Sidebar ────────────────────────────────────── -->
+      <!-- Sidebar -->
       <aside class="post-sidebar">
-
-        <!-- Post info -->
         <div class="sidebar-widget">
           <p class="sidebar-widget-label">POST INFO</p>
           <div class="sidebar-meta-row">
@@ -159,15 +183,8 @@ if (category) {
               </a>
             </div>
           )}
-          {lang !== "en" && (
-            <div class="sidebar-meta-row">
-              <span class="sidebar-meta-key">Language</span>
-              <span class="sidebar-meta-val">{lang === "ko" ? "한국어" : "English"}</span>
-            </div>
-          )}
         </div>
 
-        <!-- Tags -->
         {tags.length > 0 && (
           <div class="sidebar-widget">
             <p class="sidebar-widget-label">TAGS</p>
@@ -177,7 +194,6 @@ if (category) {
           </div>
         )}
 
-        <!-- Related posts -->
         {relatedNotes.length > 0 && (
           <div class="sidebar-widget">
             <p class="sidebar-widget-label">RELATED</p>
@@ -198,19 +214,17 @@ if (category) {
           </div>
         )}
 
-        <!-- Naver link -->
         {naverUrl && (
           <div class="sidebar-widget">
             <a href={naverUrl} target="_blank" rel="noopener" class="naver-cta">
               <span style="font-size:1.1rem;">🇰🇷</span>
               <div>
-                <p style="font-size:.78rem; font-weight:500;">Read in Korean</p>
-                <p style="font-size:.65rem; color:rgba(208,228,240,.45); margin-top:1px;">한국어로 읽기 ↗</p>
+                <p style="font-size:.78rem; font-weight:500; font-family:var(--font-body);">Read in Korean</p>
+                <p style="font-size:.68rem; color:rgba(208,228,240,.45); margin-top:1px; font-family:var(--font-body);">한국어로 읽기 ↗</p>
               </div>
             </a>
           </div>
         )}
-
       </aside>
 
     </div>
@@ -218,124 +232,94 @@ if (category) {
 </BaseLayout>
 
 <style>
-/* ── Two-column layout ────────────────────────────────────── */
-.post-layout {
-  display: grid;
-  grid-template-columns: 1fr 220px;
-  gap: 3.5rem;
-  align-items: start;
-}
-.post-article { min-width: 0; }
+/* ── Layout ──────────────────────────────────────────────── */
+.post-layout { display:grid; grid-template-columns:1fr 220px; gap:3.5rem; align-items:start; }
+.post-article { min-width:0; }
+.post-sidebar { position:sticky; top:calc(var(--nav-h,60px) + 1.5rem); display:flex; flex-direction:column; gap:1.25rem; }
 
-/* ── Sticky sidebar ───────────────────────────────────────── */
-.post-sidebar {
-  position: sticky;
-  top: calc(var(--nav-h, 60px) + 1.5rem);
+/* ── Breadcrumb ──────────────────────────────────────────── */
+.breadcrumb {
   display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-.sidebar-widget {
-  background: var(--bg-subtle);
-  border-radius: var(--r-lg);
-  padding: 1rem;
-  border: .5px solid var(--border);
-}
-.sidebar-widget-label {
+  align-items: center;
+  gap: .375rem;
+  margin-bottom: 1rem;
   font-family: var(--font-mono);
-  font-size: .6rem; letter-spacing: .12em;
-  color: var(--text-3); margin-bottom: .75rem;
+  font-size: .65rem;
+  color: var(--text-3);
+  flex-wrap: wrap;
 }
-.sidebar-meta-row {
-  display: flex; justify-content: space-between; align-items: baseline;
-  padding: .3rem 0;
-  border-bottom: .5px solid var(--border);
-  gap: .5rem;
+.breadcrumb-sep  { opacity: .4; }
+.breadcrumb-link {
+  color: var(--text-3); text-decoration: none;
+  transition: color .12s;
 }
-.sidebar-meta-row:last-child { border-bottom: none; }
-.sidebar-meta-key { font-family: var(--font-mono); font-size: .65rem; color: var(--text-3); flex-shrink: 0; }
-.sidebar-meta-val { font-size: .72rem; color: var(--text-2); text-align: right; }
-.sidebar-meta-link { font-size: .72rem; color: var(--accent); text-decoration: none; text-align: right; }
-.sidebar-meta-link:hover { text-decoration: underline; }
+.breadcrumb-link:hover { color: var(--accent); text-decoration: none; }
+.breadcrumb-current { font-weight: 500; }
 
-/* ── Related posts ────────────────────────────────────────── */
-.related-list { display: flex; flex-direction: column; gap: .125rem; }
-.related-item {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto auto;
-  gap: 0 .375rem;
-  padding: .5rem 0;
-  border-bottom: .5px solid var(--border);
-  text-decoration: none;
-  transition: background .12s;
-}
-.related-item:last-child { border-bottom: none; }
-.related-item:hover .related-title { color: var(--accent); }
-.related-category-dot {
-  grid-row: 1 / span 2;
-  width: 6px; height: 6px; border-radius: 50%;
-  margin-top: .35rem; flex-shrink: 0;
-  align-self: start;
-}
-.related-title {
-  font-size: .75rem; color: var(--text); line-height: 1.4;
-  grid-column: 2;
-}
-.related-date {
-  font-family: var(--font-mono); font-size: .6rem;
-  color: var(--text-3); grid-column: 2; margin-top: 2px;
-}
-
-/* ── Naver CTA ────────────────────────────────────────────── */
-.naver-cta {
-  display: flex; align-items: center; gap: .75rem;
-  text-decoration: none; padding: .75rem;
-  background: var(--bg-subtle); border-radius: var(--r-md);
-  border: .5px solid var(--border); transition: border-color .15s;
-}
-.naver-cta:hover { border-color: var(--border-2); text-decoration: none; }
-
-/* ── Meta row under title ─────────────────────────────────── */
-.post-meta-row {
-  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
-  margin-bottom: 1.75rem;
-}
+/* ── Tags / meta row ─────────────────────────────────────── */
+.post-meta-row { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:1.75rem; }
 .category-chip {
-  display: inline-flex; align-items: center; gap: .3rem;
-  padding: .25rem .75rem; border-radius: 20px; font-size: .72rem;
-  border: .5px solid color-mix(in srgb, var(--chip-color) 35%, transparent);
-  background: color-mix(in srgb, var(--chip-color) 10%, transparent);
-  color: var(--chip-color); text-decoration: none;
+  display:inline-flex; align-items:center; gap:.3rem;
+  padding:.25rem .75rem; border-radius:20px; font-size:.72rem;
+  border:.5px solid color-mix(in srgb,var(--chip-color) 35%,transparent);
+  background:color-mix(in srgb,var(--chip-color) 10%,transparent);
+  color:var(--chip-color); text-decoration:none;
+  font-family:var(--font-body);
 }
-.category-chip:hover { background: color-mix(in srgb, var(--chip-color) 20%, transparent); text-decoration: none; }
-.featured-badge {
-  font-family: var(--font-mono); font-size: .65rem;
-  color: #fbbf24; border: .5px solid rgba(251,191,36,.3);
-  border-radius: 20px; padding: .2rem .625rem;
-}
-.naver-link { font-family: var(--font-mono); font-size: .68rem; color: var(--text-2); text-decoration: none; border: .5px solid var(--border-2); border-radius: 4px; padding: 2px 8px; }
-.naver-link:hover { color: var(--accent); }
+.category-chip:hover { background:color-mix(in srgb,var(--chip-color) 20%,transparent); text-decoration:none; }
+.featured-badge { font-family:var(--font-mono); font-size:.65rem; color:#fbbf24; border:.5px solid rgba(251,191,36,.3); border-radius:20px; padding:.2rem .625rem; }
 
-/* ── Prev/Next ────────────────────────────────────────────── */
-.post-nav {
-  margin-top: 4rem; padding-top: 2rem;
-  border-top: .5px solid var(--border);
-  display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+/* ── Naver link (inline in meta row) ────────────────────────
+   Key: use font-family:var(--font-body) + explicit px size
+   so Korean glyphs don't fall back to a larger system font.  */
+.naver-link {
+  font-family: var(--font-body);   /* NOT font-mono — Korean needs the body font */
+  font-size: .72rem;               /* px-equivalent matches the tag size */
+  line-height: 1;
+  color: var(--text-2);
+  text-decoration: none;
+  border: .5px solid var(--border-2);
+  border-radius: 4px;
+  padding: .2rem .6rem;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
 }
-.post-nav-label { font-family: var(--font-mono); font-size: .65rem; color: var(--text-3); margin-bottom: 4px; }
-.post-nav-link  { font-size: .85rem; font-weight: 500; color: var(--text); text-decoration: none; }
-.post-nav-link:hover { color: var(--accent); }
-.back-link { font-family: var(--font-mono); font-size: .72rem; color: var(--text-3); text-decoration: none; }
-.back-link:hover { color: var(--cyan); }
+.naver-link:hover { color: var(--accent); border-color: var(--accent); }
 
-/* ── Responsive ───────────────────────────────────────────── */
-@media (max-width: 860px) {
-  .post-layout { grid-template-columns: 1fr; }
-  .post-sidebar {
-    position: static;
-    flex-direction: row; flex-wrap: wrap;
-  }
-  .post-sidebar .sidebar-widget { flex: 1 1 220px; }
+/* ── Sidebar ─────────────────────────────────────────────── */
+.sidebar-widget { background:var(--bg-subtle); border-radius:var(--r-lg); padding:1rem; border:.5px solid var(--border); }
+.sidebar-widget-label { font-family:var(--font-mono); font-size:.6rem; letter-spacing:.12em; color:var(--text-3); margin-bottom:.75rem; }
+.sidebar-meta-row { display:flex; justify-content:space-between; align-items:baseline; padding:.3rem 0; border-bottom:.5px solid var(--border); gap:.5rem; }
+.sidebar-meta-row:last-child { border-bottom:none; }
+.sidebar-meta-key { font-family:var(--font-mono); font-size:.65rem; color:var(--text-3); flex-shrink:0; }
+.sidebar-meta-val { font-size:.72rem; color:var(--text-2); text-align:right; }
+.sidebar-meta-link { font-size:.72rem; color:var(--accent); text-decoration:none; text-align:right; }
+.sidebar-meta-link:hover { text-decoration:underline; }
+
+.related-list { display:flex; flex-direction:column; }
+.related-item { display:grid; grid-template-columns:auto 1fr; grid-template-rows:auto auto; gap:0 .375rem; padding:.5rem 0; border-bottom:.5px solid var(--border); text-decoration:none; }
+.related-item:last-child { border-bottom:none; }
+.related-item:hover .related-title { color:var(--accent); }
+.related-category-dot { grid-row:1/span 2; width:6px; height:6px; border-radius:50%; margin-top:.35rem; flex-shrink:0; align-self:start; }
+.related-title { font-size:.75rem; color:var(--text); line-height:1.4; grid-column:2; }
+.related-date  { font-family:var(--font-mono); font-size:.6rem; color:var(--text-3); grid-column:2; margin-top:2px; }
+
+.naver-cta { display:flex; align-items:center; gap:.75rem; text-decoration:none; padding:.75rem; background:var(--bg-subtle); border-radius:var(--r-md); border:.5px solid var(--border); transition:border-color .15s; }
+.naver-cta:hover { border-color:var(--border-2); text-decoration:none; }
+
+/* ── Prev/Next ───────────────────────────────────────────── */
+.post-nav { margin-top:4rem; padding-top:2rem; border-top:.5px solid var(--border); display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.post-nav-label { font-family:var(--font-mono); font-size:.65rem; color:var(--text-3); margin-bottom:4px; }
+.post-nav-link  { font-size:.85rem; font-weight:500; color:var(--text); text-decoration:none; }
+.post-nav-link:hover { color:var(--accent); }
+.back-link { font-family:var(--font-mono); font-size:.72rem; color:var(--text-3); text-decoration:none; }
+.back-link:hover { color:var(--cyan); }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width:860px) {
+  .post-layout { grid-template-columns:1fr; }
+  .post-sidebar { position:static; flex-direction:row; flex-wrap:wrap; }
+  .post-sidebar .sidebar-widget { flex:1 1 220px; }
 }
 </style>

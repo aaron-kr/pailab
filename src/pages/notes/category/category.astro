@@ -1,0 +1,120 @@
+---
+// src/pages/notes/category/[category].astro
+// FIX: use area.slug (Astro auto-generated) everywhere area.data.slug was used.
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import NoteRow from "@/components/NoteRow.astro";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const areas = await getCollection("areas");
+  return areas.map((area) => ({
+    params: { category: area.slug },  // area.slug = filename (e.g. "edge-ai")
+    props:  { area },
+  }));
+}
+
+const { area } = Astro.props;
+const lang = "en" as const;
+
+const allNotes = (await getCollection("notes")).sort(
+  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
+);
+// Match notes where category === area.slug (the filename)
+const categoryNotes = allNotes.filter(n => n.data.category === area.slug);
+const featuredNote  = categoryNotes.find(n => n.data.categoryFeatured) ?? null;
+const restNotes     = categoryNotes.filter(n => !n.data.categoryFeatured);
+---
+
+<BaseLayout lang={lang} title={`${area.data.title} · PAI LAB`} description={area.data.description}>
+
+  <section class="cat-header full-bleed">
+    <div class="cat-header-bg" style={`--area-color: ${area.data.color ?? "var(--cyan)"}`}></div>
+    <div class="cat-header-grid"></div>
+    <div class="cat-header-fade"></div>
+    <div class="container cat-header-inner">
+      <a href="/notes" class="cat-back">← All notes</a>
+      <div class="cat-icon">{area.data.icon ?? "◉"}</div>
+      <h1 class="cat-title">{area.data.title}</h1>
+      {area.data.title_ko && <p class="cat-title-ko">{area.data.title_ko}</p>}
+      <p class="cat-description">{area.data.description}</p>
+      <div style="margin-top:1rem; display:flex; gap:.5rem; flex-wrap:wrap;">
+        <span class="cat-chip" style={`--chip-color: ${area.data.color ?? "var(--cyan)"}`}>
+          {categoryNotes.length} note{categoryNotes.length !== 1 ? "s" : ""}
+        </span>
+        <a href="/areas" class="cat-chip cat-chip--ghost">All research areas →</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="container page-content">
+    {featuredNote && (
+      <section style="margin-bottom:3rem;">
+        <p class="sub-label">FEATURED POST</p>
+        <a href={`/notes/${featuredNote.slug}`} class="featured-post-card card">
+          {featuredNote.data.featuredImage && (
+            <div class="featured-post-img">
+              <img src={featuredNote.data.featuredImage} alt={featuredNote.data.title} loading="lazy" />
+            </div>
+          )}
+          <div class="featured-post-body">
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:.75rem;">
+              {(featuredNote.data.tags ?? []).map(tag => <span class="tag">{tag}</span>)}
+            </div>
+            <h2 class="featured-post-title">{featuredNote.data.title}</h2>
+            {featuredNote.data.summary && <p class="featured-post-summary">{featuredNote.data.summary}</p>}
+            <p class="featured-post-date">
+              {featuredNote.data.pubDate.toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" })}
+            </p>
+          </div>
+        </a>
+      </section>
+    )}
+
+    {restNotes.length > 0 ? (
+      <section>
+        {featuredNote && <p class="sub-label">ALL NOTES</p>}
+        <div class="row-list">
+          {restNotes.map(note => <NoteRow note={note} lang={lang} />)}
+        </div>
+      </section>
+    ) : !featuredNote ? (
+      <div style="text-align:center; padding:3rem 0; color:var(--text-3);">
+        <p style="font-size:.88rem;">No notes in this category yet.</p>
+        <p style="font-size:.78rem; margin-top:.5rem;">
+          Add <code style="font-family:var(--font-mono)">category: "{area.slug}"</code> to a note's frontmatter.
+        </p>
+      </div>
+    ) : null}
+
+    <div style="margin-top:3rem;padding-top:1.5rem;border-top:.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+      <a href="/notes" style="font-family:var(--font-mono);font-size:.72rem;color:var(--text-3);">← All notes</a>
+      <a href="/areas" style="font-family:var(--font-mono);font-size:.72rem;color:var(--text-3);">All research areas →</a>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+.cat-header{position:relative;background:var(--bg-deep);overflow:hidden;min-height:320px;display:flex;align-items:flex-end;}
+.cat-header-bg{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 60% 80% at 80% 15%,color-mix(in srgb,var(--area-color) 40%,transparent) 0%,transparent 55%),radial-gradient(ellipse 50% 60% at 10% 75%,rgba(2,114,241,.2) 0%,transparent 55%),radial-gradient(ellipse 40% 40% at 55% 55%,rgba(36,255,252,.06) 0%,transparent 50%);animation:mesh-drift 22s ease-in-out infinite alternate;}
+.cat-header-grid{position:absolute;inset:0;z-index:1;background-image:linear-gradient(rgba(36,220,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(36,220,255,.07) 1px,transparent 1px);background-size:56px 56px;}
+.cat-header-fade{position:absolute;bottom:0;left:0;right:0;height:100px;z-index:3;background:linear-gradient(to bottom,transparent,var(--bg));}
+.cat-header-inner{position:relative;z-index:4;padding-bottom:2.5rem;}
+.cat-back{display:inline-block;font-family:var(--font-mono);font-size:.65rem;color:rgba(208,228,240,.5);text-decoration:none;margin-bottom:1.5rem;letter-spacing:.08em;}
+.cat-back:hover{color:var(--cyan);}
+.cat-icon{font-size:2.5rem;margin-bottom:.75rem;}
+.cat-title{font-family:var(--font-display);font-size:clamp(1.8rem,4vw,3rem);font-weight:800;color:#d0e4f0;margin-bottom:.375rem;letter-spacing:-.02em;}
+.cat-title-ko{font-size:.9rem;color:rgba(208,228,240,.5);margin-bottom:.75rem;font-family:var(--font-mono);}
+.cat-description{font-size:clamp(.85rem,1.5vw,1rem);color:rgba(208,228,240,.65);max-width:540px;line-height:1.75;font-weight:300;}
+.cat-chip{font-family:var(--font-mono);font-size:.65rem;padding:3px 10px;border-radius:20px;border:.5px solid color-mix(in srgb,var(--chip-color,var(--cyan)) 40%,transparent);background:color-mix(in srgb,var(--chip-color,var(--cyan)) 12%,transparent);color:var(--chip-color,var(--cyan));text-decoration:none;letter-spacing:.06em;}
+.cat-chip--ghost{--chip-color:rgba(208,228,240,.5);border-color:rgba(208,228,240,.2);background:transparent;color:rgba(208,228,240,.5);}
+.cat-chip--ghost:hover{color:var(--cyan);border-color:var(--cyan);}
+.sub-label{font-family:var(--font-mono);font-size:.62rem;color:var(--text-3);letter-spacing:.14em;margin-bottom:1.25rem;}
+.featured-post-card{display:grid;grid-template-columns:280px 1fr;gap:2rem;align-items:start;text-decoration:none;transition:border-color .2s,transform .15s;padding:1.5rem;}
+.featured-post-card:hover{border-color:var(--border-2);transform:translateY(-2px);text-decoration:none;}
+.featured-post-img{width:100%;aspect-ratio:16/9;border-radius:var(--r-md);overflow:hidden;background:var(--bg-subtle);}
+.featured-post-img img{width:100%;height:100%;object-fit:cover;display:block;}
+.featured-post-title{font-size:1.15rem;font-weight:600;color:var(--text);margin-bottom:.5rem;line-height:1.35;}
+.featured-post-summary{font-size:.85rem;color:var(--text-2);line-height:1.7;margin-bottom:.75rem;}
+.featured-post-date{font-family:var(--font-mono);font-size:.65rem;color:var(--text-3);}
+@media(max-width:680px){.featured-post-card{grid-template-columns:1fr;}}
+</style>
