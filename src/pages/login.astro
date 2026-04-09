@@ -1,0 +1,152 @@
+---
+// src/pages/login.astro
+// Public login page. Signs in with Google, then redirects:
+//   admin  → /admin
+//   member → /members (or ?next= param)
+//   public → back to login with "access denied"
+import "../styles/global.css";
+---
+
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign In — PAI Lab</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <style>
+      body {
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+      }
+
+      .login-card {
+        width: min(380px, 90vw);
+        padding: 2.5rem 2rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        text-align: center;
+      }
+
+      .lab-logo {
+        font-size: 1.4rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--accent);
+        margin-bottom: 0.25rem;
+      }
+
+      .lab-sub {
+        font-size: 0.8rem;
+        color: var(--fg-muted);
+        margin-bottom: 2rem;
+      }
+
+      .google-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: #fff;
+        color: #3c4043;
+        border: 1px solid #dadce0;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+
+      .google-btn:hover { background: #f8f9fa; }
+
+      .google-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+      .error-msg {
+        display: none;
+        margin-top: 1rem;
+        font-size: 0.8rem;
+        color: var(--danger, #e74c3c);
+        padding: 0.5rem;
+        border-radius: 6px;
+        background: var(--danger-bg, #fdecea);
+      }
+
+      .divider {
+        margin: 1.5rem 0 1rem;
+        font-size: 0.75rem;
+        color: var(--fg-muted);
+      }
+
+      .back-link {
+        font-size: 0.8rem;
+        color: var(--fg-muted);
+      }
+
+      .back-link a { color: var(--accent); text-decoration: none; }
+    </style>
+  </head>
+
+  <body>
+    <div class="login-card">
+      <div class="lab-logo">PAI Lab</div>
+      <div class="lab-sub">Physical AI Laboratory · Members Portal</div>
+
+      <button class="google-btn" id="google-signin">
+        <!-- Google "G" logo SVG -->
+        <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+          <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
+          <path d="M3.964 10.707A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.039l3.007-2.332z" fill="#FBBC05"/>
+          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.961L3.964 7.293C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+        </svg>
+        Sign in with Google
+      </button>
+
+      <div class="error-msg" id="error-msg">
+        Access denied. Your account is not on the member list.
+      </div>
+
+      <div class="divider">Members and admin only</div>
+      <div class="back-link"><a href="/">← Back to PAI Lab</a></div>
+    </div>
+
+    <script type="module">
+      import { signInWithGoogle, waitForAuth } from "../lib/auth.ts";
+      import { getRole } from "../lib/firebase.ts";
+
+      // If already signed in, redirect immediately
+      const { user, role } = await waitForAuth();
+      if (user && role !== "public") {
+        redirect(role);
+      }
+
+      document.getElementById("google-signin").addEventListener("click", async () => {
+        try {
+          await signInWithGoogle();
+          const { user: u } = await waitForAuth();
+          const r = getRole(u?.email ?? null);
+          if (r === "public") {
+            document.getElementById("error-msg").style.display = "block";
+          } else {
+            redirect(r);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      });
+
+      function redirect(role) {
+        const params = new URLSearchParams(window.location.search);
+        const next = params.get("next");
+        if (next) { window.location.href = next; return; }
+        window.location.href = role === "admin" ? "/admin" : "/members";
+      }
+    </script>
+  </body>
+</html>

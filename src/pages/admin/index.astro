@@ -1,0 +1,94 @@
+---
+/**
+ * src/pages/admin/index.astro
+ * ------------------------------------------------------------------
+ * Admin dashboard. Only accessible by the ADMIN_EMAIL account.
+ * Links to the research tracker and any other admin tools.
+ * ------------------------------------------------------------------
+ */
+import ProtectedLayout from "../../layouts/ProtectedLayout.astro";
+---
+
+<ProtectedLayout role="admin" title="Admin">
+  <div class="container" style="padding: 2rem 1rem; max-width: 1000px; margin: 0 auto;">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; flex-wrap:wrap; gap:1rem;">
+      <div>
+        <h1 style="margin:0; font-size:1.6rem;">Admin Dashboard</h1>
+        <p style="margin:0.25rem 0 0; color:var(--fg-muted); font-size:0.875rem;">
+          Signed in as <strong data-user-email></strong>
+          &nbsp;<span style="font-size:0.7rem; padding:2px 8px; border-radius:20px; background:var(--accent-bg); color:var(--accent-text);">admin</span>
+        </p>
+      </div>
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <a href="/members" style="padding:0.5rem 1rem; border:1px solid var(--border); border-radius:6px; color:var(--fg-muted); text-decoration:none; font-size:0.875rem;">Members view</a>
+        <button data-signout style="padding:0.5rem 1rem; border:1px solid var(--border); border-radius:6px; background:transparent; color:var(--fg-muted); cursor:pointer; font-size:0.875rem;">Sign out</button>
+      </div>
+    </div>
+
+    <!-- Admin nav cards -->
+    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:1rem;">
+
+      <a href="/admin/tracker"
+         style="display:block; padding:1.5rem; background:var(--surface); border:1px solid var(--accent); border-radius:10px; text-decoration:none; color:var(--fg);">
+        <div style="font-size:1.4rem; margin-bottom:0.5rem;">📋</div>
+        <div style="font-weight:600; margin-bottom:0.25rem;">Research Tracker</div>
+        <div style="font-size:0.8rem; color:var(--fg-muted);">All ideas, statuses, PAI connections, targets</div>
+      </a>
+
+      <a href="/admin/members-list"
+         style="display:block; padding:1.5rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; text-decoration:none; color:var(--fg);">
+        <div style="font-size:1.4rem; margin-bottom:0.5rem;">👥</div>
+        <div style="font-weight:600; margin-bottom:0.25rem;">Student Access</div>
+        <div style="font-size:0.8rem; color:var(--fg-muted);">Add / remove member email addresses</div>
+      </a>
+
+      <a href="/admin/publications"
+         style="display:block; padding:1.5rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; text-decoration:none; color:var(--fg);">
+        <div style="font-size:1.4rem; margin-bottom:0.5rem;">📄</div>
+        <div style="font-weight:600; margin-bottom:0.25rem;">Publications</div>
+        <div style="font-size:0.8rem; color:var(--fg-muted);">Manage the public research collection</div>
+      </a>
+
+      <a href="/admin/grants"
+         style="display:block; padding:1.5rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; text-decoration:none; color:var(--fg);">
+        <div style="font-size:1.4rem; margin-bottom:0.5rem;">💰</div>
+        <div style="font-weight:600; margin-bottom:0.25rem;">Grant Tracker</div>
+        <div style="font-size:0.8rem; color:var(--fg-muted);">Deadlines, statuses, notes for funding apps</div>
+      </a>
+
+    </div>
+
+    <!-- Quick stats — populated by client script -->
+    <h2 style="font-size:1rem; font-weight:600; margin:2.5rem 0 0.75rem; color:var(--fg-muted); text-transform:uppercase; letter-spacing:0.05em;">Quick Stats</h2>
+    <div id="stats-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:0.75rem;">
+      <div style="padding:1rem; background:var(--surface); border-radius:8px; text-align:center;">
+        <div id="stat-total" style="font-size:1.8rem; font-weight:700; color:var(--accent);">—</div>
+        <div style="font-size:0.75rem; color:var(--fg-muted);">Total ideas</div>
+      </div>
+      <div style="padding:1rem; background:var(--surface); border-radius:8px; text-align:center;">
+        <div id="stat-active" style="font-size:1.8rem; font-weight:700; color:var(--accent);">—</div>
+        <div style="font-size:0.75rem; color:var(--fg-muted);">In progress ▶️</div>
+      </div>
+      <div style="padding:1rem; background:var(--surface); border-radius:8px; text-align:center;">
+        <div id="stat-done" style="font-size:1.8rem; font-weight:700; color:var(--accent);">—</div>
+        <div style="font-size:0.75rem; color:var(--fg-muted);">Completed ✅</div>
+      </div>
+      <div style="padding:1rem; background:var(--surface); border-radius:8px; text-align:center;">
+        <div id="stat-pai" style="font-size:1.8rem; font-weight:700; color:var(--accent);">—</div>
+        <div style="font-size:0.75rem; color:var(--fg-muted);">PAI-connected</div>
+      </div>
+    </div>
+
+  </div>
+</ProtectedLayout>
+
+<script type="module">
+  import { getAllIdeas } from "../../lib/tracker.ts";
+
+  const ideas = await getAllIdeas();
+  document.getElementById("stat-total").textContent = ideas.length;
+  document.getElementById("stat-active").textContent = ideas.filter(i => i.status === "▶️").length;
+  document.getElementById("stat-done").textContent = ideas.filter(i => i.status === "✅").length;
+  document.getElementById("stat-pai").textContent = ideas.filter(i => i.paiLink?.trim()).length;
+</script>

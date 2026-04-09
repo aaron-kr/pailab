@@ -1,0 +1,108 @@
+---
+// src/layouts/ProtectedLayout.astro
+// Auth-gated page shell.
+// Renders a spinner, then calls guardPage() client-side.
+// If auth passes: shows content. If not: redirects to /login.
+//
+// Props:
+//   role  — minimum role required: "member" | "admin"
+//   title — page <title>
+//   lang  — "en" | "ko" (default "en")
+
+interface Props {
+  role:   "member" | "admin";
+  title:  string;
+  lang?:  "en" | "ko";
+}
+
+const { role, title, lang = "en" } = Astro.props;
+import "../styles/global.css";
+---
+
+<!DOCTYPE html>
+<html lang={lang} data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} — PAI Lab</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <style>
+      /* Content hidden until auth resolves */
+      #protected-content { display: none; }
+
+      #auth-loading {
+        position: fixed; inset: 0;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 1rem;
+        background: var(--bg);
+        z-index: 999;
+      }
+
+      .spinner {
+        width: 36px; height: 36px;
+        border: 3px solid var(--accent-bg);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      .loading-label {
+        font-size: 0.875rem;
+        color: var(--fg-muted);
+        letter-spacing: 0.05em;
+      }
+
+      /* Role badge in nav bar */
+      .role-badge {
+        display: inline-block;
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 20px;
+        background: var(--accent-bg);
+        color: var(--accent-text);
+        font-weight: 600;
+        vertical-align: middle;
+        margin-left: 6px;
+      }
+    </style>
+  </head>
+  <body>
+
+    <!--
+      Pass required role to client via data attribute.
+      define:vars is incompatible with type="module" in Astro 4.
+    -->
+    <div id="auth-loading" data-required-role={role}>
+      <div class="spinner"></div>
+      <span class="loading-label">Checking access…</span>
+    </div>
+
+    <div id="protected-content">
+      <slot />
+    </div>
+
+    <script type="module">
+      import { guardPage, signOut } from "../lib/auth.ts";
+
+      const requiredRole = document.getElementById("auth-loading")
+        ?.dataset.requiredRole ?? "member";
+
+      const { user, role: userRole } = await guardPage(requiredRole);
+
+      document.getElementById("auth-loading").remove();
+      document.getElementById("protected-content").style.display = "block";
+
+      document.querySelectorAll("[data-user-email]")
+        .forEach(el => { el.textContent = user.email ?? ""; });
+      document.querySelectorAll("[data-user-role]")
+        .forEach(el => { el.textContent = userRole; });
+
+      document.querySelectorAll("[data-signout]")
+        .forEach(btn => btn.addEventListener("click", () => signOut()));
+    </script>
+
+  </body>
+</html>

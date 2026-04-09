@@ -1,0 +1,57 @@
+// firestore.rules
+// ---------------------------------------------------------------
+// Deploy with:  firebase deploy --only firestore:rules
+//
+// Rule summary:
+//   research_ideas  — admin read/write only
+//   members         — admin write, member read
+//   public          — no Firestore access (public content is static)
+// ---------------------------------------------------------------
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper: is the caller the admin? ──────────────────────────
+    // We use email because UIDs change if the user deletes their
+    // Google account and re-creates it. For a single-admin site
+    // this is fine. Swap to custom claims if you want more rigour.
+    function isAdmin() {
+      return request.auth != null
+          && request.auth.token.email == "aaron.snowberger@gmail.com";
+    }
+
+    // ── Helper: is the caller a signed-in member or admin? ────────
+    function isMember() {
+      return request.auth != null
+          && (
+            isAdmin()
+            || exists(/databases/$(database)/documents/allowed_members/$(request.auth.token.email))
+          );
+    }
+
+    // ── research_ideas — private research tracker ─────────────────
+    match /research_ideas/{ideaId} {
+      allow read, write: if isAdmin();
+    }
+
+    // ── allowed_members — member allowlist ────────────────────────
+    // Format: document ID = member's email address
+    // Fields: { displayName: string, addedAt: timestamp }
+    match /allowed_members/{email} {
+      allow read:  if isAdmin() || request.auth.token.email == email;
+      allow write: if isAdmin();
+    }
+
+    // ── lab_resources — content visible to all members ────────────
+    match /lab_resources/{docId} {
+      allow read:  if isMember();
+      allow write: if isAdmin();
+    }
+
+    // ── Deny everything else ──────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

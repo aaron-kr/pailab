@@ -1,0 +1,74 @@
+---
+/**
+ * src/pages/members/index.astro
+ * ------------------------------------------------------------------
+ * Members-only landing page. Visible to role="member" and "admin".
+ * Add lab resources, project boards, meeting notes links here.
+ * ------------------------------------------------------------------
+ */
+import ProtectedLayout from "../../layouts/ProtectedLayout.astro";
+---
+
+<ProtectedLayout role="member" title="Members">
+  <div class="container" style="padding: 2rem 1rem; max-width: 900px; margin: 0 auto;">
+
+    <!-- Header bar -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; flex-wrap:wrap; gap:1rem;">
+      <div>
+        <h1 style="margin:0; font-size:1.6rem;">PAI Lab Members Portal</h1>
+        <p style="margin:0.25rem 0 0; color:var(--fg-muted); font-size:0.875rem;">
+          Signed in as <strong data-user-email></strong>
+          &nbsp;<span style="font-size:0.7rem; padding:2px 8px; border-radius:20px; background:var(--accent-bg); color:var(--accent-text);" data-user-role></span>
+        </p>
+      </div>
+      <button data-signout style="padding:0.5rem 1rem; border:1px solid var(--border); border-radius:6px; background:transparent; color:var(--fg-muted); cursor:pointer; font-size:0.875rem;">
+        Sign out
+      </button>
+    </div>
+
+    <!-- Quick links grid -->
+    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap:1rem; margin-bottom:2rem;">
+
+      <a href="https://github.com/aaronkr-classroom" target="_blank" rel="noopener"
+         style="display:block; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; text-decoration:none; color:var(--fg);">
+        <div style="font-weight:600; margin-bottom:0.25rem;">GitHub Classroom</div>
+        <div style="font-size:0.8rem; color:var(--fg-muted);">Project repos, assignments, code reviews</div>
+      </a>
+
+      <a href="https://courses.aaron.kr" target="_blank" rel="noopener"
+         style="display:block; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; text-decoration:none; color:var(--fg);">
+        <div style="font-weight:600; margin-bottom:0.25rem;">Course Materials</div>
+        <div style="font-size:0.8rem; color:var(--fg-muted);">Slides, notes, and lab resources</div>
+      </a>
+
+      <div style="padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-radius:10px;">
+        <div style="font-weight:600; margin-bottom:0.25rem;">Lab Meetings</div>
+        <div style="font-size:0.8rem; color:var(--fg-muted);">Schedule and notes — coming soon</div>
+      </div>
+
+      <div style="padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-radius:10px;">
+        <div style="font-weight:600; margin-bottom:0.25rem;">Paper Templates</div>
+        <div style="font-size:0.8rem; color:var(--fg-muted);">KIICE, JPEE, KLife — coming soon</div>
+      </div>
+
+    </div>
+
+    <!-- Active projects table (populated from public /projects page) -->
+    <h2 style="font-size:1.1rem; font-weight:600; margin-bottom:0.75rem;">Active Projects</h2>
+    <p style="font-size:0.875rem; color:var(--fg-muted);">
+      See the <a href="/projects" style="color:var(--accent);">public Projects page</a> for current lab projects.
+      Your PI will add project-specific Notion/GitHub links here as they're set up.
+    </p>
+
+    <!-- Onboarding checklist -->
+    <h2 style="font-size:1.1rem; font-weight:600; margin:2rem 0 0.75rem;">New Member Checklist</h2>
+    <ul style="font-size:0.875rem; line-height:2; color:var(--fg-muted); padding-left:1.25rem;">
+      <li>Join the lab GitHub org: <a href="https://github.com/aaronkr-classroom" style="color:var(--accent);">aaronkr-classroom</a></li>
+      <li>Complete NVIDIA DLI: Getting Started with AI on Jetson Nano</li>
+      <li>Read the lab paper writing guide (link coming soon)</li>
+      <li>Add yourself to the People page — send your bio + photo to the PI</li>
+      <li>Pick a project from the active list and set up your dev environment</li>
+    </ul>
+
+  </div>
+</ProtectedLayout>
