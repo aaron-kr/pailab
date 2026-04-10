@@ -9,7 +9,7 @@ interface Props {
 }
 
 const { project, lang } = Astro.props;
-const { title, title_ko, year, status, tags, github, demo } = project.data;
+const { title, title_ko, year, status, tags, github, demo, description, thumbnailUrl } = project.data;
 
 const displayTitle = lang === "ko" && title_ko ? title_ko : title;
 

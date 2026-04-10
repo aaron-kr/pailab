@@ -14,7 +14,7 @@ import TeamSection from "@/components/TeamSection.astro";
 const lang = "en" as const;
 const research   = (await getCollection("research")).sort((a,b) => b.data.year - a.data.year);
 const curriculum = (await getCollection("curriculum")).sort((a,b) => a.data.order - b.data.order);
-const projects   = (await getCollection("projects")).sort((a,b) => a.data.order - b.data.order).slice(0,4);
+const projects   = (await getCollection("projects")).sort((a,b) => a.data.order - b.data.order).slice(0,6);
 const modules    = (await getCollection("modules")).sort((a,b) => a.data.order - b.data.order);
 const notes      = (await getCollection("notes")).sort((a,b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()).slice(0,5);
 
@@ -75,7 +75,7 @@ const projIcons = { "gesture-robot-arm":"🦾","kasd-dataset":"📜","epib-bench
           const pillLbl = proj.data.status === "active" ? "Active" : proj.data.status === "published" ? "Published" : "Planned";
           return (
             <div class="project-card">
-              <div class={`project-img ${gradClass}`}>
+              <div class={`project-img ${gradClass}`} style={`background: url(${proj.data.thumbnailUrl}) center/cover no-repeat`}>
                 <div class="project-icon-badge">{icon}</div>
                 <div class="proj-status"><span class={`pill ${pillCls}`}>{pillLbl}</span></div>
               </div>

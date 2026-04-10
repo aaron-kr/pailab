@@ -5,5 +5,6 @@ venue: "KORCOS"
 year: 2025
 status: "published"
 tags: ["AI", "Glocal", "Education"]
-featured: true
+featured: false
+doi: "http://dx.doi.org/10.55479/JCCR.2025.5.2.15"
 ---

@@ -5,5 +5,6 @@ venue: "JPEE"
 year: 2025
 status: "published"
 tags: ["ML", "GitHub Classroom", "Google Colab", "Education"]
+doi: "http://dx.doi.org/10.14702/JPEE.2025.049"
 featured: false
 ---

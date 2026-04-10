@@ -5,5 +5,6 @@ venue: "JPEE"
 year: 2024
 status: "published"
 tags: ["IDE", "Front-end", "Education"]
+doi: "http://dx.doi.org/10.14702/JPEE.2024.011"
 featured: false
 ---

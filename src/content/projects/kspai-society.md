@@ -5,7 +5,9 @@ year: "2025–"
 status: "active"
 tags: ["Society", "Community", "Physical AI"]
 demo: "https://kspai.org"
-order: 4
+order: 5
+description: "Founding member and organiser of the Korean Society for Physical AI (한국피지컬AI학회)."
+thumbnailUrl: "/hero.jpg"
 ---
 
 Founding member and organiser of the Korean Society for Physical AI (한국피지컬AI학회).
