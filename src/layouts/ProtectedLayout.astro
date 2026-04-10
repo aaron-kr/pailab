@@ -81,7 +81,7 @@ const fbConfig = {
   <script is:inline>document.documentElement.setAttribute("data-theme","dark");</script>
 </head>
 
-<body class="app-body">
+<body class="app-body" style="visibility:hidden" data-pagefind-ignore>
   <div class="app-mesh-bg" aria-hidden="true"></div>
   <div class="app-mesh-grid" aria-hidden="true"></div>
 
@@ -230,6 +230,9 @@ const fbConfig = {
         window.location.href = "/members";
         return;
       }
+
+      // ✅ Auth confirmed — reveal the page
+      document.body.style.visibility = "visible";
 
       // Show admin link for admins
       if (role === "admin") {

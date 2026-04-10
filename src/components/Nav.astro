@@ -1,8 +1,11 @@
 ---
 // src/components/Nav.astro
-// FIX: dropdown trigger button now matches anchor height/padding exactly.
-// All nav items use the SAME height via a shared .nav-item-inner wrapper class.
+// Changes from previous version:
+// • Hamburger menu for mobile (≤640px)
+// • Mobile overlay panel with all nav items + controls
+// • Search button wired to SiteSearch component
 import { altLangUrl, type Lang } from "@/i18n/translations";
+import SiteSearch from "@/components/SiteSearch.astro";
 
 interface Props { lang: Lang; currentPath: string; }
 const { lang, currentPath } = Astro.props;
@@ -33,6 +36,7 @@ const NAV: Array<
   { label: "Team",  href: `/team` },
   { label: "Join",  href: `${p}/join` },
   { label: "About", href: `${p}/about` },
+  { label: "Search", href: "/search", hideOnKo: false },
 ];
 // ────────────────────────────────────────────────────────────
 ---
@@ -45,6 +49,7 @@ const NAV: Array<
       <span class="sub">피지컬 AI 연구소</span>
     </a>
 
+    <!-- Desktop nav links -->
     <ul class="nav-links">
       {NAV.map((item) => {
         if ("href" in item) {
@@ -89,24 +94,80 @@ const NAV: Array<
       })}
     </ul>
 
+    <!-- Controls (desktop + mobile) -->
     <div class="nav-controls">
+      <SiteSearch variant="compact" />
+      <span class="nav-sep" aria-hidden="true"></span>
       <a href={altUrl} class="btn-ghost" aria-label="Switch language">
         {lang === "en" ? "한국어" : "EN"}
       </a>
       <span class="nav-sep" aria-hidden="true"></span>
       <button id="theme-toggle" class="btn-ghost" aria-label="Toggle theme" style="min-width:2rem;">☀</button>
+      <!-- Hamburger — hidden on desktop via CSS -->
+      <button id="hamburger" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu" type="button">
+        <span class="ham-bar"></span>
+        <span class="ham-bar"></span>
+        <span class="ham-bar"></span>
+      </button>
     </div>
 
   </div>
 </nav>
 
+<!-- ── Mobile menu overlay ──────────────────────────────────── -->
+<div id="mobile-menu" class="mobile-menu" aria-hidden="true">
+  <div class="mobile-backdrop" id="mobile-backdrop"></div>
+  <div class="mobile-panel">
+
+    <div class="mobile-panel-top">
+      <a href={`${p}/`} class="nav-logo">
+        <img src="/logo-horz.png" alt="PAI LAB" class="nav-logo-img" />
+      </a>
+      <button class="mobile-close" id="mobile-close" aria-label="Close menu">✕</button>
+    </div>
+
+    <nav class="mobile-nav-links">
+      {NAV.map((item) => {
+        if ("href" in item) {
+          return (
+            <a href={item.href}
+               class:list={["mobile-nav-link", { "mobile-nav-link--active": currentPath === item.href }]}>
+              {item.label}
+            </a>
+          );
+        } else {
+          return (
+            <div class="mobile-nav-group">
+              <span class="mobile-group-label">{item.label}</span>
+              {item.items.map((sub) => (
+                <a href={sub.href}
+                   class:list={["mobile-nav-link mobile-nav-link--sub", { "mobile-nav-link--active": currentPath === sub.href }]}>
+                  {sub.label}
+                </a>
+              ))}
+            </div>
+          );
+        }
+      })}
+    </nav>
+
+    <div class="mobile-panel-bottom">
+      <a href={altUrl} class="btn-ghost" style="flex:1; justify-content:center; text-align:center;">
+        {lang === "en" ? "한국어" : "EN"}
+      </a>
+      <button id="mobile-theme-toggle" class="btn-ghost" aria-label="Toggle theme" style="flex:1; min-width:0;">☀ Theme</button>
+    </div>
+
+  </div>
+</div>
+
 <script>
+// ── Desktop dropdown ─────────────────────────────────────────
 document.querySelectorAll<HTMLButtonElement>(".nav-dropdown-trigger").forEach(btn => {
   btn.addEventListener("click", (e) => {
     e.stopPropagation();
     const wrap = btn.closest(".nav-dropdown-wrap")!;
     const isOpen = wrap.classList.contains("open");
-    // Close all
     document.querySelectorAll(".nav-dropdown-wrap.open").forEach(w => {
       w.classList.remove("open");
       (w.querySelector(".nav-dropdown-trigger") as HTMLElement)?.setAttribute("aria-expanded", "false");
@@ -124,23 +185,61 @@ document.addEventListener("click", () => {
   });
 });
 document.addEventListener("keydown", e => {
-  if (e.key === "Escape") document.querySelectorAll(".nav-dropdown-wrap.open").forEach(w => w.classList.remove("open"));
+  if (e.key === "Escape") {
+    document.querySelectorAll(".nav-dropdown-wrap.open").forEach(w => w.classList.remove("open"));
+    closeMobileMenu();
+  }
+});
+
+// ── Mobile hamburger ─────────────────────────────────────────
+const hamburger   = document.getElementById("hamburger")!;
+const mobileMenu  = document.getElementById("mobile-menu")!;
+const mobileClose = document.getElementById("mobile-close")!;
+const backdrop    = document.getElementById("mobile-backdrop")!;
+
+function openMobileMenu() {
+  mobileMenu.classList.add("open");
+  mobileMenu.setAttribute("aria-hidden", "false");
+  hamburger.setAttribute("aria-expanded", "true");
+  hamburger.classList.add("is-open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeMobileMenu() {
+  mobileMenu.classList.remove("open");
+  mobileMenu.setAttribute("aria-hidden", "true");
+  hamburger.setAttribute("aria-expanded", "false");
+  hamburger.classList.remove("is-open");
+  document.body.style.overflow = "";
+}
+
+hamburger.addEventListener("click", (e) => { e.stopPropagation(); openMobileMenu(); });
+mobileClose.addEventListener("click", closeMobileMenu);
+backdrop.addEventListener("click", closeMobileMenu);
+
+// Close when any mobile nav link is clicked
+document.querySelectorAll(".mobile-nav-link").forEach(link =>
+  link.addEventListener("click", closeMobileMenu)
+);
+
+// Mobile theme toggle mirrors the main one
+const mobileThemeBtn = document.getElementById("mobile-theme-toggle");
+mobileThemeBtn?.addEventListener("click", () => {
+  document.getElementById("theme-toggle")?.click();
 });
 </script>
 
 <style>
 /* ── Nav link baseline — applies to BOTH anchors AND dropdown button ── */
 .nav-link {
-  /* Reset button defaults */
   background: none;
   border: none;
   padding: 0;
   margin: 0;
-  /* Shared visual style */
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: var(--nav-h, 60px);     /* full height = vertically centered */
+  height: var(--nav-h, 60px);
   padding: 0 .6rem;
   font-family: var(--font-body);
   font-size: .78rem;
@@ -151,7 +250,6 @@ document.addEventListener("keydown", e => {
   text-decoration: none;
   line-height: 1;
   transition: color .15s;
-  /* Prevent button from shifting on state change */
   -webkit-appearance: none;
   appearance: none;
   vertical-align: middle;
@@ -159,11 +257,10 @@ document.addEventListener("keydown", e => {
 .nav-link:hover,
 .nav-link--active { color: var(--text); text-decoration: none; }
 
-/* Chevron inside dropdown trigger */
 .nav-chevron { transition: transform .18s ease; flex-shrink: 0; opacity: .55; margin-top: 1px; }
 .nav-dropdown-wrap.open .nav-chevron { transform: rotate(180deg); }
 
-/* ── Dropdown panel ─────────────────────────────────────── */
+/* ── Dropdown panel ─────────────────────────────────────────── */
 .nav-dropdown-wrap { position: relative; }
 
 .nav-dropdown {
@@ -171,7 +268,7 @@ document.addEventListener("keydown", e => {
   opacity: 0;
   pointer-events: none;
   position: absolute;
-  top: calc(100% - 2px);    /* slight overlap so hover doesn't gap */
+  top: calc(100% - 2px);
   left: 50%;
   transform: translateX(-50%) translateY(-4px);
   min-width: 148px;
@@ -184,7 +281,6 @@ document.addEventListener("keydown", e => {
   list-style: none;
   transition: opacity .14s ease, transform .14s ease, visibility 0s .14s;
 }
-/* Small arrow */
 .nav-dropdown::before {
   content: '';
   position: absolute;
@@ -222,6 +318,140 @@ document.addEventListener("keydown", e => {
 [data-theme="dark"] .nav-dropdown-item:hover { color: var(--cyan, #24fffc); background: rgba(36,255,252,.07); }
 [data-theme="dark"] .nav-dropdown { box-shadow: 0 8px 28px rgba(0,0,0,.45), 0 0 0 .5px rgba(36,255,252,.08); }
 
-/* ── Controls ───────────────────────────────────────────── */
+/* ── Controls ───────────────────────────────────────────────── */
 .nav-sep { display: inline-block; width: .5px; height: 14px; background: var(--border-2); vertical-align: middle; flex-shrink: 0; }
+
+/* ── Hamburger button ───────────────────────────────────────── */
+.hamburger {
+  display: none;          /* hidden on desktop */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 34px; height: 34px;
+  background: none;
+  border: .5px solid var(--border-2);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  padding: 0;
+  transition: border-color .15s;
+}
+.hamburger:hover { border-color: var(--cyan); }
+.ham-bar {
+  display: block;
+  width: 16px; height: 1.5px;
+  background: var(--text-2);
+  border-radius: 1px;
+  transition: transform .2s, opacity .15s, width .2s;
+}
+.hamburger.is-open .ham-bar:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.hamburger.is-open .ham-bar:nth-child(2) { opacity: 0; width: 0; }
+.hamburger.is-open .ham-bar:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* ── Mobile menu ────────────────────────────────────────────── */
+.mobile-menu {
+  display: none;  /* js adds .open which uses flex */
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+}
+.mobile-menu.open { display: flex; }
+
+.mobile-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 8, 20, .72);
+  backdrop-filter: blur(4px);
+}
+
+.mobile-panel {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: min(300px, 85vw);
+  background: var(--bg-surface);
+  border-left: .5px solid var(--border-2);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .25s cubic-bezier(.4, 0, .2, 1);
+  overflow-y: auto;
+  box-shadow: -8px 0 32px rgba(2, 8, 20, .5);
+}
+.mobile-menu.open .mobile-panel {
+  transform: translateX(0);
+}
+
+.mobile-panel-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: .5px solid var(--border);
+  flex-shrink: 0;
+}
+.mobile-close {
+  background: none; border: none;
+  color: var(--text-2); font-size: 1rem;
+  cursor: pointer; padding: 6px;
+  transition: color .15s;
+}
+.mobile-close:hover { color: var(--pink); }
+
+.mobile-nav-links {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: .75rem 0;
+  overflow-y: auto;
+}
+
+.mobile-nav-group {
+  display: flex;
+  flex-direction: column;
+  padding: .5rem 0;
+  border-bottom: .5px solid var(--border);
+}
+.mobile-nav-group:last-child { border-bottom: none; }
+
+.mobile-group-label {
+  font-family: var(--font-mono);
+  font-size: .58rem;
+  color: var(--text-3);
+  letter-spacing: .1em;
+  padding: .4rem 1.25rem .25rem;
+  text-transform: uppercase;
+}
+
+.mobile-nav-link {
+  display: block;
+  padding: .6rem 1.25rem;
+  font-size: .88rem;
+  color: var(--text-2);
+  text-decoration: none;
+  transition: background .1s, color .1s;
+  border: none;
+}
+.mobile-nav-link--sub {
+  padding-left: 2rem;
+  font-size: .82rem;
+}
+.mobile-nav-link:hover { background: var(--bg-subtle); color: var(--text); text-decoration: none; }
+.mobile-nav-link--active { color: var(--cyan); }
+[data-theme="light"] .mobile-nav-link--active { color: var(--green-2); }
+
+.mobile-panel-bottom {
+  display: flex;
+  gap: .75rem;
+  padding: 1rem 1.25rem;
+  border-top: .5px solid var(--border);
+  flex-shrink: 0;
+}
+
+/* Show hamburger, hide nav-links on mobile */
+@media (max-width: 640px) {
+  .hamburger { display: flex; }
+  .nav-links { display: none; }
+  /* Also hide the nav-sep before the lang toggle on very small screens */
+  .nav-controls .nav-sep:first-of-type { display: none; }
+}
 </style>

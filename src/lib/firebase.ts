@@ -58,3 +58,5 @@ export function getRole(email: string | null): Role {
   if (MEMBER_DOMAINS.some((d) => email.endsWith("@" + d))) return "member";
   return "public";
 }
+
+export { app };

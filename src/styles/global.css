@@ -850,3 +850,16 @@ nav.site-nav{
   font-size: .6rem; color: rgba(106,154,184,.6);
   letter-spacing: .1em;
 }
+
+/* ── Hide auto-injected astro-pagefind UI ────────────────────
+   The integration injects its own PagefindUI component which
+   we don't want. Our custom UI lives inside .search-results
+   (overlay) or .search-full (search page). Hide everything
+   else. This survives Svelte hash changes between builds.
+   ──────────────────────────────────────────────────────────── */
+.pagefind-ui:not(.search-results .pagefind-ui):not(.search-full .pagefind-ui) {
+  display: none !important;
+}
+.pagefind-ui__form {
+  /* display: none !important; */
+}

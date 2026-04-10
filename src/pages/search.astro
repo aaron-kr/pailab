@@ -1,0 +1,29 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import SiteSearch from "@/components/SiteSearch.astro";
+---
+
+<BaseLayout title="Search — PAI Lab" description="Search notes, projects, and research at PAI Lab." lang="en">
+  <PageHeader
+    title="Search"
+    eyebrow="FIND CONTENT"
+    description="Search across notes, projects, research papers, and more."
+    size="sm"
+  />
+
+  <main class="page-content">
+    <div class="container">
+      <div class="search-page-wrap">
+        <SiteSearch variant="full" />
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+.search-page-wrap {
+  max-width: 680px;
+  margin: 0 auto;
+}
+</style>

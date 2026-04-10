@@ -1,0 +1,124 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageHeader from "@/components/PageHeader.astro";
+
+export async function getStaticPaths() {
+  const tracks = await getCollection("curriculum");
+  return tracks.map((track) => ({
+    params: { slug: track.slug },
+    props: { track },
+  }));
+}
+
+interface Props {
+  track: CollectionEntry<"curriculum">;
+}
+
+const { track } = Astro.props;
+const lang = "ko";
+
+const title_ko = track.data.title_ko ?? track.data.title;
+const desc_ko  = track.data.description_ko ?? track.data.description;
+
+const { Content } = await track.render();
+
+const levelColors: Record<string, string> = {
+  beginner:     "ok",
+  intermediate: "blue",
+  advanced:     "pink",
+  open:         "warn",
+};
+
+const levelBadgeColor = levelColors[track.data.level] ?? "";
+---
+
+<BaseLayout
+  title={`${title_ko} — PAI Lab`}
+  description={desc_ko}
+  lang={lang}
+>
+  <PageHeader
+    title={title_ko}
+    eyebrow={`트랙 ${track.data.track}`}
+    description={desc_ko}
+    size="md"
+  />
+
+  <main class="page-content">
+    <div class="container">
+      <div class="curriculum-detail-grid">
+
+        <aside class="curriculum-meta-sidebar">
+          <div class="curriculum-meta-card">
+            <div class="meta-row">
+              <span class="meta-label">트랙</span>
+              <span class="meta-value">{track.data.track}</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">수준</span>
+              <span class={`pill ${levelBadgeColor}`}>{track.data.level}</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">단원 수</span>
+              <span class="meta-value">{track.data.units}</span>
+            </div>
+            {track.data.bilingual && (
+              <div class="meta-row">
+                <span class="meta-label">언어</span>
+                <span class="pill blue">EN · 한국어</span>
+              </div>
+            )}
+          </div>
+
+          <a href="/ko/curriculum" class="btn-slide btn-slide-green" style="display:inline-flex;margin-top:1.25rem;font-size:.75rem">
+            ← 전체 트랙
+          </a>
+        </aside>
+
+        <article class="prose curriculum-body">
+          <Content />
+        </article>
+
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+.curriculum-detail-grid {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+.curriculum-meta-sidebar {
+  position: sticky;
+  top: calc(var(--nav-h) + 1.5rem);
+}
+.curriculum-meta-card {
+  background: var(--bg-surface);
+  border: .5px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+.meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  padding-bottom: .75rem;
+  border-bottom: .5px solid var(--border);
+}
+.meta-row:last-child { border-bottom: none; padding-bottom: 0; }
+.meta-label { font-family: var(--font-mono); font-size: .58rem; color: var(--text-3); letter-spacing: .06em; }
+.meta-value  { font-family: var(--font-mono); font-size: .72rem; color: var(--cyan); }
+.curriculum-body { max-width: 680px; }
+@media (max-width: 768px) {
+  .curriculum-detail-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+  .curriculum-meta-sidebar { position: static; }
+}
+</style>
