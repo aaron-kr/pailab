@@ -430,7 +430,7 @@ nav.site-nav{
 .footer-social a:hover{color:var(--cyan);text-decoration:none}
 
 /* ── Prose ──────────────────────────────────────────────── */
-.prose{max-width:680px}
+.prose{max-width:780px}
 .prose h2{margin:2rem 0 .75rem;font-size:1.15rem}
 .prose h3{margin:1.5rem 0 .5rem;color:var(--text-2)}
 .prose p{margin-bottom:1.25rem;font-size:.95rem}
