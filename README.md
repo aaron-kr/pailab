@@ -303,6 +303,7 @@ Do not include `slug` in any content collection schema. Use `entry.slug` (not `e
 - [ ] Hamburger menu refinements (currently functional)
 - [ ] SiteSearch modal works, but has a double-injected input field. Removing pagefind's injected input field disables Search.
 - [ ] The full `/search` page has a single input field, but does not return results. 
+- [ ] We have a `i18n/translations.ts` file with all English and Korean strings defined, but are using `{lang === "ko" ? "피지컬 AI 연구소" : "Physical AI Lab"}` in many places.
 
 ### Completed (April 2026)
 - [x] Curriculum track detail pages (`/curriculum/[slug]`, EN + KO)

@@ -232,6 +232,7 @@ Topics: Mapping PAI Landscape, Sim-to-Real, Edge Vision, Gesture Arm, Physical L
 - [ ] Mobile hamburger nav menu refinements (currently functional, may need polish)
 - [ ] SiteSearch modal works, but has a double-injected input field. Removing pagefind's injected input field disables Search.
 - [ ] The full `/search` page has a single input field, but does not return results. 
+- [ ] We have a `i18n/translations.ts` file with all English and Korean strings defined, but are using `{lang === "ko" ? "피지컬 AI 연구소" : "Physical AI Lab"}` in many places.
 
 ### Recently completed
 - [x] Curriculum track detail pages `/curriculum/[slug]` (EN + KO)

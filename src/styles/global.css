@@ -187,7 +187,9 @@ nav.site-nav{
   background:linear-gradient(135deg,var(--green-glow) 0%,var(--cyan) 45%,var(--blue-2) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
 }
-.hero-tagline{font-size:.95rem;color:rgba(208,228,240,.65);max-width:460px;line-height:1.85;margin-bottom:2.5rem;font-weight:300}
+.hero-tagline{font-size:.95rem;color:rgba(208,228,240,.85);max-width:460px;line-height:1.85;margin-bottom:2.5rem;font-weight:300;
+  box-shadow: 0 0 6px var(--bg-deep);
+}
 .hero-cta{display:flex;gap:12px;flex-wrap:wrap}
 .hero-panel{
   background:rgba(4,12,26,.65);border:.5px solid rgba(36,180,255,.18);
@@ -246,7 +248,7 @@ nav.site-nav{
 .pill.pink{background:var(--pink-bg);color:var(--pink-text)}
 
 /* ── Research areas ─────────────────────────────────────── */
-.areas-index{display:grid;grid-template-columns:repeat(4,1fr);border-top:.5px solid var(--border);border-left:.5px solid var(--border)}
+.areas-index{display:grid;grid-template-columns:repeat(5,1fr);border-top:.5px solid var(--border);border-left:.5px solid var(--border)}
 .area-index-item{
   padding:1.25rem 1rem;border-right:.5px solid var(--border);border-bottom:.5px solid var(--border);
   text-decoration:none;color:inherit;transition:background .2s;position:relative;overflow:hidden;

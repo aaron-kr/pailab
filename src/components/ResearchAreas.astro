@@ -31,6 +31,12 @@ const areas = [
   { num:"08", icon:"📖", slug:"curriculum",
     en:["Open Curriculum",         "Accessible educational resources for learning about AI and robotics."],
     ko:["오픈 커리큘럼",            "AI 및 로봇공학 학습을 위한 접근 가능한 교육 리소스."] },
+  { num:"09", icon:"📖", slug:"curriculum",
+    en:["Open Curriculum",         "Accessible educational resources for learning about AI and robotics."],
+    ko:["오픈 커리큘럼",            "AI 및 로봇공학 학습을 위한 접근 가능한 교육 리소스."] },
+  { num:"10", icon:"📖", slug:"curriculum",
+    en:["Open Curriculum",         "Accessible educational resources for learning about AI and robotics."],
+    ko:["오픈 커리큘럼",            "AI 및 로봇공학 학습을 위한 접근 가능한 교육 리소스."] },
 ];
 const prefix = lang === "ko" ? "/ko" : "";
 ---
@@ -38,7 +44,7 @@ const prefix = lang === "ko" ? "/ko" : "";
 <div class="areas-index">
   {areas.map(({ num, icon, slug, en, ko }) => {
     const [title, desc] = lang === "ko" ? ko : en;
-    const href = slug === "curriculum" ? `${prefix}/curriculum` : `/areas/${slug}`;
+    const href = slug === "curriculum" ? `${prefix}/curriculum` : `/notes/category/${slug}`;
     return (
       <a href={href} class="area-index-item">
         <p class="ain">{num}</p>
