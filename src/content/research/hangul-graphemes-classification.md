@@ -7,4 +7,5 @@ status: "published"
 tags: ["Dataset", "Script OCR", "Vision"]
 doi: "https://doi.org/10.56977/jicce.2023.21.2.167"
 featured: false
+thumbnailUrl: "/research/hangul-graphemes.jpg"
 ---

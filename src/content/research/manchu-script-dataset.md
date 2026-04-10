@@ -7,4 +7,5 @@ status: "published"
 tags: ["Dataset", "Script OCR", "Vision"]
 doi: "https://doi.org/10.56977/jicce.2024.22.1.80"
 featured: false
+thumbnailUrl: "/research/manchu-dataset.jpg"
 ---

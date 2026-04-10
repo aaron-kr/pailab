@@ -49,6 +49,7 @@ const projects = defineCollection({
     order:        z.number().default(99),
     description:  z.string().optional(),
     thumbnailUrl: z.string().optional(),
+    demo:         z.string().url().optional(),
   }),
 });
 
