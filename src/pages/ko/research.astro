@@ -1,53 +1,449 @@
 ---
-// src/pages/ko/research.astro
+// src/pages/research.astro
+// Filter bar: Role pills (inline) + Topics dropdown popover (compact).
+// Section headers mirror the paper-row grid (80px | 1fr) so
+// the heading aligns with paper titles and the kicker aligns with the year.
+
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
 import ResearchCard from "@/components/ResearchCard.astro";
+import PaperRow from "@/components/PaperRow.astro";
 import { getCollection } from "astro:content";
 
 const lang = "ko" as const;
-const papers = (await getCollection("research")).sort(
-  (a, b) => b.data.year - a.data.year
-);
-const featured = papers.filter((p) => p.data.featured);
-const rest     = papers.filter((p) => !p.data.featured);
+
+const all = await getCollection("research");
+
+const journals    = all.filter(p => (p.data as any).type === "journal").sort((a,b)=>b.data.year-a.data.year);
+const conferences = all.filter(p => ((p.data as any).type ?? "conference") === "conference").sort((a,b)=>b.data.year-a.data.year);
+const featured    = journals.filter(p => p.data.featured);
+const journalRest = journals.filter(p => !p.data.featured);
+
+const confByYear  = conferences.reduce<Record<number, typeof conferences>>((acc,p)=>{ if(!acc[p.data.year])acc[p.data.year]=[]; acc[p.data.year].push(p); return acc; },{});
+const confYears   = Object.keys(confByYear).map(Number).sort((a,b)=>b-a);
+
+const allTags = [...new Set(all.flatMap(p=>p.data.tags))].sort();
+const total   = all.length;
 ---
 
-<BaseLayout lang={lang} title="연구 · PAI LAB"
-  description="피지컬 AI 관련 논문 및 활발한 연구 활동.">
+<BaseLayout lang={lang} title="Research · PAI LAB"
+  description={`${total} publications in Physical AI, edge ML, dataset creation, and engineering education.`}>
 
-  <PageHeader
-    title="연구"
-    eyebrow="01 · 연구"
-    description="피지컬 AI, 임베디드 ML, 자율 시스템을 아우르는 논문 및 연구 활동."
-  />
+  <PageHeader title="Research" eyebrow="01 · RESEARCH"
+    description={`${total} publications spanning edge AI, autonomous systems, dataset creation, and engineering education.`} />
 
-  <div class="container page-content">
+  <!-- ── Filter bar ─────────────────────────────────── -->
+  <div class="filter-bar" id="filter-bar">
+    <div class="container">
+      <div class="filter-inner">
+
+        <!-- Role -->
+        <div class="filter-group" id="role-filters">
+          <span class="filter-label">Role</span>
+          <button class="filter-btn is-active" data-role="all">All</button>
+          <button class="filter-btn" data-role="first">First author</button>
+          <button class="filter-btn" data-role="corresponding">Corresponding</button>
+          <button class="filter-btn" data-role="participant">Participant</button>
+        </div>
+
+        <div class="filter-divider"></div>
+
+        <!-- Topics dropdown -->
+        <div class="filter-topics" id="topics-wrap">
+          <button class="filter-topics-btn" id="topics-btn" aria-haspopup="true" aria-expanded="false">
+            Topics <span id="topics-count" class="topics-count" style="display:none"></span>
+            <span class="topics-caret">▾</span>
+          </button>
+          <!-- Popover panel -->
+          <div class="topics-panel" id="topics-panel" aria-hidden="true">
+            <div class="topics-pills">
+              {allTags.map(tag => (
+                <button class="filter-pill" data-tag={tag}>{tag}</button>
+              ))}
+            </div>
+            <div class="topics-panel-footer">
+              <button class="topics-clear-btn" id="topics-clear">Clear topics</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active tag chips (shown next to Topics button when tags selected) -->
+        <div class="active-chips" id="active-chips"></div>
+
+        <!-- Count + global clear -->
+        <div class="filter-end">
+          <span class="filter-count" id="filter-count">{total} papers</span>
+          <button class="filter-clear" id="filter-clear" style="display:none">Clear all ✕</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="container page-content" id="papers-root">
+
+    <!-- Featured -->
     {featured.length > 0 && (
-      <section style="margin-bottom:3rem;">
-        <h2 class="section-sub-label">주요 논문</h2>
-        <div class="card-grid">
-          {featured.map((p) => <ResearchCard paper={p} lang={lang} />)}
+      <section class="research-section" id="sec-featured">
+        <div class="sec-header">
+          <span class="sec-kicker">Highlighted</span>
+          <div class="sec-heading-group">
+            <h2 class="sec-heading">Featured Work</h2>
+          </div>
+        </div>
+        <div class="papers-list">
+          {featured.map(p => <ResearchCard paper={p} lang={lang} />)}
         </div>
       </section>
     )}
-    {rest.length > 0 && (
-      <section>
-        <h2 class="section-sub-label">전체 논문</h2>
-        <div class="card-grid">
-          {rest.map((p) => <ResearchCard paper={p} lang={lang} />)}
+
+    <!-- Journal articles -->
+    {journals.length > 0 && (
+      <section class="research-section" id="sec-journals">
+        <div class="sec-header">
+          <span class="sec-kicker">Peer-reviewed</span>
+          <div class="sec-heading-group">
+            <h2 class="sec-heading">Journal Articles <span class="count-badge">{journals.length}</span></h2>
+            <p class="sec-note">Full-length articles in KCI-indexed and international journals. DOI links are canonical; ResearchGate mirrors open-access PDFs where available.</p>
+          </div>
+        </div>
+        <div class="papers-list">
+          {journalRest.map(p => <ResearchCard paper={p} lang={lang} />)}
         </div>
       </section>
     )}
+
+    <!-- Conference proceedings -->
+    {conferences.length > 0 && (
+      <section class="research-section" id="sec-conf">
+        <div class="sec-header">
+          <span class="sec-kicker">Presented work</span>
+          <div class="sec-heading-group">
+            <h2 class="sec-heading">Conference Proceedings <span class="count-badge">{conferences.length}</span></h2>
+            <p class="sec-note">Posters and oral presentations at KIICE, KIPEE, KMMS, and affiliated venues. ResearchGate links include PDFs and poster files where available.</p>
+          </div>
+        </div>
+        {confYears.map(year => (
+          <div class="year-group" data-year-group={String(year)}>
+            <div class="year-marker">
+              <span class="year-num">{year}</span>
+              <div class="year-content">
+                <span class="year-ct">{confByYear[year].length} paper{confByYear[year].length!==1?"s":""}</span>
+              </div>
+            </div>
+            <div class="papers-list conf-list">
+              {confByYear[year].map(p => <ResearchCard paper={p} lang={lang} />)}
+            </div>
+          </div>
+        ))}
+      </section>
+    )}
+
+    <div class="no-results" id="no-results" style="display:none">
+      <p>No papers match the selected filters.</p>
+      <button id="no-results-clear">Clear filters</button>
+    </div>
+
   </div>
 </BaseLayout>
 
 <style>
-.section-sub-label {
-  font-family: var(--font-mono);
-  font-size: .68rem;
-  color: var(--text-3);
-  letter-spacing: .12em;
-  margin-bottom: 1.25rem;
+/* ── Filter bar ──────────────────────────────────────── */
+.filter-bar {
+  position: sticky; top: var(--nav-h); z-index: 50;
+  background: var(--bg); border-bottom: .5px solid var(--border);
+}
+.filter-inner {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .55rem 0; flex-wrap: nowrap; overflow: hidden;
+}
+.filter-label {
+  font-family: var(--font-mono); font-size: .56rem;
+  color: var(--text-3); letter-spacing: .1em; white-space: nowrap; flex-shrink: 0;
+}
+.filter-group { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.filter-divider { width: .5px; height: 18px; background: var(--border); flex-shrink: 0; }
+
+.filter-btn {
+  font-family: var(--font-mono); font-size: .6rem; color: var(--text-3);
+  background: none; border: .5px solid var(--border); border-radius: 20px;
+  padding: 2px 9px; cursor: pointer; white-space: nowrap;
+  transition: color .12s, background .12s, border-color .12s; flex-shrink: 0;
+}
+.filter-btn:hover { color: var(--text-2); border-color: var(--border-2); }
+.filter-btn.is-active { color: var(--cyan); border-color: rgba(36,255,252,.35); background: rgba(36,255,252,.07); }
+
+/* Topics dropdown */
+.filter-topics { position: relative; flex-shrink: 0; }
+.filter-topics-btn {
+  font-family: var(--font-mono); font-size: .6rem; color: var(--text-2);
+  background: none; border: .5px solid var(--border-2); border-radius: 4px;
+  padding: 3px 10px; cursor: pointer; display: flex; align-items: center; gap: 5px;
+  transition: color .12s, background .12s, border-color .12s; white-space: nowrap;
+}
+.filter-topics-btn:hover { color: var(--text); border-color: var(--cyan); }
+.filter-topics-btn.has-active { color: var(--blue-2); border-color: rgba(61,146,245,.4); background: rgba(61,146,245,.07); }
+.topics-count {
+  background: var(--blue-2); color: #fff; border-radius: 10px;
+  padding: 0 5px; font-size: .54rem; min-width: 16px; text-align: center;
+}
+.topics-caret { font-size: .5rem; opacity: .6; transition: transform .15s; }
+.filter-topics-btn[aria-expanded="true"] .topics-caret { transform: rotate(180deg); }
+
+/* Panel */
+.topics-panel {
+  display: none; position: absolute; top: calc(100% + 6px); left: 0;
+  background: var(--bg-surface); border: .5px solid var(--border-2);
+  border-radius: var(--r-md); padding: .875rem;
+  box-shadow: 0 8px 30px rgba(0,0,0,.35);
+  z-index: 100; min-width: 280px; max-width: 380px;
+}
+.topics-panel.is-open { display: block; }
+.topics-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: .625rem; }
+.filter-pill {
+  font-family: var(--font-mono); font-size: .58rem; color: var(--text-3);
+  background: none; border: .5px solid var(--border); border-radius: 4px;
+  padding: 2px 8px; cursor: pointer;
+  transition: color .12s, background .12s, border-color .12s;
+}
+.filter-pill:hover { color: var(--text-2); border-color: var(--border-2); }
+.filter-pill.is-active { color: var(--blue-2); border-color: rgba(61,146,245,.4); background: rgba(61,146,245,.07); }
+.topics-panel-footer { border-top: .5px solid var(--border); padding-top: .5rem; }
+.topics-clear-btn {
+  font-family: var(--font-mono); font-size: .58rem; color: var(--text-3);
+  background: none; border: none; cursor: pointer; padding: 0;
+  transition: color .12s;
+}
+.topics-clear-btn:hover { color: var(--pink-2); }
+
+/* Active chips */
+.active-chips { display: flex; flex-wrap: nowrap; gap: 4px; overflow: hidden; flex: 1; min-width: 0; }
+.active-chip {
+  font-family: var(--font-mono); font-size: .56rem; color: var(--blue-2);
+  background: rgba(61,146,245,.08); border: .5px solid rgba(61,146,245,.3);
+  border-radius: 4px; padding: 1px 6px; white-space: nowrap; display: flex; align-items: center; gap: 3px;
+  cursor: pointer; flex-shrink: 0;
+}
+.active-chip:hover { background: rgba(61,146,245,.14); }
+.active-chip-x { font-size: .5rem; opacity: .6; }
+
+.filter-end { display: flex; align-items: center; gap: .5rem; margin-left: auto; flex-shrink: 0; }
+.filter-count { font-family: var(--font-mono); font-size: .56rem; color: var(--text-3); white-space: nowrap; }
+.filter-clear { font-family: var(--font-mono); font-size: .56rem; color: var(--pink-2); background: none; border: .5px solid rgba(255,90,168,.2); border-radius: 4px; padding: 2px 8px; cursor: pointer; white-space: nowrap; }
+.filter-clear:hover { background: rgba(255,90,168,.07); }
+
+/* ── Section headers — mirror paper-row grid ─────────
+   paper-row: 80px | gap 1.5rem | 1fr | gap | auto
+   kicker sits over the "year" column (80px)
+   heading+note sit over the "content" column (1fr)
+   ───────────────────────────────────────────────── */
+.sec-header {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+  margin-bottom: 1.5rem;
+}
+.sec-kicker {
+  font-family: var(--font-mono); font-size: .56rem;
+  color: var(--cyan); letter-spacing: .14em;
+  padding-top: .35rem; /* optical alignment with heading baseline */
+  text-align: right; /* right-align kicker toward the title column */
+}
+[data-theme="light"] .sec-kicker { color: var(--cyan-2); }
+.sec-heading-group { /* takes the 1fr column */ }
+.sec-heading {
+  font-family: var(--font-display); font-size: 1.35rem;
+  font-weight: 800; letter-spacing: -.02em;
+  display: flex; align-items: baseline; gap: .5rem;
+  margin-bottom: .4rem;
+}
+.count-badge {
+  font-family: var(--font-mono); font-size: .58rem; color: var(--text-3);
+  background: var(--bg-subtle); border: .5px solid var(--border);
+  border-radius: 20px; padding: 1px 8px; font-weight: 400;
+}
+.sec-note {
+  font-size: .75rem; color: var(--text-3); line-height: 1.65; max-width: 580px;
+}
+
+/* Mobile: collapse grid to single column */
+@media(max-width: 768px) {
+  .sec-header { grid-template-columns: 1fr; gap: .25rem; }
+  .sec-kicker { text-align: left; }
+}
+
+/* ── Sections ─────────────────────────────────────── */
+.research-section { padding: 3rem 0; border-bottom: .5px solid var(--border); }
+.research-section:last-of-type { border-bottom: none; }
+.papers-list { display: flex; flex-direction: column; }
+
+/* ── Year groups ─────────────────────────────────── */
+.year-group { margin-bottom: 1.75rem; }
+.year-marker {
+  display: grid; grid-template-columns: 80px 1fr; gap: 1.5rem;
+  align-items: baseline; margin-bottom: 0; padding-bottom: .4rem;
+  border-bottom: .5px solid var(--border-2);
+}
+.year-kicker {
+  font-family: var(--font-mono); font-size: .56rem; color: var(--text-3);
+  text-align: right; letter-spacing: .06em;
+}
+.year-content { display: flex; align-items: baseline; gap: .5rem; }
+.year-num { font-family: var(--font-display); font-size: .95rem; font-weight: 800; color: var(--text-3); }
+.year-ct  { font-family: var(--font-mono); font-size: .54rem; color: var(--text-3); letter-spacing: .06em; }
+.conf-list :global(.paper-row:first-child) { border-top: none; }
+
+@media(max-width: 768px) {
+  .year-marker { grid-template-columns: 1fr; gap: .25rem; }
+  .year-kicker { display: none; }
+}
+
+/* ── No results ──────────────────────────────────── */
+.no-results { padding: 4rem 0; text-align: center; color: var(--text-3); font-size: .85rem; }
+.no-results button {
+  margin-top: 1rem; font-family: var(--font-mono); font-size: .65rem;
+  color: var(--cyan); background: none; border: .5px solid rgba(36,255,252,.25);
+  border-radius: var(--r-sm); padding: 5px 14px; cursor: pointer; display: inline-block;
 }
 </style>
+
+<script>
+(function(){
+  let activeRole = "all";
+  let activeTags = new Set<string>();
+
+  const total     = document.querySelectorAll<HTMLElement>(".paper-row").length;
+  const countEl   = document.getElementById("filter-count");
+  const clearBtn  = document.getElementById("filter-clear");
+  const chipsEl   = document.getElementById("active-chips");
+  const topicsBtn = document.getElementById("topics-btn") as HTMLButtonElement;
+  const topicsPanel = document.getElementById("topics-panel");
+  const topicsCount = document.getElementById("topics-count");
+  const noResults = document.getElementById("no-results");
+
+  // ── Filter engine ────────────────────────────────
+  function applyFilters() {
+    let visible = 0;
+    document.querySelectorAll<HTMLElement>(".paper-row").forEach(row => {
+      const rowTags = (row.dataset.tags??"").split(",").filter(Boolean);
+      const rowRole = row.dataset.role ?? "first";
+      const show = (activeRole==="all" || rowRole===activeRole)
+                && (activeTags.size===0 || [...activeTags].every(t=>rowTags.includes(t)));
+      row.style.display = show ? "" : "none";
+      if(show) visible++;
+    });
+    document.querySelectorAll<HTMLElement>("[data-year-group]").forEach(g => {
+      const has = [...g.querySelectorAll<HTMLElement>(".paper-row")].some(r=>r.style.display!=="none");
+      g.style.display = has ? "" : "none";
+    });
+    ["sec-featured","sec-journals","sec-conf"].forEach(id => {
+      const s = document.getElementById(id);
+      if(!s) return;
+      s.style.display = [...s.querySelectorAll<HTMLElement>(".paper-row")].some(r=>r.style.display!=="none") ? "" : "none";
+    });
+    if(countEl) countEl.textContent = `${visible} paper${visible!==1?"s":""}`;
+    const active = activeRole!=="all" || activeTags.size>0;
+    if(clearBtn) clearBtn.style.display = active ? "" : "none";
+    if(noResults) noResults.style.display = visible===0 ? "" : "none";
+    updateTopicsUI();
+    updateChips();
+  }
+
+  // ── Topics button UI ─────────────────────────────
+  function updateTopicsUI() {
+    const n = activeTags.size;
+    if(topicsCount) { topicsCount.textContent = String(n); topicsCount.style.display = n>0 ? "" : "none"; }
+    topicsBtn?.classList.toggle("has-active", n>0);
+  }
+
+  // ── Active chips ──────────────────────────────────
+  function updateChips() {
+    if(!chipsEl) return;
+    chipsEl.innerHTML = "";
+    activeTags.forEach(tag => {
+      const chip = document.createElement("button");
+      chip.className = "active-chip";
+      chip.innerHTML = `${tag} <span class="active-chip-x">✕</span>`;
+      chip.addEventListener("click", () => {
+        activeTags.delete(tag);
+        document.querySelector<HTMLElement>(`.filter-pill[data-tag="${tag}"]`)?.classList.remove("is-active");
+        applyFilters();
+      });
+      chipsEl.appendChild(chip);
+    });
+  }
+
+  function clearAll() {
+    activeRole = "all";
+    activeTags.clear();
+    document.querySelectorAll<HTMLElement>(".filter-btn").forEach(b=>b.classList.toggle("is-active", b.dataset.role==="all"));
+    document.querySelectorAll<HTMLElement>(".filter-pill").forEach(p=>p.classList.remove("is-active"));
+    applyFilters();
+  }
+
+  // ── Role ─────────────────────────────────────────
+  document.getElementById("role-filters")?.addEventListener("click", (e:Event) => {
+    const btn = (e.target as HTMLElement).closest<HTMLElement>(".filter-btn");
+    if(!btn) return;
+    activeRole = btn.dataset.role!;
+    document.querySelectorAll<HTMLElement>(".filter-btn").forEach(b=>b.classList.toggle("is-active", b.dataset.role===activeRole));
+    applyFilters();
+  });
+
+  // ── Topics dropdown toggle ────────────────────────
+  topicsBtn?.addEventListener("click", (e:Event) => {
+    e.stopPropagation();
+    const open = topicsPanel?.classList.toggle("is-open");
+    topicsBtn.setAttribute("aria-expanded", String(open));
+    topicsPanel?.setAttribute("aria-hidden", String(!open));
+  });
+  // Close on outside click
+  document.addEventListener("click", (e:Event) => {
+    if(!(e.target as HTMLElement).closest("#topics-wrap")) {
+      topicsPanel?.classList.remove("is-open");
+      topicsBtn?.setAttribute("aria-expanded","false");
+    }
+  });
+  // Escape
+  document.addEventListener("keydown", (e:KeyboardEvent) => {
+    if(e.key==="Escape") { topicsPanel?.classList.remove("is-open"); topicsBtn?.setAttribute("aria-expanded","false"); }
+  });
+
+  // ── Tag pills in panel ────────────────────────────
+  document.getElementById("topics-panel")?.addEventListener("click", (e:Event) => {
+    const pill = (e.target as HTMLElement).closest<HTMLElement>(".filter-pill");
+    if(!pill) return;
+    e.stopPropagation(); // don't close panel
+    const tag = pill.dataset.tag!;
+    activeTags.has(tag) ? activeTags.delete(tag) : activeTags.add(tag);
+    pill.classList.toggle("is-active", activeTags.has(tag));
+    applyFilters();
+  });
+
+  // Clear topics inside panel
+  document.getElementById("topics-clear")?.addEventListener("click", (e:Event) => {
+    e.stopPropagation();
+    activeTags.clear();
+    document.querySelectorAll<HTMLElement>(".filter-pill").forEach(p=>p.classList.remove("is-active"));
+    applyFilters();
+  });
+
+  // ── Tag click on paper row → activate in filter ──
+  document.getElementById("papers-root")?.addEventListener("click", (e:Event) => {
+    const tagEl = (e.target as HTMLElement).closest<HTMLElement>(".rc-tag");
+    if(!tagEl || !tagEl.closest(".paper-row")) return;
+    const t = tagEl.textContent?.trim() ?? "";
+    if(!t || activeTags.has(t)) return;
+    activeTags.add(t);
+    document.querySelector<HTMLElement>(`.filter-pill[data-tag="${t}"]`)?.classList.add("is-active");
+    applyFilters();
+    document.getElementById("filter-bar")?.scrollIntoView({behavior:"smooth",block:"nearest"});
+  });
+
+  clearBtn?.addEventListener("click", clearAll);
+  document.getElementById("no-results-clear")?.addEventListener("click", clearAll);
+
+  if(countEl) countEl.textContent = `${total} papers`;
+})();
+</script>

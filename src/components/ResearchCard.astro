@@ -1,6 +1,10 @@
 ---
-// src/components/PaperRow.astro
-// Editorial list-row style for papers — used on homepage + /research page.
+// src/components/ResearchCard.astro
+// Editorial list-row for journal papers.
+// Layout: inherits global.css .paper-row grid (80px | 1fr | auto)
+//   col 1 = year, col 2 = content, col 3 = action links (desktop)
+// On mobile: links move inline below tags.
+
 import type { CollectionEntry } from "astro:content";
 import { type Lang } from "@/i18n/translations";
 
@@ -10,37 +14,292 @@ interface Props {
 }
 const { paper, lang } = Astro.props;
 const { title, title_ko, authors, venue, year, status, doi, pdf, tags } = paper.data;
+
+const rg        = (paper.data as any).researchgate_url as string | undefined;
+const procUrl   = (paper.data as any).proceedings_url  as string | undefined;
+const slidesUrl = (paper.data as any).slides_url       as string | undefined;
+const videoUrl  = (paper.data as any).video_url        as string | undefined;
+const role      = ((paper.data as any).role as string | undefined) ?? "first";
+const volStr    = ((paper.data as any).volume as string | undefined) ?? "";
+
 const displayTitle = lang === "ko" && title_ko ? title_ko : title;
 
-const pillClass = status === "published" ? "ok" : status === "in-review" ? "warn" : "blue";
+// Status pill only when not published
+const showStatus = status !== "published";
+const pillClass  = status === "in-review" ? "warn" : "blue";
 const pillLabel: Record<string, Record<Lang, string>> = {
-  "published": { en:"Published",  ko:"게시됨"  },
-  "in-review": { en:"In review",  ko:"검토 중" },
-  "preprint":  { en:"Preprint",   ko:"프리프린트" },
+  "in-review": { en: "In review", ko: "검토 중" },
+  "preprint":  { en: "Preprint",  ko: "프리프린트" },
 };
+
+// ── Venue map ─────────────────────────────────────────
+const VENUES: Record<string, { en: string; ko: string; url: string }> = {
+  "KIICE":         { en: "Korean Society for Information and Communication Engineering",          ko: "한국정보통신학회",             url: "https://www.kiice.org"       },
+  "KIICE ICFICE":  { en: "Int'l Conference on Future Information & Communication Engineering",   ko: "ICFICE 국제정보통신공학학술대회",  url: "https://www.kiice.org"       },
+  "KIPEE":         { en: "Korean Institute of Practical Engineering Education",                  ko: "한국실천공학교육학회",            url: "https://www.kipee.or.kr"     },
+  "JICCE":         { en: "Journal of Information and Communication Convergence Engineering",     ko: "정보통신융합공학논문지",          url: "https://jicce.kiice.org"     },
+  "JPEE":          { en: "Journal of Practical Engineering Education",                           ko: "실천공학교육논문지",              url: "https://journal.kipee.or.kr" },
+  "JCCR":          { en: "Journal of Consulting Convergence Research",                           ko: "컨설팅융합연구",                 url: "https://www.jccr.or.kr"      },
+  "KMMS":          { en: "Korean Multimedia Society",                                            ko: "한국멀티미디어학회",              url: "https://www.kmms.or.kr"      },
+  "JoQLR":         { en: "Journal of Quality of Life Research",                                  ko: "삶의 질 향상 연구",               url: ""                            },
+  "삶의 질 연구회": { en: "Quality of Life Research Society",                                    ko: "삶의 질 연구회",                  url: ""                            },
+};
+const vi      = VENUES[venue] ?? null;
+const tipText = vi ? (lang === "ko" ? vi.ko : vi.en) : venue;
+const venueUrl = vi?.url ?? "";
+
+// ── Citation: strict DOI-only rule ────────────────────
+// doi field → DOI.  Other URLs (rg, procUrl) → "Available: URL"
+const hasDoi      = !!doi?.trim();
+const doiUrl      = hasDoi ? (doi!.startsWith("http") ? doi! : `https://doi.org/${doi}`) : "";
+const doiClean    = (doi ?? "").replace(/^https?:\/\/doi\.org\//, "");
+const availUrl    = !hasDoi ? (rg || procUrl || "") : "";
+
+type PA = { first: string; last: string; full: string };
+function parseAuthors(s: string): PA[] {
+  return s.split(/,\s*(?=[A-Z가-힣])/).map(a => {
+    a = a.trim();
+    const p = a.split(/\s+/);
+    if (p.length <= 1) return { first: "", last: a, full: a };
+    return { first: p.slice(0, -1).join(" "), last: p.at(-1)!, full: a };
+  });
+}
+const parsed = parseAuthors(authors);
+
+// BibTeX
+const bibKey = `snowberger${year}${title.toLowerCase().replace(/[^a-z]/g,"").slice(0,14)}`;
+const bibLines = [
+  `@article{${bibKey},`,
+  `  author    = {${authors}},`,
+  `  title     = {${title}},`,
+  `  journal   = {${venue}},`,
+  `  year      = {${year}},`,
+  volStr ? `  pages     = {${volStr}},` : null,
+  hasDoi    ? `  doi       = {${doiClean}},`   : null,
+  !hasDoi && availUrl ? `  url       = {${availUrl}},` : null,
+  `}`,
+].filter(Boolean).join("\n");
+
+// APA 7
+function apaNm(a: PA) { return a.first ? `${a.last}, ${a.first.split(/\s+/).map(p=>p[0]+".").join(" ")}` : a.last; }
+const apaAuth = parsed.length === 1 ? apaNm(parsed[0])
+  : parsed.length === 2 ? `${apaNm(parsed[0])}, & ${apaNm(parsed[1])}`
+  : parsed.slice(0,-1).map(apaNm).join(", ") + ", & " + apaNm(parsed.at(-1)!);
+const apaSfx = hasDoi ? ` ${doiUrl}` : availUrl ? ` Available: ${availUrl}` : "";
+const apaText = `${apaAuth} (${year}). ${title}. *${tipText}*${volStr ? `, ${volStr}` : ""}.${apaSfx}`;
+
+// MLA 9
+const mlaLead = parsed[0].first ? `${parsed[0].last}, ${parsed[0].first}` : parsed[0].full;
+const mlaRest = parsed.length > 2 ? ", et al" : parsed.length === 2 ? `, and ${parsed[1].full}` : "";
+const mlaSfx  = hasDoi ? `, doi:${doiClean}` : availUrl ? `, Available: ${availUrl}` : "";
+const mlaText = `${mlaLead}${mlaRest}. "${title}." *${tipText}*${volStr ? `, ${volStr}` : ""}, ${year}${mlaSfx}.`;
+
+// IEEE
+function ieeeNm(a: PA) { return a.first ? `${a.first.split(/\s+/).map(p=>p[0]+".").join(" ")} ${a.last}` : a.last; }
+const ieeeAuth = parsed.length === 1 ? ieeeNm(parsed[0])
+  : parsed.length === 2 ? `${ieeeNm(parsed[0])} and ${ieeeNm(parsed[1])}`
+  : parsed.slice(0,-1).map(ieeeNm).join(", ") + ", and " + ieeeNm(parsed.at(-1)!);
+const ieeeSfx = hasDoi ? `, doi: ${doiClean}.` : availUrl ? `. [Online]. Available: ${availUrl}` : ".";
+const ieeeText = `${ieeeAuth}, "${title}," *${tipText}*${volStr ? `, ${volStr}` : ""}${ieeeSfx}`;
+
+const citeId = `cite-rc-${paper.slug}`;
+
+function tagCls(t: string) {
+  if (["Physical AI","PAI Education"].includes(t)) return "green";
+  if (t === "Dataset") return "pink";
+  if (["Vision","Script AI","Edge AI","ML","Inference","IoT / Edge","IoT"].includes(t)) return "blue";
+  return "";
+}
+
+// Links snippet — rendered in both col-3 and mobile fallback
+const hasLinks = doi || pdf || rg || procUrl || slidesUrl || videoUrl;
 ---
 
-<div class="paper-row">
-  <div>
-    <span class="paper-year">{year}</span>
-  </div>
-  <div>
-    <span class="paper-venue">{venue}</span>
+<div class="paper-row rc-row" data-tags={tags.join(",")} data-role={role} data-year={String(year)}>
+
+  <!-- col 1: year -->
+  <div><span class="paper-year">{year}</span></div>
+
+  <!-- col 2: content -->
+  <div class="rc-content">
+
+    <div class="rc-meta">
+      <span class="venue-wrap">
+        {venueUrl
+          ? <a class="paper-venue" href={venueUrl} target="_blank" rel="noopener">{venue}</a>
+          : <span class="paper-venue">{venue}</span>
+        }
+        <span class="venue-tip">{tipText}</span>
+      </span>
+      {showStatus && <span class={`pill ${pillClass}`} style="font-size:.54rem;padding:1px 5px">{pillLabel[status]?.[lang] ?? status}</span>}
+    </div>
+
     <p class="paper-title-row">
       {doi
         ? <a href={doi} target="_blank" rel="noopener">{displayTitle}</a>
+        : rg ? <a href={rg} target="_blank" rel="noopener">{displayTitle}</a>
         : <span>{displayTitle}</span>
       }
-      {pdf && !doi && <a href={pdf} target="_blank" rel="noopener">{displayTitle}</a>}
     </p>
     <p class="paper-authors">{authors}</p>
-    <div>
-      {tags.map((tag) => (
-        <span class={`tag${tag === "Physical AI" ? " green" : tag === "Dataset" ? " pink" : tag === "Vision" || tag === "Script OCR" || tag === "ML" || tag === "Inference" ? " blue" : ""}`}>
-          {tag}
-        </span>
-      ))}
+
+    <!-- tags always shown; links shown here on mobile only -->
+    <div class="rc-footer">
+      <div class="rc-tags">
+        {tags.map(t => <span class={`tag rc-tag${tagCls(t) ? " "+tagCls(t) : ""}`}>{t}</span>)}
+      </div>
+      <!-- mobile links -->
+      <div class="rc-links rc-links--mobile">
+        {doi       && <a class="plink plink--doi"    href={doi}       target="_blank" rel="noopener">DOI ↗</a>}
+        {pdf       && <a class="plink plink--pdf"    href={pdf}       target="_blank" rel="noopener">PDF ↗</a>}
+        {rg        && <a class="plink plink--rg"     href={rg}        target="_blank" rel="noopener">RG ↗</a>}
+        {procUrl   && <a class="plink plink--proc"   href={procUrl}   target="_blank" rel="noopener">{lang==="ko"?"학술대회 ↗":"Proc ↗"}</a>}
+        {slidesUrl && <a class="plink plink--slides" href={slidesUrl} target="_blank" rel="noopener">{lang==="ko"?"슬라이드 ↗":"Slides ↗"}</a>}
+        {videoUrl  && <a class="plink plink--video"  href={videoUrl}  target="_blank" rel="noopener">{lang==="ko"?"영상 ↗":"Video ↗"}</a>}
+        <button class="plink plink--cite" data-cite-open={citeId}>{lang==="ko"?"인용":"Cite"}</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- col 3: links desktop -->
+  <div class="rc-links rc-links--desktop">
+    {doi       && <a class="plink plink--doi"    href={doi}       target="_blank" rel="noopener">DOI ↗</a>}
+    {pdf       && <a class="plink plink--pdf"    href={pdf}       target="_blank" rel="noopener">PDF ↗</a>}
+    {rg        && <a class="plink plink--rg"     href={rg}        target="_blank" rel="noopener">RG ↗</a>}
+    {procUrl   && <a class="plink plink--proc"   href={procUrl}   target="_blank" rel="noopener">{lang==="ko"?"학술대회 ↗":"Proc ↗"}</a>}
+    {slidesUrl && <a class="plink plink--slides" href={slidesUrl} target="_blank" rel="noopener">{lang==="ko"?"슬라이드 ↗":"Slides ↗"}</a>}
+    {videoUrl  && <a class="plink plink--video"  href={videoUrl}  target="_blank" rel="noopener">{lang==="ko"?"영상 ↗":"Video ↗"}</a>}
+    <button class="plink plink--cite" data-cite-open={citeId}>{lang==="ko"?"인용":"Cite"}</button>
+  </div>
+
+</div>
+
+<!-- Cite popup -->
+<div class="cite-overlay" id={citeId} aria-hidden="true">
+  <div class="cite-box">
+    <div class="cite-header">
+      <span class="cite-header-label">{lang==="ko"?"인용 형식":"Cite this paper"}</span>
+      <button class="cite-close" data-cite-close={citeId}>✕</button>
+    </div>
+    <div class="cite-tabs">
+      <button class="cite-tab is-active" data-tab="bib">BibTeX</button>
+      <button class="cite-tab" data-tab="apa">APA 7</button>
+      <button class="cite-tab" data-tab="mla">MLA 9</button>
+      <button class="cite-tab" data-tab="ieee">IEEE</button>
+    </div>
+    <div class="cite-panel is-active" data-panel="bib">
+      <pre class="cite-code">{bibLines}</pre>
+      <div class="cite-actions">
+        <button class="cite-copy" data-copy-text={bibLines}>{lang==="ko"?"복사":"Copy"}</button>
+        <span class="cite-hint">{lang==="ko"?"Zotero·Mendeley에 붙여넣으면 자동 임포트됩니다. LaTeX에서는 .bib에 추가 후 \\cite{"+bibKey+"}로 사용":"Paste into Zotero or Mendeley to auto-import. In LaTeX add to your .bib file and cite with \\cite{"+bibKey+"}."}</span>
+      </div>
+    </div>
+    <div class="cite-panel" data-panel="apa">
+      <p class="cite-formatted">{apaText}</p>
+      <div class="cite-actions">
+        <button class="cite-copy" data-copy-text={apaText}>{lang==="ko"?"복사":"Copy"}</button>
+        <span class="cite-hint">{lang==="ko"?"* 기울임꼴은 워드에서 직접 적용하세요.":"* marks = italics — apply manually in Word or Docs. Korean co-author names may need adjustment."}</span>
+      </div>
+    </div>
+    <div class="cite-panel" data-panel="mla">
+      <p class="cite-formatted">{mlaText}</p>
+      <div class="cite-actions">
+        <button class="cite-copy" data-copy-text={mlaText}>{lang==="ko"?"복사":"Copy"}</button>
+        <span class="cite-hint">{lang==="ko"?"* 기울임꼴은 워드에서 직접 적용하세요.":"* marks = italics — apply manually."}</span>
+      </div>
+    </div>
+    <div class="cite-panel" data-panel="ieee">
+      <p class="cite-formatted">{ieeeText}</p>
+      <div class="cite-actions">
+        <button class="cite-copy" data-copy-text={ieeeText}>{lang==="ko"?"복사":"Copy"}</button>
+        <span class="cite-hint">{lang==="ko"?"IEEE 형식은 KIICE·KIPEE 학술지에서 사용됩니다. * 기울임꼴은 수동으로 적용하세요.":"IEEE style is standard for KIICE and KIPEE venues. * marks = italics."}</span>
+      </div>
     </div>
   </div>
-  <span class={`pill ${pillClass}`}>{pillLabel[status][lang]}</span>
 </div>
+
+<style>
+.rc-content { min-width: 0; }
+.rc-meta { display:flex; align-items:center; gap:.4rem; margin-bottom:.25rem; flex-wrap:wrap; }
+
+/* Venue tooltip */
+.venue-wrap { position:relative; display:inline-flex; align-items:center; }
+.venue-tip {
+  position:absolute; bottom:calc(100% + 6px); left:0;
+  background:var(--bg-surface); border:.5px solid var(--border-2);
+  border-radius:var(--r-sm); padding:4px 10px;
+  font-family:var(--font-mono); font-size:.58rem; color:var(--text-2);
+  pointer-events:none; opacity:0; transform:translateY(3px);
+  transition:opacity .14s,transform .14s; z-index:30;
+  box-shadow:0 4px 14px rgba(0,0,0,.3); max-width:300px;
+  white-space:normal; line-height:1.4;
+}
+.venue-tip::after { content:''; position:absolute; top:100%; left:10px; border:4px solid transparent; border-top-color:var(--border-2); }
+.venue-wrap:hover .venue-tip { opacity:1; transform:translateY(0); }
+.paper-venue { cursor:help; text-decoration:none !important; }
+.paper-venue:hover { opacity:.75; }
+
+/* Footer: tags + mobile links */
+.rc-footer { display:flex; align-items:flex-start; gap:.5rem; margin-top:.35rem; flex-wrap:wrap; }
+.rc-tags { flex:1; display:flex; flex-wrap:wrap; gap:3px; }
+.rc-tag { cursor:pointer; }
+.rc-tag:hover { opacity:.75; }
+
+/* Links */
+.rc-links { display:flex; flex-direction:column; gap:4px; align-items:flex-end; flex-shrink:0; }
+.rc-links--mobile { display:none; }
+@media(max-width:768px) {
+  .rc-links--desktop { display:none !important; }
+  .rc-links--mobile  { display:flex; flex-direction:row; flex-wrap:wrap; gap:3px; }
+}
+
+.plink {
+  font-family:var(--font-mono); font-size:.6rem;
+  border:.5px solid var(--border); border-radius:3px; padding:2px 7px;
+  text-decoration:none; cursor:pointer; background:none;
+  transition:background .12s,color .12s,border-color .12s;
+  white-space:nowrap; display:block; text-align:center;
+}
+.plink--doi    { color:var(--green);  border-color:rgba(45,212,191,.3);  } .plink--doi:hover    { background:rgba(45,212,191,.1); }
+.plink--pdf    { color:var(--green);  border-color:rgba(45,212,191,.3);  } .plink--pdf:hover    { background:rgba(45,212,191,.1); }
+.plink--rg     { color:var(--blue-2); border-color:rgba(61,146,245,.28); } .plink--rg:hover     { background:rgba(61,146,245,.1); }
+.plink--proc   { color:var(--text-2); border-color:var(--border);        } .plink--proc:hover   { background:var(--bg-subtle); }
+.plink--slides { color:var(--cyan);   border-color:rgba(36,255,252,.28); } .plink--slides:hover { background:rgba(36,255,252,.07); }
+.plink--video  { color:var(--pink-2); border-color:rgba(255,90,168,.25); } .plink--video:hover  { background:rgba(255,90,168,.07); }
+.plink--cite   { color:var(--text-3); border-color:var(--border);        } .plink--cite:hover   { color:var(--text-2); background:var(--bg-subtle); }
+
+/* Cite overlay */
+.cite-overlay { display:none; position:fixed; inset:0; z-index:600; align-items:center; justify-content:center; background:rgba(2,8,20,.72); backdrop-filter:blur(8px); padding:1.5rem; }
+.cite-overlay.is-open { display:flex; }
+.cite-box { background:var(--bg-surface); border:.5px solid var(--border-2); border-radius:var(--r-lg); width:100%; max-width:560px; box-shadow:0 0 50px rgba(0,0,0,.6); overflow:hidden; }
+.cite-header { display:flex; align-items:center; justify-content:space-between; padding:.875rem 1.25rem .75rem; border-bottom:.5px solid var(--border); }
+.cite-header-label { font-family:var(--font-mono); font-size:.63rem; color:var(--cyan); letter-spacing:.1em; }
+.cite-close { background:none; border:none; color:var(--text-3); font-size:.85rem; cursor:pointer; padding:2px 6px; border-radius:var(--r-sm); transition:color .12s,background .12s; }
+.cite-close:hover { color:var(--text); background:var(--bg-subtle); }
+.cite-tabs { display:flex; padding:.5rem 1.25rem 0; border-bottom:.5px solid var(--border); }
+.cite-tab { font-family:var(--font-mono); font-size:.62rem; color:var(--text-3); background:none; border:none; padding:.35rem .7rem; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:color .12s,border-color .12s; }
+.cite-tab:hover { color:var(--text-2); }
+.cite-tab.is-active { color:var(--cyan); border-bottom-color:var(--cyan); }
+.cite-panel { display:none; padding:.875rem 1.25rem; }
+.cite-panel.is-active { display:block; }
+.cite-code { background:var(--bg-subtle); border:.5px solid var(--border); border-radius:var(--r-md); padding:.75rem 1rem; font-family:var(--font-mono); font-size:.68rem; line-height:1.7; color:var(--text-2); overflow-x:auto; white-space:pre; margin-bottom:.625rem; }
+.cite-formatted { background:var(--bg-subtle); border:.5px solid var(--border); border-radius:var(--r-md); padding:.75rem 1rem; font-size:.76rem; line-height:1.8; color:var(--text-2); margin-bottom:.625rem; }
+.cite-actions { display:flex; align-items:flex-start; gap:.75rem; flex-wrap:wrap; }
+.cite-copy { font-family:var(--font-mono); font-size:.6rem; color:var(--green); background:none; border:.5px solid rgba(45,212,191,.25); border-radius:var(--r-sm); padding:3px 12px; cursor:pointer; flex-shrink:0; transition:background .12s; }
+.cite-copy:hover { background:rgba(45,212,191,.1); }
+.cite-hint { font-size:.63rem; color:var(--text-3); line-height:1.55; }
+</style>
+
+<script>
+(function(){
+  if((window as any).__rcCiteInit)return;
+  (window as any).__rcCiteInit=true;
+  document.addEventListener("click",(e:Event)=>{ const b=(e.target as HTMLElement).closest<HTMLElement>("[data-cite-open]"); if(b)document.getElementById(b.dataset.citeOpen!)?.classList.add("is-open"); });
+  document.addEventListener("click",(e:Event)=>{ const b=(e.target as HTMLElement).closest<HTMLElement>("[data-cite-close]"); if(b)document.getElementById(b.dataset.citeClose!)?.classList.remove("is-open"); });
+  document.addEventListener("click",(e:Event)=>{ if((e.target as HTMLElement).classList.contains("cite-overlay"))(e.target as HTMLElement).classList.remove("is-open"); });
+  document.addEventListener("keydown",(e:KeyboardEvent)=>{ if(e.key==="Escape")document.querySelectorAll<HTMLElement>(".cite-overlay.is-open").forEach(el=>el.classList.remove("is-open")); });
+  document.addEventListener("click",(e:Event)=>{ const tab=(e.target as HTMLElement).closest<HTMLElement>(".cite-tab"); if(!tab)return; const box=tab.closest(".cite-box")!; box.querySelectorAll<HTMLElement>(".cite-tab").forEach(t=>t.classList.remove("is-active")); box.querySelectorAll<HTMLElement>(".cite-panel").forEach(p=>p.classList.remove("is-active")); tab.classList.add("is-active"); box.querySelector<HTMLElement>(`[data-panel="${tab.dataset.tab}"]`)?.classList.add("is-active"); });
+  document.addEventListener("click",async(e:Event)=>{ const btn=(e.target as HTMLElement).closest<HTMLElement>(".cite-copy"); if(!btn)return; try{await navigator.clipboard.writeText(btn.dataset.copyText??""); const o=btn.textContent; btn.textContent="✓"; setTimeout(()=>{btn.textContent=o;},1600);}catch{const t=btn.closest(".cite-panel")?.querySelector<HTMLElement>(".cite-code,.cite-formatted"); if(t){const r=document.createRange();r.selectNodeContents(t);window.getSelection()?.removeAllRanges();window.getSelection()?.addRange(r);}} });
+})();
+</script>

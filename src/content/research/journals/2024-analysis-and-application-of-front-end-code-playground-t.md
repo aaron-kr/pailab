@@ -6,11 +6,12 @@ type: "journal"
 venue: "JPEE"
 year: 2024
 status: "published"
-doi: "10.14702/JPEE.2024.011"
+doi: "https://doi.org/10.14702/JPEE.2024.011"
 pdf: ""
-researchgate_url: ""
+researchgate_url: "https://www.researchgate.net/publication/380637764_Analysis_and_Application_of_Front-endCode_Playground_Tools_for_Web_Programming_Education"
 tags: ["PAI Education"]
 featured: false
 thumbnailUrl: ""
 date: 2024-02-29
+keywords: ["Front-end", "Web Programming", "Programming Education", "JavaScript", "Code Playgrounds"]
 ---

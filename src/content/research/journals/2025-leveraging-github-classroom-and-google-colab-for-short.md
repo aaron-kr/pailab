@@ -6,11 +6,12 @@ type: "journal"
 venue: "JPEE"
 year: 2025
 status: "published"
-doi: "10.14702/JPEE.2025.049"
+doi: "https://doi.org/10.14702/JPEE.2025.049"
 pdf: ""
-researchgate_url: ""
+researchgate_url: "https://www.researchgate.net/publication/389562024_Leveraging_GitHub_Classroom_and_Google_Colab_for_Short-Term_Student_Machine_Learning_Team_Projects"
 tags: ["PAI Education"]
 featured: false
 thumbnailUrl: ""
 date: 2025-02-28
+keywords: ["GitHub Classroom", "Google Colab", "Machine Learning", "Short-term Team Projects", "Programming Education"]
 ---
