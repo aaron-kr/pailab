@@ -1,0 +1,13 @@
+---
+title: "Machine Learning and Data Science Approaches in Cybersecurity: A Mini Literature Review"
+title_ko: "Machine Learning and Data Science Approaches in Cybersecurity: A Mini Literature Review"
+authors: "Aaron Snowberger"
+venue: "KIICE"
+year: 2025
+status: "published"
+researchgate_url: ""
+proceedings_url: ""
+tags: ["Physical AI"]
+featured: false
+date: 2025-10-24
+---

@@ -8,17 +8,32 @@ import { defineCollection, z } from "astro:content";
 const research = defineCollection({
   type: "content",
   schema: z.object({
-    title:        z.string(),
-    title_ko:     z.string().optional(),
-    authors:      z.string(),
-    venue:        z.string(),
-    year:         z.number(),
-    status:       z.enum(["published", "in-review", "preprint"]),
-    doi:          z.string().url().optional(),
-    pdf:          z.string().url().optional(),
-    tags:         z.array(z.string()).default([]),
-    featured:     z.boolean().default(false),
-    thumbnailUrl: z.string().optional(),
+    title: z.string(),
+    title_ko: z.string().optional(),
+    authors: z.string(),
+    venue: z.string(),                             // Short venue name: "JPEE", "KIICE ICFICE", etc.
+    year: z.number(),
+    status: z.enum(["published", "in-review", "preprint"]).default("published"),
+
+    // === Type ===
+    type: z.enum(["journal", "conference"]).default("conference"),
+
+    // === Link fields ===
+    doi: z.string().optional(),                    // Journals: canonical DOI URL
+    pdf: z.string().optional(),                    // Direct PDF link (rarely needed)
+    researchgate_url: z.string().optional(),       // RG PDF / open-access mirror
+    proceedings_url: z.string().optional(),        // Conference proceedings index URL
+    slides_url: z.string().optional(),             // SlideDeck or Google Slides URL
+    video_url: z.string().optional(),              // YouTube recording URL
+
+    // === Display ===
+    tags: z.array(z.string()).default([]),
+    featured: z.boolean().default(false),
+    thumbnailUrl: z.string().optional(),           // 68×68px figure crop (journals only)
+
+    // === Korean app fields (KORUS) — optional metadata ===
+    issn: z.string().optional(),
+    volume: z.string().optional(),                 // e.g. "21 (2), 167-173"
   }),
 });
 

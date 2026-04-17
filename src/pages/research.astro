@@ -1,44 +1,121 @@
 ---
 // src/pages/research.astro
+// Research page — two-section layout:
+//   1. Featured (journal papers marked featured:true) — card style via ResearchCard
+//   2. Journal Articles — full PaperRow (editorial, more space)
+//   3. Conference Proceedings — compact PaperRow grouped by year
+
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
+import PaperRow from "@/components/PaperRow.astro";
 import ResearchCard from "@/components/ResearchCard.astro";
 import { getCollection } from "astro:content";
 
 const lang = "en" as const;
-const papers = (await getCollection("research")).sort(
-  (a, b) => b.data.year - a.data.year
-);
-const featured = papers.filter((p) => p.data.featured);
-const rest     = papers.filter((p) => !p.data.featured);
+
+const allPapers = await getCollection("research");
+
+// Split by type field (new field in schema, default "conference")
+const journals     = allPapers
+  .filter(p => (p.data.type ?? "conference") === "journal")
+  .sort((a, b) => b.data.year - a.data.year);
+
+const conferences  = allPapers
+  .filter(p => (p.data.type ?? "conference") === "conference")
+  .sort((a, b) => b.data.year - a.data.year);
+
+// Featured = journals with featured:true
+const featured     = journals.filter(p => p.data.featured);
+const journalRest  = journals.filter(p => !p.data.featured);
+
+// Group conferences by year
+const confByYear = conferences.reduce<Record<number, typeof conferences>>((acc, p) => {
+  const y = p.data.year;
+  if (!acc[y]) acc[y] = [];
+  acc[y].push(p);
+  return acc;
+}, {});
+const confYears = Object.keys(confByYear)
+  .map(Number)
+  .sort((a, b) => b - a);
+
+const totalCount = allPapers.length;
 ---
 
-<BaseLayout lang={lang} title="Research · PAI LAB"
-  description="Papers, publications, and active research in Physical AI.">
+<BaseLayout
+  lang={lang}
+  title="Research · PAI LAB"
+  description={`${totalCount} papers across Physical AI, edge ML, dataset creation, and engineering education.`}
+>
 
   <PageHeader
     title="Research"
     eyebrow="01 · RESEARCH"
-    description="Papers, publications, and active research spanning dataset creation, physical AI, embedded ML, autonomous systems, and education."
+    description={`${totalCount} publications spanning dataset creation, edge AI, autonomous systems, and engineering education.`}
   />
 
   <div class="container page-content">
 
+    {/* ── FEATURED ─────────────────────────────────── */}
     {featured.length > 0 && (
-      <section style="margin-bottom:3rem;">
-        <h2 class="section-sub-label">Featured</h2>
-        <div class="card-grid">
-          {featured.map((p) => <ResearchCard paper={p} lang={lang} />)}
+      <section class="research-section">
+        <div class="section-label-row">
+          <span class="section-kicker">Highlighted</span>
+          <h2 class="section-heading">Featured Work</h2>
+        </div>
+        <div class="featured-list">
+          {featured.map(p => <ResearchCard paper={p} lang={lang} />)}
         </div>
       </section>
     )}
 
-    {rest.length > 0 && (
-      <section>
-        <h2 class="section-sub-label">All Publications</h2>
-        <div class="card-grid">
-          {rest.map((p) => <ResearchCard paper={p} lang={lang} />)}
+    {/* ── JOURNAL ARTICLES ─────────────────────────── */}
+    {journals.length > 0 && (
+      <section class="research-section">
+        <div class="section-label-row">
+          <span class="section-kicker">Peer-reviewed</span>
+          <h2 class="section-heading">
+            Journal Articles
+            <span class="count-badge">{journals.length}</span>
+          </h2>
         </div>
+        <p class="section-note">
+          Full-length articles in KCI-indexed and international journals. DOI links are canonical; ResearchGate mirrors open-access PDFs where available.
+        </p>
+        <div class="papers-list">
+          {journalRest.map(p => <PaperRow paper={p} lang={lang} variant="journal" />)}
+        </div>
+      </section>
+    )}
+
+    {/* ── CONFERENCE PROCEEDINGS ───────────────────── */}
+    {conferences.length > 0 && (
+      <section class="research-section">
+        <div class="section-label-row">
+          <span class="section-kicker">Presented work</span>
+          <h2 class="section-heading">
+            Conference Proceedings
+            <span class="count-badge">{conferences.length}</span>
+          </h2>
+        </div>
+        <p class="section-note">
+          Posters and oral presentations at KIICE, KIPEE, KMMS, and affiliated domestic venues.
+          ResearchGate links include PDFs and poster files where available.
+        </p>
+
+        {confYears.map(year => (
+          <div class="year-group">
+            <div class="year-marker">
+              <span class="year-number">{year}</span>
+              <span class="year-count">{confByYear[year].length} paper{confByYear[year].length !== 1 ? "s" : ""}</span>
+            </div>
+            <div class="papers-list conf-list">
+              {confByYear[year].map(p => (
+                <PaperRow paper={p} lang={lang} variant="conference" />
+              ))}
+            </div>
+          </div>
+        ))}
       </section>
     )}
 
@@ -46,11 +123,93 @@ const rest     = papers.filter((p) => !p.data.featured);
 </BaseLayout>
 
 <style>
-.section-sub-label {
+/* ── Section layout ──────────────────────────────── */
+.research-section {
+  padding: 3rem 0;
+  border-bottom: .5px solid var(--border);
+}
+.research-section:last-child { border-bottom: none; }
+
+.section-label-row {
+  display: flex;
+  align-items: baseline;
+  gap: .75rem;
+  margin-bottom: .6rem;
+}
+.section-kicker {
   font-family: var(--font-mono);
-  font-size: .68rem;
+  font-size: .56rem;
+  color: var(--cyan);
+  letter-spacing: .14em;
+  white-space: nowrap;
+}
+.section-heading {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  display: flex;
+  align-items: baseline;
+  gap: .6rem;
+}
+.count-badge {
+  font-family: var(--font-mono);
+  font-size: .6rem;
   color: var(--text-3);
-  letter-spacing: .12em;
-  margin-bottom: 1.25rem;
+  background: var(--bg-subtle);
+  border: .5px solid var(--border);
+  border-radius: 20px;
+  padding: 1px 8px;
+  letter-spacing: .04em;
+  font-weight: 400;
+}
+.section-note {
+  font-size: .75rem;
+  color: var(--text-3);
+  margin-bottom: 1.5rem;
+  line-height: 1.65;
+  max-width: 640px;
+}
+
+/* ── Paper lists ─────────────────────────────────── */
+.papers-list {
+  display: flex;
+  flex-direction: column;
+}
+.featured-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Year groups (conference section) ───────────── */
+.year-group {
+  margin-bottom: 2rem;
+}
+.year-marker {
+  display: flex;
+  align-items: baseline;
+  gap: .6rem;
+  padding-bottom: .5rem;
+  border-bottom: .5px solid var(--border-2);
+  margin-bottom: 0;
+}
+.year-number {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-3);
+  letter-spacing: -.01em;
+}
+.year-count {
+  font-family: var(--font-mono);
+  font-size: .56rem;
+  color: var(--text-3);
+  letter-spacing: .06em;
+}
+
+/* Conference list: no top border on the year group's first row
+   (the year-marker already serves as the divider) */
+.conf-list :global(.paper-row:first-child) {
+  border-top: none;
 }
 </style>
