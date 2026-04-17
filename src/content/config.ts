@@ -16,7 +16,7 @@ const research = defineCollection({
     status: z.enum(["published", "in-review", "preprint"]).default("published"),
 
     // === Type ===
-    type: z.enum(["journal", "conference"]).default("conference"),
+    type: z.enum(["journal", "conference", "thesis"]).default("conference"),
 
     // === Link fields ===
     doi: z.string().optional(),                    // Journals: canonical DOI URL

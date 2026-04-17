@@ -153,9 +153,14 @@ const total   = all.length;
   position: sticky; top: var(--nav-h); z-index: 50;
   background: var(--bg); border-bottom: .5px solid var(--border);
 }
+/* NEW (remove overflow:hidden, allow dropdown to escape): */
 .filter-inner {
-  display: flex; align-items: center; gap: .75rem;
-  padding: .55rem 0; flex-wrap: nowrap; overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .55rem 0;
+  flex-wrap: nowrap;
+  /* overflow intentionally absent — needed for dropdown overlay */
 }
 .filter-label {
   font-family: var(--font-mono); font-size: .56rem;
@@ -191,14 +196,29 @@ const total   = all.length;
 .filter-topics-btn[aria-expanded="true"] .topics-caret { transform: rotate(180deg); }
 
 /* Panel */
+/* ── FIX 2: Topics panel — ensure it overlays page content ───
+   Replace your current .topics-panel rule with this:            */
 .topics-panel {
-  display: none; position: absolute; top: calc(100% + 6px); left: 0;
-  background: var(--bg-surface); border: .5px solid var(--border-2);
-  border-radius: var(--r-md); padding: .875rem;
+  display: none;
+  position: absolute;        /* overlays content below */
+  top: calc(100% + 6px);
+  left: 0;
+  background: var(--bg-surface);
+  border: .5px solid var(--border-2);
+  border-radius: var(--r-md);
+  padding: .875rem;
   box-shadow: 0 8px 30px rgba(0,0,0,.35);
-  z-index: 100; min-width: 280px; max-width: 380px;
+  z-index: 200;              /* above sticky filter-bar (z:50) and page content */
+  min-width: 280px;
+  max-width: 380px;
 }
 .topics-panel.is-open { display: block; }
+ 
+/* Also ensure the trigger wrapper has a positioning context: */
+.filter-topics {
+  position: relative;        /* already set — confirm this is present */
+  flex-shrink: 0;
+}
 .topics-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: .625rem; }
 .filter-pill {
   font-family: var(--font-mono); font-size: .58rem; color: var(--text-3);
@@ -217,15 +237,37 @@ const total   = all.length;
 .topics-clear-btn:hover { color: var(--pink-2); }
 
 /* Active chips */
-.active-chips { display: flex; flex-wrap: nowrap; gap: 4px; overflow: hidden; flex: 1; min-width: 0; }
+/* ── FIX 3: Active chips — style same as filter-pill ─────────
+   Replace your current .active-chip rule with this:            */
 .active-chip {
-  font-family: var(--font-mono); font-size: .56rem; color: var(--blue-2);
-  background: rgba(61,146,245,.08); border: .5px solid rgba(61,146,245,.3);
-  border-radius: 4px; padding: 1px 6px; white-space: nowrap; display: flex; align-items: center; gap: 3px;
-  cursor: pointer; flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: .58rem;
+  color: var(--blue-2);
+  background: rgba(61,146,245,.07);
+  border: .5px solid rgba(61,146,245,.35);
+  border-radius: 4px;
+  padding: 2px 7px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background .12s, border-color .12s;
+  /* remove the old button defaults */
+  appearance: none;
+  -webkit-appearance: none;
+  line-height: 1;
 }
-.active-chip:hover { background: rgba(61,146,245,.14); }
-.active-chip-x { font-size: .5rem; opacity: .6; }
+.active-chip:hover {
+  background: rgba(61,146,245,.14);
+  border-color: rgba(61,146,245,.5);
+}
+.active-chip-x {
+  font-size: .5rem;
+  opacity: .55;
+  margin-left: 1px;
+}
 
 .filter-end { display: flex; align-items: center; gap: .5rem; margin-left: auto; flex-shrink: 0; }
 .filter-count { font-family: var(--font-mono); font-size: .56rem; color: var(--text-3); white-space: nowrap; }
