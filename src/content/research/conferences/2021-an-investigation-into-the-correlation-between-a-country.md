@@ -3,6 +3,7 @@ title: "An Investigation into the Correlation between a Country's Total Olympic 
 title_ko: "An Investigation into the Correlation between a Country's Total Olympic Medal Count, GDP, and Freedom Index through History"
 authors: "Aaron Snowberger, Choong Ho Lee"
 authors_ko: "에런스노버거, 이충호"
+role: "first"
 venue: "KIICE"
 year: 2021
 status: "published"

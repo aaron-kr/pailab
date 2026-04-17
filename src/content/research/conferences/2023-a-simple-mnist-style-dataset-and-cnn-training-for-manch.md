@@ -2,6 +2,7 @@
 title: "A Simple MNIST Style Dataset and CNN Training for Manchu Script Characters"
 title_ko: "A Simple MNIST Style Dataset and CNN Training for Manchu Script Characters"
 authors: "Aaron Snowberger, 이충호"
+role: "first"
 venue: "KIICE ICFICE"
 year: 2023
 status: "published"

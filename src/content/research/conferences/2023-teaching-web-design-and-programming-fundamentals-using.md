@@ -2,6 +2,8 @@
 title: "Teaching Web Design and Programming Fundamentals Using Codepen.io"
 title_ko: "Teaching Web Design and Programming Fundamentals Using Codepen.io"
 authors: "Aaron Snowberger, Choong Ho Lee"
+authors_ko: "에런스노우버거, 이충호"
+role: "first"
 venue: "KIPEE"
 year: 2023
 status: "published"

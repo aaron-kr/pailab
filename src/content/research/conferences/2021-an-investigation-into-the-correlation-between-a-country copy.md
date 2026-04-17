@@ -3,6 +3,7 @@ title: "An Efficient Method to Extract Units of Manchu Characters"
 title_ko: "만주 글자의 단위를 추출하는 효율적인 방법"
 authors: "Aaron Snowberger, Choong Ho Lee"
 authors_ko: "에런스노버거, 이충호"
+role: "first"
 venue: "KIICE"
 year: 2021
 status: "published"

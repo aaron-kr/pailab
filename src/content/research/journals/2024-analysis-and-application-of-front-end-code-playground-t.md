@@ -2,6 +2,8 @@
 title: "Analysis and Application of Front-end Code Playground Tools for Web Programming Education"
 title_ko: "Analysis and Application of Front-end Code Playground Tools for Web Programming Education"
 authors: "Aaron Snowberger, Semin Kim, SungHee Woo"
+authors_ko: "에런스노버거, 김세민, 우성희"
+role: "first"
 type: "journal"
 venue: "JPEE"
 year: 2024

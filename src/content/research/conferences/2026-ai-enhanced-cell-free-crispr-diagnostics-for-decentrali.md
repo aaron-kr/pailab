@@ -2,6 +2,7 @@
 title: "AI-Enhanced Cell-Free CRISPR Diagnostics for Decentralized Biosensing"
 title_ko: "AI-Enhanced Cell-Free CRISPR Diagnostics for Decentralized Biosensing"
 authors: "Uddin Md Iftehaz,, Aaron Snowberger"
+role: "corresponding"
 venue: "KIICE"
 year: 2026
 status: "published"

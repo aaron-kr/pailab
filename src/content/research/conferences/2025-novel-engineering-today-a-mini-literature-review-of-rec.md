@@ -2,6 +2,7 @@
 title: "Novel Engineering Today: A Mini-Literature Review of Recent Classroom Designs, Blended Models, and Korean Adaptations"
 title_ko: "Novel Engineering Today: A Mini-Literature Review of Recent Classroom Designs, Blended Models, and Korean Adaptations"
 authors: "Aaron Snowberger"
+role: "first"
 venue: "KIICE"
 year: 2025
 status: "published"

@@ -3,6 +3,7 @@ title: "A Systematic Review of Handwritten Hangul OCR Techniques and Datasets"
 title_ko: "한글 필기체 OCR의 기술과 데이터셋에 대한 체계적 문헌 고찰"
 authors: "Aaron Snowberger, Choong Ho Lee"
 authors_ko: "에런스노버거, 이충호"
+role: "first"
 type: "journal"
 venue: "JoQLR"
 year: 2023

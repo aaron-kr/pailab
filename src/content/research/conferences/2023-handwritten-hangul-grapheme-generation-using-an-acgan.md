@@ -1,7 +1,9 @@
 ---
 title: "Handwritten Hangul Grapheme Generation Using an ACGAN"
 title_ko: "Handwritten Hangul Grapheme Generation Using an ACGAN"
-authors: "Aaron Snowberger, 이충호"
+authors: "Aaron Snowberger, Choong Ho Lee"
+authors_ko: "에런스노우버거, 이충호"
+role: "first"
 venue: "KIICE"
 year: 2023
 status: "published"

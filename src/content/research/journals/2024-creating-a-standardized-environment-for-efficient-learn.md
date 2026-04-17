@@ -2,6 +2,8 @@
 title: "Creating a Standardized Environment for Efficient Learning Management using GitHub Codespaces and GitHub Classroom"
 title_ko: "Creating a Standardized Environment for Efficient Learning Management using GitHub Codespaces and GitHub Classroom"
 authors: "Aaron Snowberger, Kangsoo You"
+authors_ko: "에런스노버거, 유강수"
+role: "first"
 type: "journal"
 venue: "JPEE"
 year: 2024

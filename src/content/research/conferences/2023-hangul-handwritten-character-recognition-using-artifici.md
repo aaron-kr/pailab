@@ -1,7 +1,9 @@
 ---
 title: "Hangul Handwritten Character Recognition Using Artificial Neural Networks: MLP, CNN, and RNN"
 title_ko: "Hangul Handwritten Character Recognition Using Artificial Neural Networks: MLP, CNN, and RNN"
-authors: "Aaron Snowberger, 이충호"
+authors: "Aaron Snowberger, Choong Ho Lee"
+authors_ko: "에런스노우버거, 이충호"
+role: "first"
 venue: "KIICE ICFICE"
 year: 2023
 status: "published"

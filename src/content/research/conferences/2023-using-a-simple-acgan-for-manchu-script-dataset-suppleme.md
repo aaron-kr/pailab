@@ -1,7 +1,9 @@
 ---
 title: "Using a Simple ACGAN for Manchu Script Dataset Supplementation"
 title_ko: "Using a Simple ACGAN for Manchu Script Dataset Supplementation"
-authors: "Aaron Snowberger, 이충호"
+authors: "Aaron Snowberger, Choong Ho Lee"
+authors_ko: "에런스노우버거, 이충호"
+role: "first"
 venue: "KMMS"
 year: 2023
 status: "published"

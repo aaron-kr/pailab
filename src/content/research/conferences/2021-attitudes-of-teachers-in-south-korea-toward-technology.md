@@ -3,6 +3,7 @@ title: "Attitudes of Teachers in South Korea Toward Technology Use for Their Cla
 title_ko: "Attitudes of Teachers in South Korea Toward Technology Use for Their Classrooms During the COVID-19 Pandemic"
 authors: "Aaron Snowberger, Choong Ho Lee"
 authors_ko: "에런스노버거, 이충호"
+role: "first"
 venue: "KIPEE"
 year: 2021
 status: "published"

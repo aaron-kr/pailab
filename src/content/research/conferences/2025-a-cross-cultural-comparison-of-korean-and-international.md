@@ -3,6 +3,7 @@ title: "A Cross-Cultural Comparison of Korean and International Student Percepti
 title_ko: "한국 및 국제 학생들의 교육 분야 인공지능 인식과 활용에 대한문화 간 비교 연구"
 authors: "Aaron Snowberger, Kangsoo You"
 authors_ko: "에런스노버거, 유강수"
+role: "first"
 venue: "KIICE"
 year: 2025
 status: "published"

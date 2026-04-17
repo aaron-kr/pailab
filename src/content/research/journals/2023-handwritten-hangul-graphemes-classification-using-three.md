@@ -2,6 +2,8 @@
 title: "Handwritten Hangul Graphemes Classification using Three Artificial Neural Networks"
 title_ko: "Handwritten Hangul Graphemes Classification using Three Artificial Neural Networks"
 authors: "Aaron Snowberger, Choong Ho Lee"
+authors_ko: "에런스노버거, 이충호"
+role: "first"
 type: "journal"
 venue: "KIICE"
 year: 2023

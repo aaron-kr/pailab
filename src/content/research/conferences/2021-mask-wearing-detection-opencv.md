@@ -3,6 +3,7 @@ title: "Mask Wearing Detection Using OpenCV Training Data"
 title_ko: "OpenCV 학습 데이터를 이용한 마스크 착용 감지"
 authors: "Aaron Snowberger, Choong Ho Lee"
 authors_ko: "에런스노버거, 이충호"
+role: "first"
 venue: "KIICE"
 year: 2021
 status: "published"

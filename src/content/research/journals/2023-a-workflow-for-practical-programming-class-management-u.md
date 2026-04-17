@@ -2,6 +2,8 @@
 title: "A Workflow for Practical Programming Class Management Using GitHub Pages and GitHub Classroom"
 title_ko: "A Workflow for Practical Programming Class Management Using GitHub Pages and GitHub Classroom"
 authors: "Aaron Snowberger, Choong Ho Lee"
+authors_ko: "에런스노버거, 이충호"
+role: "first"
 type: "journal"
 venue: "JPEE"
 year: 2023

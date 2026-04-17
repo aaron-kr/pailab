@@ -3,6 +3,7 @@ title: "Seasonal Images Classification with Convolutional Neural Networks"
 title_ko: "컨볼루션 신경망을 사용한 계절 이미지 분류"
 authors: "Aaron Snowberger, Choong Ho Lee"
 authors_ko: "에런스노버거, 이충호"
+role: "first"
 venue: "KIICE"
 year: 2022
 status: "published"

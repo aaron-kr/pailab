@@ -3,6 +3,7 @@ title: "Manchu Script Letters Dataset Creation and Labeling"
 title_ko: "Manchu Script Letters Dataset Creation and Labeling"
 authors: "Aaron Snowberger, Choong Ho Lee"
 authors_ko: "에런스노버거, 이충호"
+role: "first"
 type: "journal"
 venue: "KIICE"
 year: 2024

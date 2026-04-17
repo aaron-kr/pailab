@@ -2,6 +2,8 @@
 title: "Leveraging GitHub Classroom and Google Colab for Short-Term Student Machine Learning Team Projects"
 title_ko: "Leveraging GitHub Classroom and Google Colab for Short-Term Student Machine Learning Team Projects"
 authors: "Aaron Snowberger, Kangsoo You"
+authors_ko: "에런스노버거, 유강수"
+role: "first"
 type: "journal"
 venue: "JPEE"
 year: 2025

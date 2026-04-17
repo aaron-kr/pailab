@@ -3,6 +3,7 @@ title: "Digital Technology Use and Opinions About Digital Citizenship Education 
 title_ko: "한국 대학 신입생 디지털 기술 사용 및 디지털 시민 교육에 대한 코로나19 이후의 의견"
 authors: "Aaron Snowberger, Choong Ho Lee"
 authors_ko: "에런스노버거, 이충호"
+role: "first"
 venue: "KIPEE"
 year: 2022
 status: "published"

@@ -2,6 +2,7 @@
 title: "Machine Learning Prediction of Melting and Boiling Points of Elements Using Atomic Descriptors"
 title_ko: "Machine Learning Prediction of Melting and Boiling Points of Elements Using Atomic Descriptors "
 authors: "Prashant Bhargava, Aaron Snowberger"
+role: "corresponding"
 venue: "KIICE"
 year: 2026
 status: "published"

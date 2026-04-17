@@ -2,6 +2,7 @@
 title: "Design of New Sports Operation System’s Database using Appropriate Technology"
 title_ko: "Design of New Sports Operation System’s Database using Appropriate Technology"
 authors: "김세민, Aaron Snowberger, 이충호"
+role: "participating"
 venue: "KIICE ICFICE"
 year: 2021
 status: "published"

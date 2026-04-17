@@ -3,6 +3,7 @@ title: "Cross-Cultural Perceptions of AI in Education: Comparing Korean and Inte
 title_ko: "AI 교육에 대한 문화 간 인식: 글로컬 시대 한국 대학생과 외국인 유학생의 비교"
 authors: "Aaron Snowberger, Kangsoo You"
 authors_ko: "에런스노버거, 유강수"
+role: "first"
 type: "journal"
 venue: "JCCR"
 year: 2025
