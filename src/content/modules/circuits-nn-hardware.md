@@ -8,6 +8,8 @@ description_ko: "회로 이론이 피지컬 AI 가속 칩에 적용되는 방식
 order: 4
 ---
 
+**Status: `Planned`**
+
 ## Who it's for
 
 Circuit theory I or II courses. Students are already learning Ohm's law, RC

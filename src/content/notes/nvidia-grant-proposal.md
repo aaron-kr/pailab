@@ -4,6 +4,7 @@ title_ko: "피지컬 AI 연구소"
 pubDate: 2026-04-10
 lang: "en"
 tags: ["Physical AI", "Education", "NVIDIA"]
+private: true
 ---
 
 **PI: Aaron Snowberger · Physical AI Lab · April 2026**

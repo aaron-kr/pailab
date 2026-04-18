@@ -8,6 +8,8 @@ description_ko: "IoT 과목 추가 모듈 — 칼만 필터 및 멀티센서 파
 order: 2
 ---
 
+**Status: `Planned`**
+
 ## Who it's for
 
 IoT or embedded systems courses at any level. No ML background required.

@@ -7,6 +7,7 @@ tags: ["Opinion"]
 summary: "The term 'Physical AI' is everywhere in 2025 — but what does it actually mean for someone designing a university curriculum? A working definition and framework."
 summary_ko: "2025년 '피지컬 AI'라는 용어가 넘쳐나지만, 대학 커리큘럼을 설계하는 사람에게 실제로 무엇을 의미할까요?"
 featuredImage: ""
+private: true
 ---
 
 # The Core Principle: One Job Per Site

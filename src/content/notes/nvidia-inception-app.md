@@ -4,6 +4,7 @@ title_ko: "피지컬 AI 연구소"
 pubDate: 2026-04-10
 lang: "en"
 tags: ["Physical AI", "Education", "NVIDIA"]
+private: true
 ---
 
 > Go to nvidia.com/inception → "Apply Now" → select Academic Research as organization type. The form has ~10 fields. Paste the answers below directly. Approval typically comes within 3–5 business days.

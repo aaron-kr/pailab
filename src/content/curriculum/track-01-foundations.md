@@ -10,6 +10,8 @@ description_ko: "센서, 액추에이터, AI 스택 기초 원리. 머신러닝 
 order: 1
 ---
 
+**Status: `Planned`**
+
 ## Overview
 
 This track introduces the core concepts behind Physical AI: how sensors perceive

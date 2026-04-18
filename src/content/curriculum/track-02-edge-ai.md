@@ -10,6 +10,8 @@ description_ko: "TinyML, RTOS, 제약 하드웨어 실시간 추론. Arduino, ES
 order: 2
 ---
 
+**Status: `Planned`**
+
 ## Prerequisites
 
 Track 01 or equivalent experience with microcontrollers.
