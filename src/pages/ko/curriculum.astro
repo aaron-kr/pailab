@@ -23,7 +23,7 @@ const levelLabel: Record<string, string> = {
   <PageHeader title="커리큘럼" eyebrow="02 · 커리큘럼"
     description="기초부터 고급 로보틱스까지 4개 트랙. 모든 트랙은 이중 언어(EN / 한국어)로 제공됩니다." />
 
-  <div class="container page-content">
+  <div class="curriculum-list container page-content">
     <div class="track-grid">
       {tracks.map(track => (
         <a href={`/ko/curriculum/${track.slug}`} class="track-card card"
@@ -54,28 +54,3 @@ const levelLabel: Record<string, string> = {
   </div>
 </BaseLayout>
 
-<style>
-.track-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1.25rem; }
-.track-card {
-  position:relative; overflow:hidden; padding:1.5rem;
-  display:flex; flex-direction:column; text-decoration:none;
-  transition: border-color .2s, transform .2s;
-}
-.track-card:hover { border-color:var(--border-2); transform:translateY(-3px); text-decoration:none; }
-
-.track-bar {
-  position:absolute; top:0; left:0; right:0; height:2.5px;
-  background:linear-gradient(90deg, var(--bar-color), color-mix(in srgb, var(--bar-color) 60%, transparent));
-  transform:scaleX(0); transform-origin:left;
-  transition:transform .32s cubic-bezier(.4,0,.2,1);
-}
-.track-card:hover .track-bar { transform:scaleX(1); }
-
-.track-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.875rem; }
-.track-num   { font-family:var(--font-mono); font-size:.62rem; color:var(--text-3); letter-spacing:.1em; }
-.track-level { font-family:var(--font-mono); font-size:.62rem; font-weight:500; letter-spacing:.08em; }
-.track-title { font-size:.95rem; font-weight:600; margin-bottom:.25rem; line-height:1.3; }
-.track-en    { font-size:.72rem; color:var(--text-3); margin-bottom:.625rem; font-family:var(--font-mono); }
-.track-desc  { font-size:.8rem; color:var(--text-2); line-height:1.65; flex:1; margin-bottom:1rem; }
-.track-footer { margin-top:auto; }
-</style>

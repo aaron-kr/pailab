@@ -85,10 +85,13 @@ const fbConfig = {
   <div class="app-mesh-bg" aria-hidden="true"></div>
   <div class="app-mesh-grid" aria-hidden="true"></div>
 
+  <!-- Mobile overlay backdrop -->
+  <div class="sidebar-backdrop" id="sidebar-backdrop" aria-hidden="true"></div>
+
   <div class="app-shell">
-    <aside class="app-sidebar">
+    <aside class="app-sidebar" id="app-sidebar">
       <div class="app-sidebar-top">
-        <a href="/" class="app-logo">
+        <a href="/" class="app-logo" title="PAI LAB">
           <img src="/favicon.svg" alt="PAI LAB" class="members-logo-img" />
           <span class="app-logo-area">{siteLabel}</span>
         </a>
@@ -97,40 +100,52 @@ const fbConfig = {
       <nav class="app-nav">
         {navItems.map((item) => (
           <a href={item.href}
+             title={item.label}
              class:list={["app-nav-link", {
                active: activeHref === item.href || Astro.url.pathname === item.href
              }]}>
             <span class="app-nav-icon">{item.icon}</span>
-            <span>{item.label}</span>
+            <span class="app-nav-label">{item.label}</span>
           </a>
         ))}
         <div class="app-nav-divider"></div>
         {resolvedArea === "admin" ? (
-          <a href="/members" class="app-nav-link app-nav-link--dim">
-            <span class="app-nav-icon">↓</span><span>Members view</span>
+          <a href="/members" class="app-nav-link app-nav-link--dim" title="Members view">
+            <span class="app-nav-icon">↓</span><span class="app-nav-label">Members view</span>
           </a>
         ) : (
-          <a href="/admin" class="app-nav-link app-nav-link--dim" id="admin-link" style="display:none">
-            <span class="app-nav-icon">↑</span><span>Admin view</span>
+          <a href="/admin" class="app-nav-link app-nav-link--dim" id="admin-link" style="display:none" title="Admin view">
+            <span class="app-nav-icon">↑</span><span class="app-nav-label">Admin view</span>
           </a>
         )}
       </nav>
 
       <div class="app-sidebar-bottom">
-        <a href="/" class="app-nav-link">
-          <span class="app-nav-icon">←</span><span>Public site</span>
+        <a href="/" class="app-nav-link" title="Public site">
+          <span class="app-nav-icon">←</span><span class="app-nav-label">Public site</span>
         </a>
-        <button id="app-logout" class="app-nav-link app-logout" type="button">
-          <span class="app-nav-icon">⏻</span><span>Sign out</span>
+        <button id="app-logout" class="app-nav-link app-logout" type="button" title="Sign out">
+          <span class="app-nav-icon">⏻</span><span class="app-nav-label">Sign out</span>
+        </button>
+        <!-- Desktop sidebar collapse toggle -->
+        <button id="sidebar-toggle" class="app-nav-link sidebar-collapse-btn" type="button" title="Collapse sidebar">
+          <span class="app-nav-icon sidebar-toggle-icon">◀</span>
+          <span class="app-nav-label">Collapse</span>
         </button>
       </div>
     </aside>
 
     <div class="app-main-wrap">
       <header class="app-topbar">
-        <div class="app-topbar-title">
-          <h1>{title}</h1>
-          {description && <p class="app-topbar-desc">{description}</p>}
+        <div class="app-topbar-left">
+          <!-- Mobile hamburger button -->
+          <button id="sidebar-menu-btn" class="sidebar-menu-btn" type="button" aria-label="Toggle menu" title="Menu">
+            <span>☰</span>
+          </button>
+          <div class="app-topbar-title">
+            <h1>{title}</h1>
+            {description && <p class="app-topbar-desc">{description}</p>}
+          </div>
         </div>
         <div class="app-topbar-actions">
           <slot name="topbar-actions" />
@@ -154,6 +169,54 @@ const fbConfig = {
   ></script>
 
   <script>
+    // ── Sidebar collapse / mobile overlay ────────────────────
+    const appShell   = document.querySelector(".app-shell") as HTMLElement;
+    const backdrop   = document.getElementById("sidebar-backdrop");
+    const SIDEBAR_KEY = "pailab-sidebar-collapsed";
+
+    const isMobileView = () => window.innerWidth < 900;
+
+    // Restore desktop collapse state before the page is revealed (body still hidden)
+    if (!isMobileView() && localStorage.getItem(SIDEBAR_KEY) === "true") {
+      appShell?.classList.add("sidebar-collapsed");
+    }
+
+    // Desktop: collapse/expand toggle in sidebar bottom
+    document.getElementById("sidebar-toggle")?.addEventListener("click", () => {
+      const collapsed = appShell.classList.toggle("sidebar-collapsed");
+      localStorage.setItem(SIDEBAR_KEY, collapsed ? "true" : "false");
+    });
+
+    // Mobile: open sidebar via topbar hamburger
+    document.getElementById("sidebar-menu-btn")?.addEventListener("click", () => {
+      appShell.classList.toggle("sidebar-open");
+    });
+
+    // Mobile: close on backdrop click
+    backdrop?.addEventListener("click", () => {
+      appShell.classList.remove("sidebar-open");
+    });
+
+    // Mobile: close sidebar when a nav link is clicked
+    document.querySelectorAll(".app-nav-link").forEach(link => {
+      link.addEventListener("click", () => {
+        if (isMobileView()) appShell.classList.remove("sidebar-open");
+      });
+    });
+
+    // On resize: clean up open/collapsed states when switching breakpoints
+    window.addEventListener("resize", () => {
+      if (isMobileView()) {
+        appShell.classList.remove("sidebar-collapsed");
+      } else {
+        appShell.classList.remove("sidebar-open");
+        // Re-apply desktop preference
+        if (localStorage.getItem(SIDEBAR_KEY) === "true") {
+          appShell.classList.add("sidebar-collapsed");
+        }
+      }
+    }, { passive: true });
+
     // ── Firebase initialization ─────────────────────────────
     // Read config from server-injected JSON (avoids @/ alias issues in bundled scripts)
     import {
@@ -269,4 +332,65 @@ const fbConfig = {
 .app-nav-divider { height:.5px; background:rgba(36,180,255,.12); margin:.5rem .75rem; }
 .app-nav-link--dim { opacity:.45; font-size:.68rem !important; }
 .app-nav-link--dim:hover { opacity:1; }
+
+/* ── Topbar left group ───────────────────────────────── */
+.app-topbar-left { display:flex; align-items:center; gap:.75rem; }
+
+/* ── Sidebar width transition (shared) ───────────────── */
+.app-sidebar { transition: width .25s cubic-bezier(.4,0,.2,1); }
+
+/* ── Desktop: collapse to icon-only ─────────────────── */
+.sidebar-collapse-btn { cursor:pointer; }
+.sidebar-toggle-icon { display:inline-block; transition:transform .25s cubic-bezier(.4,0,.2,1); }
+.app-shell.sidebar-collapsed .sidebar-toggle-icon { transform:rotate(180deg); }
+
+.app-shell.sidebar-collapsed .app-sidebar { width:52px; overflow:visible; }
+.app-shell.sidebar-collapsed .app-logo { justify-content:center; padding:.5rem 0; }
+.app-shell.sidebar-collapsed .app-logo-area { display:none; }
+.app-shell.sidebar-collapsed .app-nav-link { justify-content:center; padding:.55rem; }
+.app-shell.sidebar-collapsed .app-nav-label { display:none; }
+.app-shell.sidebar-collapsed .app-nav-divider { margin:.5rem .25rem; }
+.app-shell.sidebar-collapsed .app-sidebar-top,
+.app-shell.sidebar-collapsed .app-sidebar-bottom { padding:.75rem .25rem; }
+
+/* ── Mobile hamburger button ─────────────────────────── */
+.sidebar-menu-btn {
+  display:none;
+  background:none; border:.5px solid rgba(36,180,255,.2);
+  border-radius:var(--r-sm); width:34px; height:34px;
+  cursor:pointer; color:var(--text-2); font-size:1rem;
+  align-items:center; justify-content:center; flex-shrink:0;
+  transition:color .15s, border-color .15s;
+}
+.sidebar-menu-btn:hover { color:var(--cyan); border-color:var(--cyan); }
+
+/* ── Mobile overlay backdrop ─────────────────────────── */
+.sidebar-backdrop {
+  display:none;
+  position:fixed; inset:0; z-index:199;
+  background:rgba(2,8,20,.72);
+  backdrop-filter:blur(2px);
+}
+
+/* ── Mobile breakpoint: overlay mode ────────────────── */
+@media (max-width: 899px) {
+  .sidebar-menu-btn { display:flex; }
+
+  /* Sidebar slides in from left as an overlay */
+  .app-sidebar {
+    position:fixed; left:0; top:0; bottom:0;
+    z-index:200; height:100%;
+    transform:translateX(-100%);
+    transition:transform .25s cubic-bezier(.4,0,.2,1);
+    box-shadow:4px 0 32px rgba(0,0,8,.5);
+  }
+  .app-shell.sidebar-open .app-sidebar { transform:translateX(0); }
+  .app-shell.sidebar-open .sidebar-backdrop { display:block; }
+
+  /* Desktop collapse button hidden on mobile */
+  .sidebar-collapse-btn { display:none; }
+
+  /* Main content always full width on mobile */
+  .app-main-wrap { width:100%; }
+}
 </style>

@@ -77,25 +77,3 @@ const statusLabels: Record<string, string> = {
   </div>
 </BaseLayout>
 
-<style>
-.project-layout {
-  display: grid;
-  grid-template-columns: 1fr 220px;
-  gap: 3rem;
-  align-items: start;
-}
-.project-meta { display: flex; flex-direction: column; gap: .875rem; position: sticky; top: calc(var(--nav-h) + 1.5rem); }
-.meta-card { background: var(--bg-subtle); border-radius: var(--r-md); padding: .875rem 1rem; }
-.meta-label { font-family: var(--font-mono); font-size: .6rem; color: var(--text-3); letter-spacing: .1em; margin-bottom: .25rem; }
-.meta-value { font-size: .82rem; font-weight: 500; }
-.meta-github {
-  display: flex; align-items: center; gap: .5rem;
-  background: var(--bg-subtle); border-radius: var(--r-md);
-  padding: .75rem 1rem; font-family: var(--font-mono); font-size: .72rem;
-  color: var(--cyan); text-decoration: none; border: .5px solid rgba(36,180,255,.2);
-}
-.meta-github:hover { background: rgba(36,180,255,.08); }
-.back-link { font-family: var(--font-mono); font-size: .68rem; color: var(--text-3); text-decoration: none; }
-.back-link:hover { color: var(--cyan); }
-@media (max-width: 720px) { .project-layout { grid-template-columns: 1fr; } .project-meta { position: static; } }
-</style>
