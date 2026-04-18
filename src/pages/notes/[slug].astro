@@ -40,6 +40,7 @@ const {
   summary,
   featuredImage,   // ← wide image above post body
   headerBgImage,   // ← subtle bg in the page header strip
+  private: isPrivate,
 } = note.data;
 
 const lang = "en" as const;
@@ -57,6 +58,7 @@ const lang = "en" as const;
   nextPost={nextPost}
   featuredImage={featuredImage}
   headerBgImage={headerBgImage}
+  privatePage={isPrivate}
 >
   <Content />
 </PostLayout>

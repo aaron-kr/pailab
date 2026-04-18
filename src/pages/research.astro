@@ -92,7 +92,11 @@ const total   = all.length;
           </div>
         </div>
         <div class="papers-list">
-          {featured.map(p => <ResearchCard paper={p} lang={lang} />)}
+          {featured.map(p => (
+            <div data-private={p.data.private ? "true" : undefined}>
+              <ResearchCard paper={p} lang={lang} />
+            </div>
+          ))}
         </div>
       </section>
     )}
@@ -108,7 +112,11 @@ const total   = all.length;
           </div>
         </div>
         <div class="papers-list">
-          {journalRest.map(p => <ResearchCard paper={p} lang={lang} />)}
+          {journalRest.map(p => (
+            <div data-private={p.data.private ? "true" : undefined}>
+              <ResearchCard paper={p} lang={lang} />
+            </div>
+          ))}
         </div>
       </section>
     )}
@@ -132,7 +140,11 @@ const total   = all.length;
               </div>
             </div>
             <div class="papers-list conf-list">
-              {confByYear[year].map(p => <ResearchCard paper={p} lang={lang} />)}
+              {confByYear[year].map(p => (
+                <div data-private={p.data.private ? "true" : undefined}>
+                  <ResearchCard paper={p} lang={lang} />
+                </div>
+              ))}
             </div>
           </div>
         ))}

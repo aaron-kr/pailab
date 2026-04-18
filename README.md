@@ -235,10 +235,40 @@ The protected area (admin/members) is always dark — no toggle there.
 |---|---|
 | `/` | English |
 | `/ko/` | Korean |
-| `/notes/slug` | English |
-| `/ko/notes/slug` | Korean |
+| `/notes/[slug]` | English |
+| `/ko/notes/[slug]` | Korean (only notes with `lang: ko` or `lang: both`) |
 
-Korean pages that haven't been translated yet are stubs in `src/pages/ko/` that redirect to the EN version with `?notranslated=1`, which triggers a dismissible banner via `TranslationBanner.astro`.
+### i18n architecture
+
+Three layers work together — do not bypass any of them:
+
+1. **`src/i18n/translations.ts`** — UI strings for components (nav, hero, about text, footer, status pills, etc.). Used by 15+ files. Always add new UI strings here first, then use `t(lang, "key")` in the component. The `altLangUrl()` helper is also exported from here.
+
+2. **`_ko` fields in content YAML** — for content data (paper titles, descriptions, etc.). All collections support `title_ko`, `description_ko` where relevant. The page or component falls back to the English field when the `_ko` variant is absent.
+
+3. **`src/pages/ko/`** — Korean URL mirror. Each page sets `const lang = "ko" as const` and renders `_ko` data + Korean UI strings via `t()`. This is the correct SEO approach: separate URLs get `<html lang="ko">` and proper `hreflang` links.
+
+**Notes strategy:** Notes are written in English. If a Korean version exists on Naver, add `naver_url` to the frontmatter and set `lang: both`. `/ko/notes/[slug]` only serves notes with `lang: ko` or `lang: both`.
+
+**Private content:** Add `private: true` to any content item's frontmatter. On list pages, the element gets `data-private="true"` and is hidden by CSS until the user logs in (Nav's `onAuthStateChanged` removes the attribute). On homepages, private items are filtered out at query time. On detail pages (`privatePage` prop on BaseLayout), the body is invisible and unauthenticated visitors are redirected to `/login`.
+
+### Korean pages status
+
+| Page | Status |
+|---|---|
+| `/ko/` | ✅ Full Korean |
+| `/ko/research` | ✅ Full Korean |
+| `/ko/areas` | ✅ Full Korean |
+| `/ko/curriculum` | ✅ Full Korean (list + `[slug]`) |
+| `/ko/projects` | ✅ Full Korean |
+| `/ko/modules` | ✅ Full Korean |
+| `/ko/about` | ✅ Full Korean |
+| `/ko/notes` | ✅ Full Korean |
+| `/ko/notes/[slug]` | ✅ Korean notes only |
+| `/ko/join` | ↩ Redirects to EN + banner |
+| `/ko/404` | ↩ Redirects to EN equivalent + banner |
+
+Korean pages that haven't been translated are stubs that redirect to the EN version with `?notranslated=1`, triggering a dismissible banner via `TranslationBanner.astro`.
 
 See **TRANSLATIONS_NAV.md** for adding translations and configuring the nav.
 
@@ -297,19 +327,22 @@ Do not include `slug` in any content collection schema. Use `entry.slug` (not `e
 
 ## Planned improvements
 
-- [ ] Full Korean translations — Join, Areas, individual Project pages
+- [ ] Korean translations for individual project detail pages (`/ko/projects/[slug]`)
+- [ ] Korean category pages (`/ko/notes/category/[category]`)
 - [ ] OG image endpoint live (activate `output: "hybrid"` + `@astrojs/vercel`)
-- [ ] Static `/public/og-default.png` fallback image (ideal size: `1200 x 630px` - hi-res is double, not necessary)
+- [ ] Static `/public/og-default.png` fallback image (ideal size: `1200 x 630px`)
 - [ ] Hamburger menu refinements (currently functional)
-- [ ] SiteSearch modal works, but has a double-injected input field. Removing pagefind's injected input field disables Search.
-- [ ] The full `/search` page has a single input field, but does not return results. 
-- [ ] We have a `i18n/translations.ts` file with all English and Korean strings defined, but are using `{lang === "ko" ? "피지컬 AI 연구소" : "Physical AI Lab"}` in many places.
+- [ ] SiteSearch: double-injected input field (removing pagefind integration disables search)
+- [ ] `/search` page returns no results (pagefind only indexes after `npm run build`)
 
 ### Completed (April 2026)
 - [x] Curriculum track detail pages (`/curriculum/[slug]`, EN + KO)
 - [x] RSS feeds (`/rss.xml` EN, `/ko/rss.xml` KO)
 - [x] Pagefind full-text search (`/search` + nav overlay)
 - [x] Mobile hamburger menu
-- [ ] Project assignment UI in `/admin/students` drawer
 - [x] RSS autodiscovery + Twitter card in BaseLayout
 - [x] OG image endpoint (ready, needs hybrid mode enabled to activate)
+- [x] All `/ko/` list pages (areas, curriculum, projects, modules, about)
+- [x] `private: true` frontmatter support — hides content from public, reveals on login
+- [x] Nav login button → profile avatar + dropdown when authenticated (Firebase Auth)
+- [x] Admin email moved from hardcoded to `PUBLIC_FIREBASE_ADMIN_EMAIL` env var

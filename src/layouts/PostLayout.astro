@@ -25,12 +25,14 @@ interface Props {
   featuredImage?: string;
   headerBgImage?: string;
   categoryFeatured?: boolean;
+  privatePage?: boolean;
 }
 
 const {
   title, title_ko, description, pubDate,
   tags = [], category, naverUrl, lang = "en",
   prevPost, nextPost, featuredImage, headerBgImage, categoryFeatured,
+  privatePage = false,
 } = Astro.props;
 
 const notesPath = lang === "ko" ? "/ko/notes" : "/notes";
@@ -74,7 +76,7 @@ const breadcrumbs = [
 ];
 ---
 
-<BaseLayout lang={lang} title={`${title} · PAI LAB`} description={description}>
+<BaseLayout lang={lang} title={`${title} · PAI LAB`} description={description} privatePage={privatePage}>
 
   <!-- ── PAGE HEADER SIZE ─────────────────────────────────────
        Change "md" here to affect ALL notes pages at once:

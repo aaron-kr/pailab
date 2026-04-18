@@ -6,6 +6,7 @@ lang: "both"
 tags: ["Arduino", "ROS 2", "Tutorial", "Physical AI"]
 summary: "micro-ROS lets an Arduino publish and subscribe to ROS 2 topics directly over USB or WiFi. Here's how to set it up without losing your mind."
 naver_url: "https://blog.naver.com/aaron_kr/arduino-ros2-bridge"
+private: True
 ---
 
 ROS 2 is the de-facto standard for robotics research software. Arduino is the

@@ -1,42 +1,44 @@
 ---
-// src/pages/projects.astro
+// src/pages/ko/projects.astro
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
 import { getCollection } from "astro:content";
 
-const lang = "en" as const;
+const lang = "ko" as const;
 const projects = (await getCollection("projects")).sort((a,b) => a.data.order - b.data.order);
 
 const statusColors: Record<string, string> = {
   active:    "var(--green-glow)", published: "var(--cyan)",
   planned:   "var(--blue)",       archived:  "rgba(208,228,240,.3)",
 };
+const statusLabels: Record<string, string> = {
+  active:    "진행 중", published: "게시됨",
+  planned:   "예정",    archived:  "보관됨",
+};
 ---
 
-<BaseLayout lang={lang} title="Projects · PAI LAB"
-  description="Active hardware and software projects from the PAI Lab.">
-  <PageHeader title="Projects" eyebrow="03 · PROJECTS"
-    description="Active hardware and software projects — from gesture-controlled robotics to edge AI deployment pipelines." />
+<BaseLayout lang={lang} title="프로젝트 · PAI LAB"
+  description="피지컬 AI 연구소의 진행 중인 하드웨어 및 소프트웨어 프로젝트.">
+  <PageHeader title="프로젝트" eyebrow="03 · 프로젝트"
+    description="제스처 제어 로보틱스부터 엣지 AI 배포 파이프라인까지 — 피지컬 AI 연구소의 하드웨어·소프트웨어 프로젝트." />
 
   <div class="container page-content">
 
-    <!-- Active -->
     {["active","published","planned","archived"].map(status => {
       const group = projects.filter(p => p.data.status === status);
       if (group.length === 0) return null;
       return (
         <section style="margin-bottom:2.5rem;">
           <p class="group-label" style={`color:${statusColors[status]}`}>
-            ● {status.toUpperCase()} ({group.length})
+            ● {statusLabels[status].toUpperCase()} ({group.length})
           </p>
           <div class="project-grid">
             {group.map(project => (
               <a href={`/projects/${project.slug}`} class="project-card card"
                  data-private={project.data.private ? "true" : undefined}>
-                {/* Optional thumbnail */}
                 {project.data.thumbnailUrl ? (
                   <div class="project-thumb">
-                    <img src={project.data.thumbnailUrl} alt={project.data.title} loading="lazy" />
+                    <img src={project.data.thumbnailUrl} alt={project.data.title_ko ?? project.data.title} loading="lazy" />
                   </div>
                 ) : (
                   <div class="project-thumb project-thumb--placeholder">
@@ -48,7 +50,7 @@ const statusColors: Record<string, string> = {
                 )}
                 <div class="project-body">
                   <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:.5rem; margin-bottom:.5rem;">
-                    <h3 class="project-title">{project.data.title}</h3>
+                    <h3 class="project-title">{project.data.title_ko ?? project.data.title}</h3>
                     <span class="status-dot" style={`background:${statusColors[status]}`}></span>
                   </div>
                   {project.data.description && (

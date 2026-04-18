@@ -14,6 +14,7 @@ const research = defineCollection({
     venue: z.string(),                             // Short venue name: "JPEE", "KIICE ICFICE", etc.
     year: z.number(),
     status: z.enum(["published", "in-review", "preprint"]).default("published"),
+    private: z.boolean().default(false),           // Hide from public; visible only when logged in
 
     // === Type ===
     type: z.enum(["journal", "conference", "thesis"]).default("conference"),
@@ -49,6 +50,7 @@ const curriculum = defineCollection({
     description:    z.string(),
     description_ko: z.string().optional(),
     order:          z.number().default(99),
+    private:        z.boolean().default(false),
   }),
 });
 
@@ -65,6 +67,7 @@ const projects = defineCollection({
     description:  z.string().optional(),
     thumbnailUrl: z.string().optional(),
     demo:         z.string().url().optional(),
+    private:      z.boolean().default(false),
   }),
 });
 
@@ -78,6 +81,7 @@ const modules = defineCollection({
     description:    z.string(),
     description_ko: z.string().optional(),
     order:          z.number().default(99),
+    private:        z.boolean().default(false),
   }),
 });
 
@@ -95,6 +99,7 @@ const notes = defineCollection({
     categoryFeatured: z.boolean().default(false),
     featuredImage:    z.string().optional(),
     headerBgImage:    z.string().optional(),
+    private:          z.boolean().default(false), // Hide from public; visible only when logged in
   }),
 });
 

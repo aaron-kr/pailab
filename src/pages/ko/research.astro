@@ -7,7 +7,6 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
 import ResearchCard from "@/components/ResearchCard.astro";
-import PaperRow from "@/components/PaperRow.astro";
 import { getCollection } from "astro:content";
 
 const lang = "ko" as const;
@@ -86,9 +85,9 @@ const total   = all.length;
     {featured.length > 0 && (
       <section class="research-section" id="sec-featured">
         <div class="sec-header">
-          <span class="sec-kicker">Highlighted</span>
+          <span class="sec-kicker">강조</span>
           <div class="sec-heading-group">
-            <h2 class="sec-heading">Featured Work</h2>
+            <h2 class="sec-heading">주요 연구</h2>
           </div>
         </div>
         <div class="papers-list">
@@ -101,10 +100,10 @@ const total   = all.length;
     {journals.length > 0 && (
       <section class="research-section" id="sec-journals">
         <div class="sec-header">
-          <span class="sec-kicker">Peer-reviewed</span>
+          <span class="sec-kicker">동료 검토</span>
           <div class="sec-heading-group">
-            <h2 class="sec-heading">Journal Articles <span class="count-badge">{journals.length}</span></h2>
-            <p class="sec-note">Full-length articles in KCI-indexed and international journals. DOI links are canonical; ResearchGate mirrors open-access PDFs where available.</p>
+            <h2 class="sec-heading">학술지 논문 <span class="count-badge">{journals.length}</span></h2>
+            <p class="sec-note">KCI 등재 및 국제 학술지 전문 논문. DOI 링크가 정식 경로이며, ResearchGate에서 오픈 액세스 PDF를 제공합니다.</p>
           </div>
         </div>
         <div class="papers-list">
@@ -117,10 +116,10 @@ const total   = all.length;
     {conferences.length > 0 && (
       <section class="research-section" id="sec-conf">
         <div class="sec-header">
-          <span class="sec-kicker">Presented work</span>
+          <span class="sec-kicker">발표 논문</span>
           <div class="sec-heading-group">
-            <h2 class="sec-heading">Conference Proceedings <span class="count-badge">{conferences.length}</span></h2>
-            <p class="sec-note">Posters and oral presentations at KIICE, KIPEE, KMMS, and affiliated venues. ResearchGate links include PDFs and poster files where available.</p>
+            <h2 class="sec-heading">학술대회 논문집 <span class="count-badge">{conferences.length}</span></h2>
+            <p class="sec-note">KIICE, KIPEE, KMMS 및 관련 학술대회 포스터·구두 발표. ResearchGate에서 PDF와 포스터 파일을 제공합니다.</p>
           </div>
         </div>
         {confYears.map(year => (
@@ -128,7 +127,7 @@ const total   = all.length;
             <div class="year-marker">
               <span class="year-num">{year}</span>
               <div class="year-content">
-                <span class="year-ct">{confByYear[year].length} paper{confByYear[year].length!==1?"s":""}</span>
+                <span class="year-ct">{confByYear[year].length}편</span>
               </div>
             </div>
             <div class="papers-list conf-list">
@@ -140,8 +139,8 @@ const total   = all.length;
     )}
 
     <div class="no-results" id="no-results" style="display:none">
-      <p>No papers match the selected filters.</p>
-      <button id="no-results-clear">Clear filters</button>
+      <p>선택한 필터에 맞는 논문이 없습니다.</p>
+      <button id="no-results-clear">필터 초기화</button>
     </div>
 
   </div>

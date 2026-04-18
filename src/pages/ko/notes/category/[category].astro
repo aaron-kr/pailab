@@ -1,7 +1,6 @@
 ---
-// src/pages/notes/category/[category].astro
-// Category archive page — one page per research area.
-// URL: /notes/category/embodied-intelligence, etc.
+// src/pages/ko/notes/category/[category].astro
+// Korean mirror of /notes/category/[category].astro
 
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import NoteRow from "@/components/NoteRow.astro";
@@ -16,43 +15,42 @@ export async function getStaticPaths() {
 }
 
 const { area } = Astro.props;
-const lang = "en" as const;
+const lang = "ko" as const;
 
-// All notes in this category
+const areaTitle = area.data.title_ko ?? area.data.title;
+const areaDesc  = area.data.description_ko ?? area.data.description;
+
+// All notes in this category, sorted by date
 const allNotes = (await getCollection("notes")).sort(
   (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
 );
 const categoryNotes = allNotes.filter(n => n.data.category === area.slug);
 const featuredNote  = categoryNotes.find(n => n.data.categoryFeatured) ?? null;
 const restNotes     = categoryNotes.filter(n => !n.data.categoryFeatured);
-// Public count excludes private notes (shown to logged-out users)
 const publicCount   = categoryNotes.filter(n => !n.data.private).length;
 ---
 
 <BaseLayout
   lang={lang}
-  title={`${area.data.title} · PAI LAB`}
-  description={area.data.description}
+  title={`${areaTitle} · PAI LAB`}
+  description={areaDesc}
 >
   <!-- Category header with mesh background -->
   <section class="cat-header full-bleed">
     <div class="cat-header-bg" style={`--area-color: ${area.data.color ?? "var(--cyan)"}`}></div>
     <div class="cat-header-grid"></div>
-    {area.body && (
-      <div class="cat-header-image" style={`background-image:url('${area.slug}-bg.jpg')`}></div>
-    )}
     <div class="cat-header-fade"></div>
     <div class="container cat-header-inner">
-      <a href="/notes" class="cat-back">← All notes</a>
+      <a href="/ko/notes" class="cat-back">← 전체 노트</a>
       <div class="cat-icon">{area.data.icon ?? "◉"}</div>
-      <h1 class="cat-title">{area.data.title}</h1>
-      {area.data.title_ko && <p class="cat-title-ko">{area.data.title_ko}</p>}
-      <p class="cat-description">{area.data.description}</p>
+      <h1 class="cat-title">{areaTitle}</h1>
+      {area.data.title_ko && <p class="cat-title-ko">{area.data.title}</p>}
+      <p class="cat-description">{areaDesc}</p>
       <div style="margin-top:1rem; display:flex; gap:.5rem; flex-wrap:wrap;">
         <span class="cat-chip" style={`--chip-color: ${area.data.color ?? "var(--cyan)"}`}>
-          {publicCount} note{publicCount !== 1 ? "s" : ""}
+          {publicCount}개 노트
         </span>
-        <a href="/areas" class="cat-chip cat-chip--ghost">All research areas →</a>
+        <a href="/ko/areas" class="cat-chip cat-chip--ghost">전체 연구 분야 →</a>
       </div>
     </div>
   </section>
@@ -62,11 +60,11 @@ const publicCount   = categoryNotes.filter(n => !n.data.private).length;
     <!-- Featured / definitive post -->
     {featuredNote && (
       <section style="margin-bottom:3rem;" data-private={featuredNote.data.private ? "true" : undefined}>
-        <p class="sub-label">FEATURED POST</p>
+        <p class="sub-label">추천 노트</p>
         <a href={`/notes/${featuredNote.slug}`} class="featured-post-card card">
           {featuredNote.data.featuredImage && (
             <div class="featured-post-img">
-              <img src={featuredNote.data.featuredImage} alt={featuredNote.data.title} loading="lazy" />
+              <img src={featuredNote.data.featuredImage} alt={featuredNote.data.title_ko ?? featuredNote.data.title} loading="lazy" />
             </div>
           )}
           <div class="featured-post-body">
@@ -75,12 +73,12 @@ const publicCount   = categoryNotes.filter(n => !n.data.private).length;
                 <span class="tag">{tag}</span>
               ))}
             </div>
-            <h2 class="featured-post-title">{featuredNote.data.title}</h2>
+            <h2 class="featured-post-title">{featuredNote.data.title_ko ?? featuredNote.data.title}</h2>
             {featuredNote.data.summary && (
               <p class="featured-post-summary">{featuredNote.data.summary}</p>
             )}
             <p class="featured-post-date">
-              {featuredNote.data.pubDate.toLocaleDateString("en-US", {
+              {featuredNote.data.pubDate.toLocaleDateString("ko-KR", {
                 year: "numeric", month: "long", day: "numeric"
               })}
             </p>
@@ -92,7 +90,7 @@ const publicCount   = categoryNotes.filter(n => !n.data.private).length;
     <!-- All other notes in this category -->
     {restNotes.length > 0 ? (
       <section>
-        {featuredNote && <p class="sub-label">ALL NOTES</p>}
+        {featuredNote && <p class="sub-label">전체 노트</p>}
         <div class="row-list">
           {restNotes.map(note => (
             <div data-private={note.data.private ? "true" : undefined}>
@@ -103,24 +101,22 @@ const publicCount   = categoryNotes.filter(n => !n.data.private).length;
       </section>
     ) : !featuredNote ? (
       <div style="text-align:center; padding:3rem 0; color:var(--text-3);">
-        <p style="font-size:.88rem;">No notes in this category yet.</p>
+        <p style="font-size:.88rem;">이 카테고리에 아직 노트가 없습니다.</p>
         <p style="font-size:.78rem; margin-top:.5rem;">
-          Add <code style="font-family:var(--font-mono)">category: "{area.slug}"</code>
-          to a note's frontmatter.
+          노트 프론트매터에 <code style="font-family:var(--font-mono)">category: "{area.slug}"</code>을 추가하세요.
         </p>
       </div>
     ) : null}
 
     <div style="margin-top:3rem; padding-top:1.5rem; border-top:.5px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-      <a href="/notes" style="font-family:var(--font-mono); font-size:.72rem; color:var(--text-3);">← All notes</a>
-      <a href="/areas" style="font-family:var(--font-mono); font-size:.72rem; color:var(--text-3);">All research areas →</a>
+      <a href="/ko/notes" style="font-family:var(--font-mono); font-size:.72rem; color:var(--text-3);">← 전체 노트</a>
+      <a href="/ko/areas" style="font-family:var(--font-mono); font-size:.72rem; color:var(--text-3);">전체 연구 분야 →</a>
     </div>
 
   </div>
 </BaseLayout>
 
 <style>
-/* Category header */
 .cat-header {
   position: relative;
   background: var(--bg-deep);
@@ -203,8 +199,6 @@ const publicCount   = categoryNotes.filter(n => !n.data.private).length;
   color: rgba(208,228,240,.5);
 }
 .cat-chip--ghost:hover { color: var(--cyan); border-color: var(--cyan); }
-
-/* Sub-label */
 .sub-label {
   font-family: var(--font-mono);
   font-size: .62rem;
@@ -212,8 +206,6 @@ const publicCount   = categoryNotes.filter(n => !n.data.private).length;
   letter-spacing: .14em;
   margin-bottom: 1.25rem;
 }
-
-/* Featured post card */
 .featured-post-card {
   display: grid;
   grid-template-columns: 280px 1fr;
@@ -250,7 +242,6 @@ const publicCount   = categoryNotes.filter(n => !n.data.private).length;
   font-size: .65rem;
   color: var(--text-3);
 }
-
 @media (max-width: 680px) {
   .featured-post-card { grid-template-columns: 1fr; }
 }

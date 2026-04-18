@@ -5,6 +5,7 @@ import Hero from "@/components/Hero.astro";
 import PartnerStrip from "@/components/PartnerStrip.astro";
 import ResearchAreas from "@/components/ResearchAreas.astro";
 import PaperRow from "@/components/PaperRow.astro";
+import ResearchCard from "@/components/ResearchCard.astro";
 import ProjectRow from "@/components/ProjectRow.astro";
 import NoteRow from "@/components/NoteRow.astro";
 import JoinSection from "@/components/JoinSection.astro";
@@ -12,11 +13,13 @@ import { getCollection } from "astro:content";
 import TeamSection from "@/components/TeamSection.astro";
 
 const lang = "en" as const;
-const research   = (await getCollection("research")).sort((a,b) => b.data.year - a.data.year);
-const curriculum = (await getCollection("curriculum")).sort((a,b) => a.data.order - b.data.order);
-const projects   = (await getCollection("projects")).sort((a,b) => a.data.order - b.data.order).slice(0,6);
-const modules    = (await getCollection("modules")).sort((a,b) => a.data.order - b.data.order);
-const notes      = (await getCollection("notes")).sort((a,b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()).slice(0,5);
+// Filter private items before slicing — private content is hidden on the homepage
+// regardless of login state (it's a highlights reel, not a full list).
+const research   = (await getCollection("research")).filter(p => !p.data.private).sort((a,b) => b.data.year - a.data.year);
+const curriculum = (await getCollection("curriculum")).filter(t => !t.data.private).sort((a,b) => a.data.order - b.data.order);
+const projects   = (await getCollection("projects")).filter(p => !p.data.private).sort((a,b) => a.data.order - b.data.order).slice(0,6);
+const modules    = (await getCollection("modules")).filter(m => !m.data.private).sort((a,b) => a.data.order - b.data.order);
+const notes      = (await getCollection("notes")).filter(n => !n.data.private).sort((a,b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()).slice(0,10);
 
 const trackColors = [
   "linear-gradient(90deg,var(--green),var(--cyan))",
@@ -52,7 +55,7 @@ const projIcons = { "gesture-robot-arm":"🦾","kasd-dataset":"📜","epib-bench
         <h2 class="section-title">Research</h2>
       </div>
       <div class="papers-list">
-        {research.slice(0,6).map((paper) => <PaperRow paper={paper} lang={lang} />)}
+        {research.slice(0,6).map((paper) => <ResearchCard paper={paper} lang={lang} />)}
       </div>
       <div class="section-footer">
         <a href="/research" class="btn-slide btn-slide-green">All publications →</a>

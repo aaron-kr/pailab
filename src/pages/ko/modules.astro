@@ -1,27 +1,27 @@
 ---
-// src/pages/modules.astro
+// src/pages/ko/modules.astro
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
 import { getCollection } from "astro:content";
 
-const lang = "en" as const;
+const lang = "ko" as const;
 const modules = (await getCollection("modules")).sort((a,b) => a.data.order - b.data.order);
 ---
 
-<BaseLayout lang={lang} title="Course Plug-in Modules · PAI LAB"
-  description="Self-contained Physical AI add-ons for any university course.">
-  <PageHeader title="Plug-in Modules" eyebrow="04 · MODULES"
-    description="Self-contained Physical AI add-ons for courses not primarily focused on AI — drop one in for 1–2 weeks of hands-on physical computing." />
+<BaseLayout lang={lang} title="코스 플러그인 모듈 · PAI LAB"
+  description="대학 강좌에 바로 적용할 수 있는 독립형 피지컬 AI 모듈.">
+  <PageHeader title="플러그인 모듈" eyebrow="04 · 모듈"
+    description="AI 중심이 아닌 과목에 바로 적용할 수 있는 독립형 피지컬 AI 모듈 — 1~3주 분량." />
 
   <div class="container page-content">
     <div class="module-grid">
       {modules.map(mod => (
-        <a href={`/modules/${mod.slug}`} class="module-card card" data-private={mod.data.private ? "true" : undefined}>
+        <a href={`/ko/modules/${mod.slug}`} class="module-card card" data-private={mod.data.private ? "true" : undefined}>
           <div class="module-bar"></div>
           <div class="module-course-tag">{mod.data.course_tag.toUpperCase()}</div>
-          <h3 class="module-title">{mod.data.title}</h3>
-          {mod.data.title_ko && <p class="module-ko">{mod.data.title_ko}</p>}
-          <p class="module-desc">{mod.data.description}</p>
+          <h3 class="module-title">{mod.data.title_ko ?? mod.data.title}</h3>
+          {mod.data.title_ko && <p class="module-en">{mod.data.title}</p>}
+          <p class="module-desc">{mod.data.description_ko ?? mod.data.description}</p>
           <div class="module-footer">
             <span class="tag">{mod.data.course_tag}</span>
             <span class="tag">{mod.data.duration}</span>
@@ -48,8 +48,8 @@ const modules = (await getCollection("modules")).sort((a,b) => a.data.order - b.
 }
 .module-card:hover .module-bar { transform:scaleX(1); }
 .module-course-tag { font-family:var(--font-mono); font-size:.6rem; color:var(--blue); letter-spacing:.1em; margin-bottom:.625rem; }
-.module-title { font-size:.9rem; font-weight:600; margin-bottom:.375rem; line-height:1.3; }
-.module-ko    { font-size:.72rem; color:var(--text-3); margin-bottom:.625rem; }
+.module-title { font-size:.9rem; font-weight:600; margin-bottom:.25rem; line-height:1.3; }
+.module-en    { font-size:.72rem; color:var(--text-3); margin-bottom:.625rem; font-family:var(--font-mono); }
 .module-desc  { font-size:.78rem; color:var(--text-2); line-height:1.65; flex:1; margin-bottom:1rem; }
 .module-footer { margin-top:auto; display:flex; gap:6px; flex-wrap:wrap; }
 </style>

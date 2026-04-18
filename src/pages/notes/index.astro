@@ -88,6 +88,7 @@ const allTags = Array.from(new Set(notes.flatMap(n => n.data.tags ?? []))).sort(
           class="note-filter-row"
           data-category={note.data.category ?? ""}
           data-tags={JSON.stringify(note.data.tags ?? [])}
+          data-private={note.data.private ? "true" : undefined}
         >
           <NoteRow note={note} lang={lang} />
         </div>

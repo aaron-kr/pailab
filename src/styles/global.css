@@ -971,6 +971,13 @@ textarea.form-input { resize: vertical; }
 }
 
 
+/* ── Private content gate ────────────────────────────────────
+   Items marked data-private="true" are hidden until a logged-in
+   Firebase user is detected (Nav.astro onAuthStateChanged).
+   Logged-in: the attribute is removed, restoring normal display. */
+[data-private="true"] { display: none !important; }
+
+
 /* ── Hide auto-injected astro-pagefind UI ────────────────────
    The integration injects its own PagefindUI component which
    we don't want. Our custom UI lives inside .search-results

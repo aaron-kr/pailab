@@ -4,7 +4,6 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
 import NoteRow from "@/components/NoteRow.astro";
 import { getCollection } from "astro:content";
-import { t } from "@/i18n/translations";
 
 const lang = "ko" as const;
 const notes = (await getCollection("notes")).sort(
@@ -23,7 +22,11 @@ const notes = (await getCollection("notes")).sort(
 
   <div class="container page-content">
     <div class="row-list">
-      {notes.map((note) => <NoteRow note={note} lang={lang} />)}
+      {notes.map(note => (
+        <div data-private={note.data.private ? "true" : undefined}>
+          <NoteRow note={note} lang={lang} />
+        </div>
+      ))}
     </div>
   </div>
 </BaseLayout>

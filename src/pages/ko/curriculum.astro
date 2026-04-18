@@ -1,10 +1,10 @@
 ---
-// src/pages/curriculum.astro
+// src/pages/ko/curriculum.astro
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
 import { getCollection } from "astro:content";
 
-const lang = "en" as const;
+const lang = "ko" as const;
 const tracks = (await getCollection("curriculum")).sort((a,b) => a.data.order - b.data.order);
 
 const levelColor: Record<string, string> = {
@@ -14,41 +14,41 @@ const levelColor: Record<string, string> = {
   open:         "rgba(208,228,240,.5)",
 };
 const levelLabel: Record<string, string> = {
-  beginner:"Beginner", intermediate:"Intermediate", advanced:"Advanced", open:"Open"
+  beginner:"초급", intermediate:"중급", advanced:"고급", open:"오픈"
 };
 ---
 
-<BaseLayout lang={lang} title="Curriculum · PAI LAB"
-  description="Four structured tracks from first principles to advanced robotics.">
-  <PageHeader title="Curriculum" eyebrow="02 · CURRICULUM"
-    description="Four structured tracks from first principles to advanced robotics. All tracks are bilingual (EN / 한국어) and freely available." />
+<BaseLayout lang={lang} title="커리큘럼 · PAI LAB"
+  description="기초부터 고급 로보틱스까지 4개 트랙.">
+  <PageHeader title="커리큘럼" eyebrow="02 · 커리큘럼"
+    description="기초부터 고급 로보틱스까지 4개 트랙. 모든 트랙은 이중 언어(EN / 한국어)로 제공됩니다." />
 
   <div class="container page-content">
     <div class="track-grid">
       {tracks.map(track => (
-        <div class="track-card card" data-private={track.data.private ? "true" : undefined}>
-          <!-- Top color bar (slides in on hover via CSS) -->
+        <a href={`/ko/curriculum/${track.slug}`} class="track-card card"
+           data-private={track.data.private ? "true" : undefined}>
           <div class="track-bar" style={`--bar-color: ${levelColor[track.data.level] ?? "var(--cyan)"}`}></div>
 
           <div class="track-header">
-            <span class="track-num">TRACK {track.data.track}</span>
+            <span class="track-num">트랙 {track.data.track}</span>
             <span class="track-level" style={`color: ${levelColor[track.data.level] ?? "var(--text-3)"}`}>
               {levelLabel[track.data.level]}
             </span>
           </div>
 
-          <h2 class="track-title">{track.data.title}</h2>
-          {track.data.title_ko && <p class="track-ko">{track.data.title_ko}</p>}
+          <h2 class="track-title">{track.data.title_ko ?? track.data.title}</h2>
+          {track.data.title_ko && <p class="track-en">{track.data.title}</p>}
 
-          <p class="track-desc">{track.data.description}</p>
+          <p class="track-desc">{track.data.description_ko ?? track.data.description}</p>
 
           <div class="track-footer">
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
-              <span class="tag">{track.data.units} units</span>
+              <span class="tag">{track.data.units}개 단원</span>
               {track.data.bilingual && <span class="tag accent">EN · 한국어</span>}
             </div>
           </div>
-        </div>
+        </a>
       ))}
     </div>
   </div>
@@ -58,12 +58,11 @@ const levelLabel: Record<string, string> = {
 .track-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1.25rem; }
 .track-card {
   position:relative; overflow:hidden; padding:1.5rem;
-  display:flex; flex-direction:column;
+  display:flex; flex-direction:column; text-decoration:none;
   transition: border-color .2s, transform .2s;
 }
-.track-card:hover { border-color:var(--border-2); transform:translateY(-3px); }
+.track-card:hover { border-color:var(--border-2); transform:translateY(-3px); text-decoration:none; }
 
-/* Sliding top bar */
 .track-bar {
   position:absolute; top:0; left:0; right:0; height:2.5px;
   background:linear-gradient(90deg, var(--bar-color), color-mix(in srgb, var(--bar-color) 60%, transparent));
@@ -75,8 +74,8 @@ const levelLabel: Record<string, string> = {
 .track-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.875rem; }
 .track-num   { font-family:var(--font-mono); font-size:.62rem; color:var(--text-3); letter-spacing:.1em; }
 .track-level { font-family:var(--font-mono); font-size:.62rem; font-weight:500; letter-spacing:.08em; }
-.track-title { font-size:.95rem; font-weight:600; margin-bottom:.375rem; line-height:1.3; }
-.track-ko    { font-size:.75rem; color:var(--text-3); margin-bottom:.75rem; }
+.track-title { font-size:.95rem; font-weight:600; margin-bottom:.25rem; line-height:1.3; }
+.track-en    { font-size:.72rem; color:var(--text-3); margin-bottom:.625rem; font-family:var(--font-mono); }
 .track-desc  { font-size:.8rem; color:var(--text-2); line-height:1.65; flex:1; margin-bottom:1rem; }
 .track-footer { margin-top:auto; }
 </style>

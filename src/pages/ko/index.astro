@@ -10,11 +10,11 @@ import JoinSection from "@/components/JoinSection.astro";
 import { getCollection } from "astro:content";
 
 const lang = "ko" as const;
-const research   = (await getCollection("research")).sort((a,b) => b.data.year - a.data.year);
-const curriculum = (await getCollection("curriculum")).sort((a,b) => a.data.order - b.data.order);
-const projects   = (await getCollection("projects")).sort((a,b) => a.data.order - b.data.order).slice(0,4);
-const modules    = (await getCollection("modules")).sort((a,b) => a.data.order - b.data.order);
-const notes      = (await getCollection("notes")).sort((a,b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()).slice(0,5);
+const research   = (await getCollection("research")).filter(p => !p.data.private).sort((a,b) => b.data.year - a.data.year);
+const curriculum = (await getCollection("curriculum")).filter(t => !t.data.private).sort((a,b) => a.data.order - b.data.order);
+const projects   = (await getCollection("projects")).filter(p => !p.data.private).sort((a,b) => a.data.order - b.data.order).slice(0,4);
+const modules    = (await getCollection("modules")).filter(m => !m.data.private).sort((a,b) => a.data.order - b.data.order);
+const notes      = (await getCollection("notes")).filter(n => !n.data.private).sort((a,b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()).slice(0,5);
 
 const trackColors = [
   "linear-gradient(90deg,var(--green),var(--cyan))",

@@ -103,7 +103,26 @@ const NAV: Array<
       </a>
       <span class="nav-sep" aria-hidden="true"></span>
       <button id="theme-toggle" class="btn-ghost" aria-label="Toggle theme" style="min-width:2rem;">☀</button>
-      <a href="/login" class="btn-ghost" aria-label="Login">🔒</a>
+      <!-- Auth control: shows lock when logged-out, avatar+dropdown when logged-in -->
+      <a href="/login" class="btn-ghost nav-lock-btn" id="nav-login-btn" aria-label="Sign in">🔒</a>
+      <div class="nav-dropdown-wrap nav-user-wrap" id="nav-user-wrap" style="display:none">
+        <button class="nav-user-btn nav-dropdown-trigger" id="nav-user-btn"
+                aria-label="Account menu" aria-expanded="false" aria-haspopup="true" type="button">
+          <span id="nav-avatar-inner" class="nav-avatar"></span>
+        </button>
+        <ul class="nav-dropdown nav-user-menu" role="menu">
+          <li role="none">
+            <a href="/members" class="nav-dropdown-item" role="menuitem">Members area ↗</a>
+          </li>
+          <li role="none" aria-hidden="true">
+            <div class="nav-menu-divider"></div>
+          </li>
+          <li role="none">
+            <button class="nav-dropdown-item nav-signout-item" id="nav-signout-btn"
+                    role="menuitem" type="button">Sign out</button>
+          </li>
+        </ul>
+      </div>
       <!-- Hamburger — hidden on desktop via CSS -->
       <button id="hamburger" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu" type="button">
         <span class="ham-bar"></span>
@@ -227,6 +246,72 @@ document.querySelectorAll(".mobile-nav-link").forEach(link =>
 const mobileThemeBtn = document.getElementById("mobile-theme-toggle");
 mobileThemeBtn?.addEventListener("click", () => {
   document.getElementById("theme-toggle")?.click();
+});
+
+// ── Firebase auth — login button / user avatar ────────────────
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+
+const _fbCfg = {
+  apiKey:            import.meta.env.PUBLIC_FIREBASE_API_KEY,
+  authDomain:        import.meta.env.PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId:         import.meta.env.PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket:     import.meta.env.PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId:             import.meta.env.PUBLIC_FIREBASE_APP_ID,
+};
+const _fbApp  = getApps().length === 0 ? initializeApp(_fbCfg) : getApp();
+const _auth   = getAuth(_fbApp);
+
+const _loginBtn  = document.getElementById("nav-login-btn")  as HTMLAnchorElement;
+const _userWrap  = document.getElementById("nav-user-wrap")  as HTMLDivElement;
+const _avatarEl  = document.getElementById("nav-avatar-inner") as HTMLSpanElement;
+const _signoutBtn = document.getElementById("nav-signout-btn") as HTMLButtonElement;
+
+onAuthStateChanged(_auth, (user) => {
+  if (user) {
+    // ── Logged in ─────────────────────────────────────────────
+    _loginBtn.style.display = "none";
+    _userWrap.style.display = "";
+
+    // Render avatar: photo or initials
+    if (user.photoURL) {
+      _avatarEl.innerHTML =
+        `<img src="${user.photoURL}" alt="${user.displayName ?? ""}" class="nav-avatar-img" referrerpolicy="no-referrer" />`;
+    } else {
+      _avatarEl.textContent = (user.displayName ?? user.email ?? "?")
+        .split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase();
+    }
+
+    // Reveal private list items on public listing pages
+    document.querySelectorAll<HTMLElement>('[data-private="true"]').forEach(el => {
+      el.removeAttribute("data-private");
+    });
+
+    // Reveal private detail page (body was hidden in BaseLayout)
+    if (document.body.dataset.privatePage === "true") {
+      document.body.style.visibility = "visible";
+    }
+
+  } else {
+    // ── Logged out ────────────────────────────────────────────
+    _loginBtn.style.display = "";
+    _userWrap.style.display = "none";
+
+    // Private detail page: redirect to login instead of showing blank page
+    if (document.body.dataset.privatePage === "true") {
+      const next = encodeURIComponent(window.location.pathname);
+      window.location.replace(`/login?next=${next}`);
+    }
+  }
+});
+
+// Sign out handler
+_signoutBtn?.addEventListener("click", async () => {
+  sessionStorage.removeItem("pailab-role");
+  sessionStorage.removeItem("pailab-uid");
+  try { await signOut(_auth); } catch {}
+  window.location.href = "/";
 });
 </script>
 
@@ -454,5 +539,61 @@ mobileThemeBtn?.addEventListener("click", () => {
   .nav-links { display: none; }
   /* Also hide the nav-sep before the lang toggle on very small screens */
   .nav-controls .nav-sep:first-of-type { display: none; }
+}
+
+/* ── Auth: user avatar button ───────────────────────────────── */
+.nav-user-btn {
+  background: none; border: none;
+  padding: 0; cursor: pointer;
+  display: flex; align-items: center;
+}
+
+.nav-avatar {
+  display: flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(36,180,255,.18);
+  border: 1.5px solid rgba(36,180,255,.35);
+  font-family: var(--font-display); font-size: .62rem; font-weight: 700;
+  color: var(--cyan); overflow: hidden;
+  transition: border-color .15s, box-shadow .15s;
+}
+.nav-user-btn:hover .nav-avatar,
+.nav-user-wrap.open .nav-avatar {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 2px rgba(36,255,252,.15);
+}
+.nav-avatar-img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  border-radius: 50%;
+}
+
+/* ── User menu: right-aligned, no centering arrow ───────────── */
+.nav-user-menu {
+  left: auto !important;
+  right: 0 !important;
+  transform: translateX(0) translateY(-4px) !important;
+}
+.nav-user-wrap.open .nav-user-menu {
+  transform: translateX(0) translateY(0) !important;
+}
+/* Hide the center-pointing arrow diamond for user menu */
+.nav-user-menu::before { display: none; }
+
+.nav-menu-divider {
+  height: .5px; background: var(--border);
+  margin: .25rem .5rem;
+}
+
+/* Sign-out item — danger colouring */
+.nav-signout-item {
+  width: 100%; text-align: left;
+  background: none; border: none;
+  font-size: .78rem; font-family: var(--font-body);
+  color: rgba(240,18,122,.8) !important;
+}
+.nav-signout-item:hover {
+  color: var(--pink) !important;
+  background: rgba(240,18,122,.08) !important;
 }
 </style>

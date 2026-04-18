@@ -185,10 +185,33 @@ Until then, `BaseLayout.astro` falls back to `/og-default.png` (place a static f
 
 ## Bilingual system
 
-- Korean pages are in `src/pages/ko/` — mirror of English structure
-- Pages without Korean translation: stub file that redirects to EN + `?notranslated=1`
-- `altLangUrl()` strips ALL `/ko` prefixes before rebuilding (fixes the `/ko/ko/ko` accumulation bug)
-- `TranslationBanner.astro` reads `?notranslated=1`, shows banner, cleans URL
+Three layers — keep all three, do not bypass:
+
+1. **`src/i18n/translations.ts`** — UI strings for all components. Use `t(lang, "key")`. The `altLangUrl()` helper lives here too. Always add new translatable UI strings here first.
+
+2. **`_ko` fields in YAML frontmatter** — for content data (paper titles, descriptions, etc.). All collections have `title_ko` and `description_ko` where applicable. Components fall back to the English field when the `_ko` variant is absent.
+
+3. **`src/pages/ko/`** — Korean URL space for SEO. Each page sets `const lang = "ko" as const`, renders `_ko` data and Korean UI strings via `t()`. Pages without Korean content are redirect stubs.
+
+**Korean pages status:**
+| Page | Status |
+|---|---|
+| `/ko/` index | ✅ Full Korean |
+| `/ko/research` | ✅ Full Korean |
+| `/ko/areas` | ✅ Full Korean |
+| `/ko/curriculum` | ✅ Full Korean (list + `[slug]`) |
+| `/ko/projects` | ✅ Full Korean |
+| `/ko/modules` | ✅ Full Korean |
+| `/ko/about` | ✅ Full Korean |
+| `/ko/notes` | ✅ Full Korean |
+| `/ko/notes/[slug]` | ✅ KO + bilingual notes only |
+| `/ko/join` | ↩ Redirect stub |
+| `/ko/404` | ↩ Strips `/ko`, redirects to EN |
+
+**Notes strategy:** Notes are written in English. If a Korean version exists externally (Naver), add `naver_url` to the frontmatter and set `lang: both`. The KO detail page only serves notes with `lang: ko` or `lang: both`.
+
+**`altLangUrl()`** strips ALL `/ko` prefixes before rebuilding (fixes the `/ko/ko/ko` accumulation bug).
+`TranslationBanner.astro` reads `?notranslated=1`, shows banner, cleans URL.
 
 ---
 
@@ -226,21 +249,25 @@ Topics: Mapping PAI Landscape, Sim-to-Real, Edge Vision, Gesture Arm, Physical L
 
 ## What's NOT done yet (as of April 2026)
 
-- [ ] Full Korean translations for Join, Areas, individual Project pages
+- [ ] Korean pages for individual project detail (`/ko/projects/[slug]`)
+- [ ] Korean category pages (`/ko/notes/category/[category]`)
 - [ ] OG image endpoint live (needs `output: "hybrid"` + `@astrojs/vercel` adapter)
 - [ ] Place a static `/public/og-default.png` fallback image
 - [ ] Mobile hamburger nav menu refinements (currently functional, may need polish)
 - [ ] SiteSearch modal works, but has a double-injected input field. Removing pagefind's injected input field disables Search.
-- [ ] The full `/search` page has a single input field, but does not return results. 
-- [ ] We have a `i18n/translations.ts` file with all English and Korean strings defined, but are using `{lang === "ko" ? "피지컬 AI 연구소" : "Physical AI Lab"}` in many places.
+- [ ] The full `/search` page has a single input field, but does not return results.
 
 ### Recently completed
 - [x] Curriculum track detail pages `/curriculum/[slug]` (EN + KO)
 - [x] RSS feeds (EN `/rss.xml` + KO `/ko/rss.xml`)
 - [x] Pagefind search (`/search` page + compact nav trigger)
 - [x] Mobile hamburger menu
-- [ ] `students.astro` — project assignment UI in drawer + auth bug fix
 - [x] BaseLayout — RSS autodiscovery, Twitter card, dynamic OG URL
+- [x] All `/ko/` list pages — areas, curriculum, projects, modules, about (April 2026)
+- [x] `private: true` frontmatter — hides content from public, reveals on Firebase login
+- [x] Nav login → profile avatar + dropdown when authenticated
+- [x] Admin email moved to `PUBLIC_FIREBASE_ADMIN_EMAIL` env var (no hardcoded secrets)
+- [x] CSS consolidated from per-page `<style>` blocks into `global.css`
 
 ---
 

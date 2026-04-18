@@ -1,5 +1,5 @@
 ---
-// src/pages/modules/[slug].astro
+// src/pages/ko/modules/[slug].astro
 import { getCollection, type CollectionEntry } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
@@ -17,20 +17,23 @@ interface Props {
 }
 
 const { mod } = Astro.props;
-const lang = "en" as const;
+const lang = "ko" as const;
 const { Content } = await mod.render();
+
+const title = mod.data.title_ko ?? mod.data.title;
+const desc  = mod.data.description_ko ?? mod.data.description;
 ---
 
 <BaseLayout
-  title={`${mod.data.title} — PAI Lab`}
-  description={mod.data.description}
+  title={`${title} — PAI Lab`}
+  description={desc}
   lang={lang}
   privatePage={mod.data.private}
 >
   <PageHeader
-    title={mod.data.title}
-    eyebrow={`MODULE · ${mod.data.course_tag.toUpperCase()}`}
-    description={mod.data.description}
+    title={title}
+    eyebrow={`모듈 · ${mod.data.course_tag.toUpperCase()}`}
+    description={desc}
     size="md"
   />
 
@@ -42,17 +45,17 @@ const { Content } = await mod.render();
         <aside class="module-meta-sidebar">
           <div class="module-meta-card">
             <div class="meta-row">
-              <span class="meta-label">Course</span>
+              <span class="meta-label">과목</span>
               <span class="meta-value">{mod.data.course_tag.toUpperCase()}</span>
             </div>
             <div class="meta-row">
-              <span class="meta-label">Duration</span>
+              <span class="meta-label">기간</span>
               <span class="meta-value">{mod.data.duration}</span>
             </div>
           </div>
 
-          <a href="/modules" class="btn-slide btn-slide-blue" style="display:inline-flex;margin-top:1.25rem;font-size:.75rem">
-            ← All modules
+          <a href="/ko/modules" class="btn-slide btn-slide-blue" style="display:inline-flex;margin-top:1.25rem;font-size:.75rem">
+            ← 전체 모듈
           </a>
         </aside>
 
