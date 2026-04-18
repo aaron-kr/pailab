@@ -236,7 +236,6 @@ document.getElementById("save-grant-btn")?.addEventListener("click", async () =>
 </script>
 
 <style>
-.loading-msg { font-size:.75rem; color:rgba(208,228,240,.35); }
 .grant-card { margin-bottom:1rem; }
 .grant-header { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; margin-bottom:.625rem; flex-wrap:wrap; }
 .grant-name   { font-size:.9rem; font-weight:600; margin-bottom:2px; }
@@ -246,23 +245,10 @@ document.getElementById("save-grant-btn")?.addEventListener("click", async () =>
 .grant-notes  { font-size:.78rem; color:rgba(208,228,240,.5); line-height:1.65; margin-top:.5rem; }
 .grant-actions { display:flex; gap:.5rem; margin-top:.875rem; }
 .deadline-past { color:#fbbf24; }
-.filter-btn { background:rgba(36,180,255,.05); border:.5px solid rgba(36,180,255,.15); border-radius:var(--r-sm); padding:.35rem .875rem; font-family:var(--font-mono); font-size:.65rem; color:rgba(208,228,240,.5); cursor:pointer; }
-.filter-btn.active { background:rgba(36,180,255,.15); color:var(--cyan); border-color:rgba(36,180,255,.35); }
-.status-pill { font-family:var(--font-mono); font-size:.6rem; border:.5px solid; border-radius:3px; padding:2px 7px; white-space:nowrap; }
 .pub-link { font-family:var(--font-mono); font-size:.65rem; color:var(--cyan); text-decoration:none; border:.5px solid rgba(36,180,255,.2); border-radius:3px; padding:1px 6px; }
 .pub-link:hover { background:rgba(36,180,255,.1); }
-.btn-primary { background:linear-gradient(135deg,var(--green),#0a9a87); color:#fff; border:none; border-radius:var(--r-md); padding:.65rem 1.5rem; font-size:.82rem; font-weight:600; font-family:var(--font-display); cursor:pointer; }
-.btn-ghost { background:none; border:.5px solid rgba(36,180,255,.2); border-radius:var(--r-md); padding:.5rem 1rem; font-size:.78rem; font-family:var(--font-mono); color:rgba(208,228,240,.5); cursor:pointer; }
-.btn-ghost:hover { border-color:var(--cyan); color:var(--cyan); }
-.btn-icon { background:none; border:.5px solid rgba(36,180,255,.2); border-radius:var(--r-sm); padding:.3rem .75rem; cursor:pointer; color:var(--cyan); font-size:.72rem; font-family:var(--font-mono); }
+/* grants uses padding-based btn-icon (inline label+icon), not the global square icon button */
+.btn-icon { border:.5px solid rgba(36,180,255,.2); border-radius:var(--r-sm); padding:.3rem .75rem; cursor:pointer; color:var(--cyan); font-size:.72rem; font-family:var(--font-mono); background:none; }
 .btn-icon:hover { background:rgba(36,180,255,.1); }
-.modal-overlay { position:fixed; inset:0; z-index:100; background:rgba(2,8,18,.8); backdrop-filter:blur(6px); align-items:center; justify-content:center; }
-.modal { min-width:380px; max-width:560px; width:100%; max-height:90vh; overflow-y:auto; }
 .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:.875rem; }
-.form-field { display:flex; flex-direction:column; gap:.35rem; }
-.form-field--full { grid-column:1/-1; }
-.form-label { font-family:var(--font-mono); font-size:.62rem; color:rgba(208,228,240,.4); letter-spacing:.1em; }
-.form-input { background:rgba(4,12,26,.5); border:.5px solid rgba(36,180,255,.2); border-radius:var(--r-md); padding:.55rem .875rem; font-family:var(--font-body); font-size:.82rem; color:#d0e4f0; width:100%; }
-.form-input:focus { outline:none; border-color:rgba(36,180,255,.5); }
-textarea.form-input { resize:vertical; }
 </style>

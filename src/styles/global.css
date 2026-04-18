@@ -853,6 +853,124 @@ nav.site-nav{
   letter-spacing: .1em;
 }
 
+/* ════════════════════════════════════════════════════════════
+   ADMIN / MEMBERS — shared utilities
+   Consolidated from per-page <style> blocks.
+   All selectors here are intentionally global (no Astro scope)
+   so they apply to both template-rendered AND JS-created DOM.
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Loading state ──────────────────────────────────────────── */
+.loading-msg { font-size: .75rem; color: rgba(208,228,240,.35); }
+
+/* ── Form primitives ────────────────────────────────────────── */
+.form-field       { display: flex; flex-direction: column; gap: .35rem; }
+.form-field--full { grid-column: 1/-1; }
+.form-label       { font-family: var(--font-mono); font-size: .62rem; color: rgba(208,228,240,.4); letter-spacing: .1em; }
+.form-input {
+  background: rgba(4,12,26,.5);
+  border: .5px solid rgba(36,180,255,.2);
+  border-radius: var(--r-md);
+  padding: .55rem .875rem;
+  font-family: var(--font-body); font-size: .82rem;
+  color: #d0e4f0; width: 100%;
+}
+.form-input:focus { outline: none; border-color: rgba(36,180,255,.5); }
+textarea.form-input { resize: vertical; }
+
+/* ── Buttons ────────────────────────────────────────────────── */
+.btn-small {
+  background: rgba(36,180,255,.1);
+  border: .5px solid rgba(36,180,255,.25);
+  border-radius: var(--r-sm);
+  padding: .35rem .875rem;
+  font-size: .68rem; font-family: var(--font-mono);
+  color: var(--cyan); cursor: pointer;
+  text-decoration: none; white-space: nowrap;
+}
+.btn-small:hover { background: rgba(36,180,255,.2); }
+
+.btn-icon {
+  background: none; border: .5px solid rgba(36,180,255,.2);
+  border-radius: var(--r-sm); width: 30px; height: 30px;
+  cursor: pointer; color: var(--cyan); font-size: .85rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.btn-icon:hover { background: rgba(36,180,255,.1); }
+
+/* Admin-area overrides for btn-primary / btn-ghost.
+   The global versions (above) are sized for public hero CTAs.
+   Inside .app-main we use smaller form-action variants.
+   Scoped to .app-main so public pages are unaffected.          */
+.app-main .btn-primary {
+  background: linear-gradient(135deg, var(--green), #0a9a87);
+  color: #fff; border: none; border-radius: var(--r-md);
+  padding: .65rem 1.5rem; font-size: .82rem; font-weight: 600;
+  font-family: var(--font-display); cursor: pointer;
+  transition: opacity .15s;
+  display: inline-flex; align-items: center; letter-spacing: 0;
+}
+.app-main .btn-primary:hover    { opacity: .88; text-decoration: none; color: #fff; }
+.app-main .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+
+.app-main .btn-ghost {
+  background: none; border: .5px solid rgba(36,180,255,.2);
+  border-radius: var(--r-md); padding: .5rem 1rem;
+  font-size: .78rem; font-family: var(--font-mono);
+  color: rgba(208,228,240,.5); cursor: pointer;
+}
+.app-main .btn-ghost:hover { border-color: var(--cyan); color: var(--cyan); }
+
+/* ── Filter bar ─────────────────────────────────────────────── */
+.filter-btn {
+  background: rgba(36,180,255,.05);
+  border: .5px solid rgba(36,180,255,.15);
+  border-radius: var(--r-sm); padding: .35rem .875rem;
+  font-family: var(--font-mono); font-size: .65rem;
+  color: rgba(208,228,240,.5); cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.filter-btn:hover, .filter-btn.active {
+  background: rgba(36,180,255,.15);
+  color: var(--cyan); border-color: rgba(36,180,255,.35);
+}
+
+/* ── Status pills ───────────────────────────────────────────── */
+.status-pill {
+  font-family: var(--font-mono); font-size: .6rem;
+  border: .5px solid; border-radius: 3px;
+  padding: 2px 7px; white-space: nowrap;
+  flex-shrink: 0; letter-spacing: .08em;
+}
+
+/* ── Tags and role badges ───────────────────────────────────── */
+.tag-mini { font-family: var(--font-mono); font-size: .6rem; padding: 1px 6px; background: rgba(36,180,255,.1); border-radius: 3px; color: var(--cyan); }
+.role-badge { display: inline-block; font-family: var(--font-mono); font-size: .6rem; padding: 2px 7px; border-radius: 3px; letter-spacing: .08em; }
+.role-badge--admin  { background: rgba(240,18,122,.2); color: var(--pink); }
+.role-badge--member { background: rgba(36,180,255,.1); color: var(--cyan); }
+
+/* ── Inline utility links ───────────────────────────────────── */
+.check-link       { font-family: var(--font-mono); font-size: .65rem; color: var(--cyan); text-decoration: none; }
+.check-link:hover { text-decoration: underline; }
+
+/* ── Modals ─────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(2,8,18,.8);
+  backdrop-filter: blur(6px);
+  align-items: center; justify-content: center;
+}
+/* Base modal size (content / grants / settings).
+   tracker.astro keeps its own larger override (600px max-width). */
+.modal {
+  min-width: 380px;
+  max-width: 560px;
+  width: calc(100vw - 2rem);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+
 /* ── Hide auto-injected astro-pagefind UI ────────────────────
    The integration injects its own PagefindUI component which
    we don't want. Our custom UI lives inside .search-results

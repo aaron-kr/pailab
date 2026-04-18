@@ -225,12 +225,6 @@ document.getElementById("drawer-close")?.addEventListener("click", () => {
 .student-name { font-size: .88rem; font-weight: 500; margin-bottom: 3px; }
 .student-meta { font-size: .72rem; color: rgba(208,228,240,.45); }
 .student-actions { display: flex; align-items: center; gap: .75rem; }
-.btn-icon {
-  background: none; border: .5px solid rgba(36,180,255,.2); border-radius: var(--r-sm);
-  width: 30px; height: 30px; cursor: pointer; color: var(--cyan); font-size: .85rem;
-  display: flex; align-items: center; justify-content: center;
-}
-.btn-icon:hover { background: rgba(36,180,255,.1); }
 
 .student-drawer {
   position: fixed; right: 0; top: 0; bottom: 0; width: 360px;
@@ -256,28 +250,5 @@ document.getElementById("drawer-close")?.addEventListener("click", () => {
 .drawer-field { display: flex; flex-direction: column; gap: .25rem; }
 .drawer-value { font-size: .82rem; color: rgba(208,228,240,.75); }
 
-/* Shared with other pages */
-.form-input {
-  background: rgba(4,12,26,.5);
-  border: .5px solid rgba(36,180,255,.2);
-  border-radius: var(--r-md);
-  padding: .55rem .875rem;
-  font-family: var(--font-body); font-size: .82rem;
-  color: #d0e4f0;
-}
-.form-label { font-family: var(--font-mono); font-size: .62rem; color: rgba(208,228,240,.4); letter-spacing: .1em; }
 .checklist-loading { font-size: .75rem; color: rgba(208,228,240,.35); }
-.tag-mini { font-family: var(--font-mono); font-size: .6rem; padding: 1px 6px; background: rgba(36,180,255,.1); border-radius: 3px; color: var(--cyan); }
-.check-link { font-family: var(--font-mono); font-size: .65rem; color: var(--cyan); text-decoration: none; }
-.check-link:hover { text-decoration: underline; }
-.role-badge { display: inline-block; font-family: var(--font-mono); font-size: .6rem; padding: 2px 7px; border-radius: 3px; letter-spacing: .08em; }
-.role-badge--admin  { background: rgba(240,18,122,.2); color: var(--pink); }
-.role-badge--member { background: rgba(36,180,255,.1); color: var(--cyan); }
-.btn-primary {
-  background: linear-gradient(135deg, var(--green), #0a9a87);
-  color: #fff; border: none; border-radius: var(--r-md);
-  padding: .65rem 1.5rem; font-size: .82rem; font-weight: 600;
-  font-family: var(--font-display); cursor: pointer; transition: opacity .15s;
-}
-.btn-primary:hover { opacity: .88; }
 </style>

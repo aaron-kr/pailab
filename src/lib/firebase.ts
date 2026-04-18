@@ -41,8 +41,9 @@ export const googleProvider         = new GoogleAuthProvider();
 // Role helpers
 // ----------------------------------------------------------------
 
-/** Your Google account email — the only admin. */
-export const ADMIN_EMAIL = "aaronkr.trainer@gmail.com";
+/** Admin email loaded from env — never hardcode here.
+ *  Set PUBLIC_FIREBASE_ADMIN_EMAIL in .env / Vercel env settings. */
+export const ADMIN_EMAIL = import.meta.env.PUBLIC_FIREBASE_ADMIN_EMAIL ?? "";
 
 /** Student emails or domains that get member access.
  *  Add student emails here, or use a Firestore allowlist (see auth.ts). */

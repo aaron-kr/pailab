@@ -113,12 +113,5 @@ document.getElementById("search-input")?.addEventListener("input", (e) => {
 .members-row:last-child { border-bottom: none; }
 .members-row:hover { background: rgba(36,180,255,.04); }
 .mini-avatar { width:32px; height:32px; border-radius:50%; flex-shrink:0; background:rgba(36,180,255,.15); border:.5px solid rgba(36,180,255,.25); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-size:.65rem; font-weight:700; color:var(--cyan); }
-.tag-mini { font-family:var(--font-mono); font-size:.58rem; padding:1px 5px; background:rgba(36,180,255,.1); border-radius:3px; color:var(--cyan); }
-.role-badge { display:inline-block; font-family:var(--font-mono); font-size:.6rem; padding:2px 6px; border-radius:3px; }
-.role-badge--admin  { background:rgba(240,18,122,.2); color:var(--pink); }
-.role-badge--member { background:rgba(36,180,255,.1); color:var(--cyan); }
-.form-input { background:rgba(4,12,26,.5); border:.5px solid rgba(36,180,255,.2); border-radius:var(--r-md); padding:.5rem .875rem; font-family:var(--font-body); font-size:.82rem; color:#d0e4f0; }
-.form-input:focus { outline:none; border-color:rgba(36,180,255,.5); }
-.btn-small { background:rgba(36,180,255,.1); border:.5px solid rgba(36,180,255,.25); border-radius:var(--r-sm); padding:.35rem .875rem; font-size:.68rem; font-family:var(--font-mono); color:var(--cyan); cursor:pointer; text-decoration:none; white-space:nowrap; }
 @media (max-width:800px) { .members-head span:nth-child(3), .members-row > *:nth-child(3), .members-head span:nth-child(5), .members-row > *:nth-child(5) { display:none; } .members-head, .members-row { grid-template-columns: 2fr 1.5fr 1fr; } }
 </style>

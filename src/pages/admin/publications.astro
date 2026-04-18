@@ -104,23 +104,6 @@ document.querySelectorAll(".filter-btn").forEach(btn => {
 </script>
 
 <style>
-.filter-btn {
-  background: rgba(36,180,255,.05);
-  border: .5px solid rgba(36,180,255,.15);
-  border-radius: var(--r-sm);
-  padding: .35rem .875rem;
-  font-family: var(--font-mono);
-  font-size: .65rem;
-  color: rgba(208,228,240,.5);
-  cursor: pointer;
-  transition: background .15s, color .15s;
-}
-.filter-btn:hover, .filter-btn.active {
-  background: rgba(36,180,255,.15);
-  color: var(--cyan);
-  border-color: rgba(36,180,255,.35);
-}
-
 .pub-head, .pub-row {
   display: grid;
   grid-template-columns: 3fr 1.5fr .7fr 1.1fr 1fr;
@@ -138,11 +121,9 @@ document.querySelectorAll(".filter-btn").forEach(btn => {
 .pub-year    { font-family:var(--font-mono); font-size:.75rem; color:rgba(208,228,240,.5); }
 .pub-link    { font-family:var(--font-mono); font-size:.65rem; color:var(--cyan); text-decoration:none; border:.5px solid rgba(36,180,255,.2); border-radius:3px; padding:1px 6px; }
 .pub-link:hover { background:rgba(36,180,255,.1); }
-.status-pill { font-family:var(--font-mono); font-size:.6rem; border:.5px solid; border-radius:3px; padding:2px 7px; white-space:nowrap; }
 .status-published { color:var(--green-glow); border-color:var(--green-glow); }
 .status-in-review  { color:var(--cyan);      border-color:var(--cyan); }
 .status-preprint   { color:var(--blue);      border-color:var(--blue); }
-.btn-small { background:rgba(36,180,255,.1); border:.5px solid rgba(36,180,255,.25); border-radius:var(--r-sm); padding:.35rem .875rem; font-size:.68rem; font-family:var(--font-mono); color:var(--cyan); cursor:pointer; text-decoration:none; }
 .code-inline { background:rgba(36,180,255,.1); padding:1px 5px; border-radius:3px; font-family:var(--font-mono); font-size:.78em; }
 .code-block { font-family:var(--font-mono); font-size:.72rem; color:rgba(208,228,240,.7); background:rgba(4,12,26,.5); border:.5px solid rgba(36,180,255,.15); border-radius:var(--r-md); padding:1rem; overflow-x:auto; white-space:pre; line-height:1.7; }
 

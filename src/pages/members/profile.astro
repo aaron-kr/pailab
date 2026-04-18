@@ -177,16 +177,9 @@ import ProtectedLayout from "@/layouts/ProtectedLayout.astro";
 .avatar-hint{font-size:.65rem;color:rgba(208,228,240,.3);margin-top:.5rem;line-height:1.5;}
 .btn-preview{margin-top:.75rem;background:rgba(36,180,255,.1);border:.5px solid rgba(36,180,255,.25);border-radius:var(--r-sm);padding:.4rem 1rem;font-size:.68rem;font-family:var(--font-mono);color:var(--cyan);cursor:pointer;}
 .divider{border:none;border-top:.5px solid rgba(36,180,255,.12);margin:1.25rem 0;}
-.role-badge{display:inline-block;font-family:var(--font-mono);font-size:.6rem;padding:2px 6px;border-radius:3px;}
-.role-badge--admin{background:rgba(240,18,122,.2);color:var(--pink);}
-.role-badge--member{background:rgba(36,180,255,.1);color:var(--cyan);}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.875rem;}
-.form-field{display:flex;flex-direction:column;gap:.35rem;}
-.form-field--full{grid-column:1/-1;}
-.form-label{font-family:var(--font-mono);font-size:.62rem;color:rgba(208,228,240,.4);letter-spacing:.1em;}
-.form-input{background:rgba(4,12,26,.5);border:.5px solid rgba(36,180,255,.2);border-radius:var(--r-md);padding:.55rem .875rem;font-family:var(--font-body);font-size:.82rem;color:#d0e4f0;width:100%;}
-.form-input:focus{outline:none;border-color:rgba(36,180,255,.5);}
-textarea.form-input{resize:vertical;min-height:80px;}
+/* profile textarea needs a min-height the global rule doesn't set */
+textarea.form-input{min-height:80px;}
 .toggle-row{display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
 .toggle-row input[type=checkbox]{display:none;}
 .toggle-slider{width:42px;height:22px;background:rgba(36,180,255,.15);border:.5px solid rgba(36,180,255,.25);border-radius:11px;position:relative;}
@@ -197,7 +190,5 @@ textarea.form-input{resize:vertical;min-height:80px;}
 .save-status--ok{color:var(--green-glow);}
 .save-status--error{color:var(--pink);}
 .save-status--muted{color:rgba(208,228,240,.4);}
-.btn-primary{background:linear-gradient(135deg,var(--green),#0a9a87);color:#fff;border:none;border-radius:var(--r-md);padding:.65rem 1.5rem;font-size:.82rem;font-weight:600;font-family:var(--font-display);cursor:pointer;}
-.btn-primary:disabled{opacity:.4;cursor:not-allowed;}
 @media(max-width:720px){.profile-grid{grid-template-columns:1fr;}.form-grid{grid-template-columns:1fr;}}
 </style>
