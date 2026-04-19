@@ -8,7 +8,7 @@
     "preview": "astro preview",
     "check": "astro check",
     "typecheck": "astro check",
-    "lint:css": "stylelint src/styles/global.css",
+    "lint:css": "stylelint src/styles/global.css --fix",
     "prepare": "husky"
   },
   "lint-staged": {
