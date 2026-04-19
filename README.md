@@ -19,9 +19,14 @@ npm install
 cp .env.example .env
 
 npm run dev        # → http://localhost:4321
-npm run build      # production build + Pagefind index
+npm run build      # astro check + production build + Pagefind index
 npm run preview    # preview production build locally
+npm run check      # Astro type check only
+npm run typecheck  # TypeScript check only
+npm run lint:css   # Stylelint (src/styles/global.css)
 ```
+
+Pre-commit hooks (Husky) run Stylelint automatically on every commit. CI runs TypeScript + Astro check + Stylelint on every push to `main`.
 
 ---
 

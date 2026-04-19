@@ -148,8 +148,9 @@ Pagefind runs as a with `astro build`. There is a double-UI bug (inserting its o
 
 **`package.json` build script:**
 ```json
-"build": "astro build"
+"build": "astro check && astro build"
 ```
+Type errors now block the production build. Fix all `astro check` errors before running `npm run build`.
 
 The index is generated into `dist/pagefind/` and served as static files. `SiteSearch.astro` loads `pagefind-ui.js` via a runtime-injected `<script>` tag (not `import()`) to bypass Vite's static analysis.
 
@@ -268,6 +269,43 @@ Topics: Mapping PAI Landscape, Sim-to-Real, Edge Vision, Gesture Arm, Physical L
 - [x] Nav login → profile avatar + dropdown when authenticated
 - [x] Admin email moved to `PUBLIC_FIREBASE_ADMIN_EMAIL` env var (no hardcoded secrets)
 - [x] CSS consolidated from per-page `<style>` blocks into `global.css`
+
+---
+
+## Code quality
+
+**Astro check** — runs as part of `npm run build` (`astro check && astro build`). Type-checks all `.astro` files. Also available as `npm run check` standalone.
+
+**TypeScript** — `npm run typecheck` runs `tsc --noEmit --noUnusedLocals --noUnusedParameters`. Enforces no unused imports.
+
+**Stylelint** — `.stylelintrc.json`. Checks `src/styles/global.css`. `no-descending-specificity` disabled.
+
+**Pre-commit (Husky + lint-staged)** — runs Stylelint `--fix` on `*.css` before every commit.
+
+**GitHub Actions CI** — `.github/workflows/lint.yml`. TypeScript → Astro check → Stylelint on every push/PR to `main`.
+
+```bash
+npm run check         # astro check only
+npm run typecheck     # tsc --noEmit
+npm run lint:css      # Stylelint over src/styles/global.css
+```
+
+**History (April 2026):** Fixed unused `redirect` destructure in `middleware.ts`; duplicate `.project-body` / `.project-desc` selectors scoped under `.projects-list` to eliminate homepage style conflicts; RSS feed type error (`note.data.description` → `note.data.summary`); `areaMap` using non-existent `a.data.slug` removed from `notes/index.astro`.
+
+**CSS note:** `.project-body` and `.project-desc` appear twice in `global.css` — this is intentional. The bare selectors are compact styles for the homepage grid. The `.projects-list`-scoped versions at line ~1060 are the fuller styles for the `/projects` page. Do not merge them.
+
+---
+
+## AI-assisted development
+
+When using Claude Code or any AI assistant on this codebase:
+
+- **`npm run build` runs `astro check` first** — type errors block deployment. Fix them before pushing.
+- **CI enforces quality on every push** — TypeScript → Astro check → Stylelint. All three must pass before a branch can merge.
+- **Never add `slug` to content collection schemas** — Astro generates it from the filename. Use `entry.slug`, never `entry.data.slug`. This bug has appeared multiple times (see Known bugs table).
+- **Firebase page script pattern is critical** — use `pailab:auth-ready` event to get `db`. Never `import { app }` in page scripts — causes double initialization and silent Firestore failures.
+- **Run `astro check` on `src/` only** — do not point it at `dist/` (minified Firebase SDK generates thousands of false warnings).
+- **Keep CLAUDE.md current** — if a new collection, Firestore path, or page pattern is added, document it here so future AI sessions don't rediscover it the hard way.
 
 ---
 
