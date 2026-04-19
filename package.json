@@ -7,7 +7,7 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "astro check",
     "lint:css": "stylelint src/styles/global.css",
     "prepare": "husky"
   },

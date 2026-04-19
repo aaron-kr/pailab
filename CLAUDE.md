@@ -276,7 +276,7 @@ Topics: Mapping PAI Landscape, Sim-to-Real, Edge Vision, Gesture Arm, Physical L
 
 **Astro check** — runs as part of `npm run build` (`astro check && astro build`). Type-checks all `.astro` files. Also available as `npm run check` standalone.
 
-**TypeScript** — `npm run typecheck` runs `tsc --noEmit --noUnusedLocals --noUnusedParameters`. Enforces no unused imports.
+**TypeScript** — `npm run typecheck` runs `tsc --noEmit --noUnusedLocals --noUnusedParameters`. Enforces no unused imports. _NOT correct. Astro uses virtual modules (astro:content, astro:middleware) and Vite's import.meta.env that only exist inside Astro's own build context. Therefore, the correct implementation is `astro check`._
 
 **Stylelint** — `.stylelintrc.json`. Checks `src/styles/global.css`. `no-descending-specificity` disabled.
 
@@ -286,7 +286,7 @@ Topics: Mapping PAI Landscape, Sim-to-Real, Edge Vision, Gesture Arm, Physical L
 
 ```bash
 npm run check         # astro check only
-npm run typecheck     # tsc --noEmit
+npm run typecheck     # astro check only - tsc --noEmit cannot be used
 npm run lint:css      # Stylelint over src/styles/global.css
 ```
 
