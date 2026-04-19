@@ -6,7 +6,7 @@
 import { defineMiddleware } from "astro:middleware";
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  const { url, redirect } = context;
+  const { url } = context;
   const path = url.pathname;
 
   // Only intervene on /ko/ paths

@@ -16,7 +16,7 @@ export async function GET(context: APIContext) {
     site: context.site ?? "https://pailab.io",
     items: notes.map((note) => ({
       title: note.data.title,
-      description: note.data.summary ?? note.data.description ?? "",
+      description: note.data.summary ?? "",
       pubDate: new Date(note.data.pubDate),
       link: `/notes/${note.slug}/`,
       categories: note.data.tags ?? [],

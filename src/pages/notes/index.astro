@@ -14,9 +14,6 @@ const [notes, areas] = await Promise.all([
   getCollection("areas").then(as => as.sort((a, b) => a.data.order - b.data.order)),
 ]);
 
-// Build category → area map for colored chips
-const areaMap = new Map(areas.map(a => [a.data.slug, a]));
-
 // All unique tags across all notes
 const allTags = Array.from(new Set(notes.flatMap(n => n.data.tags ?? []))).sort();
 
