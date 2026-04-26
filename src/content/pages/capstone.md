@@ -1,12 +1,12 @@
 ---
-layout: page
-title: Capstone
-permalink: /capstone/
-description: Information about Capstone Design projects.
-nav: true
-nav_order: 2
-display_categories: [work, fun]
-horizontal: false
+title: "Working on Capstone Design Projects"
+title_ko: "캡스톤 디자인 프로젝트 진행"
+description: "A practical guide to planning, executing, and presenting capstone design projects in the lab."
+description_ko: "캡스톤 디자인 프로젝트의 기획, 구현, 발표 과정을 안내합니다."
+eyebrow: "RESOURCES · CAPSTONE"
+show_in_nav: true
+nav_label: "Capstone"
+order: 1
 ---
 
 # Capstone Projects
