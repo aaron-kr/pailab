@@ -1,0 +1,104 @@
+---
+// src/pages/pages/[slug].astro
+// Static content pages — URL: /pages/arduino-overview
+// Link in nav via Nav.astro NAV array or add as standalone links.
+// Parent/child relationship via `parent_page` frontmatter (slug of parent).
+import { getCollection, type CollectionEntry } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageHeader from "@/components/PageHeader.astro";
+
+export async function getStaticPaths() {
+  const allPages = await getCollection("pages");
+  return allPages.map((page) => ({
+    params: { slug: page.slug },
+    props:  { page },
+  }));
+}
+
+interface Props {
+  page: CollectionEntry<"pages">;
+}
+
+const { page } = Astro.props;
+const lang = "en";
+
+const { Content } = await page.render();
+
+// Resolve parent page for breadcrumb
+let parentPage: CollectionEntry<"pages"> | undefined;
+if (page.data.parent_page) {
+  const allPages = await getCollection("pages");
+  parentPage = allPages.find((p) => p.slug === page.data.parent_page);
+}
+
+// Resolve child pages
+const allPages = await getCollection("pages");
+const childPages = allPages
+  .filter((p) => p.data.parent_page === page.slug)
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout
+  title={`${page.data.title} — PAI Lab`}
+  description={page.data.description ?? page.data.title}
+  lang={lang}
+  privatePage={page.data.private}
+>
+  <PageHeader
+    title={page.data.title}
+    eyebrow={page.data.eyebrow ?? "PAGES"}
+    description={page.data.description ?? ""}
+    size="md"
+  />
+
+  <main class="page-content">
+    <div class="container">
+
+      <!-- Breadcrumb -->
+      {parentPage && (
+        <nav class="page-breadcrumb" aria-label="Breadcrumb">
+          <a href="/pages">Pages</a>
+          <span class="crumb-sep">›</span>
+          <a href={`/pages/${parentPage.slug}`}>{parentPage.data.title}</a>
+          <span class="crumb-sep">›</span>
+          <span>{page.data.title}</span>
+        </nav>
+      )}
+
+      <div class="page-detail-grid">
+
+        <!-- Sidebar: child pages (if any) -->
+        {childPages.length > 0 && (
+          <aside class="page-sidebar">
+            <p class="page-sidebar-label">IN THIS SECTION</p>
+            <ul class="page-child-list">
+              {childPages.map(child => (
+                <li>
+                  <a href={`/pages/${child.slug}`} class="page-child-link">
+                    {child.data.nav_label ?? child.data.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            {parentPage && (
+              <a href={`/pages/${parentPage.slug}`} class="btn-slide btn-slide-green"
+                style="display:inline-flex; margin-top:1rem; font-size:.72rem;">
+                ← {parentPage.data.title}
+              </a>
+            )}
+          </aside>
+        )}
+
+        <!-- Main prose content -->
+        <article class={`prose page-body${childPages.length > 0 ? " has-sidebar" : ""}`}>
+          {page.data.description_ko && (
+            <p class="ko-description">{page.data.description_ko}</p>
+          )}
+          <Content />
+        </article>
+
+      </div>
+
+    </div>
+  </main>
+</BaseLayout>

@@ -2,10 +2,12 @@
 // src/pages/curriculum.astro
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
-import { getCollection } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
 
 const lang = "en" as const;
-const tracks = (await getCollection("curriculum")).sort((a,b) => a.data.order - b.data.order);
+const tracks = (await getCollection("curriculum")).sort(
+  (a: CollectionEntry<"curriculum">, b: CollectionEntry<"curriculum">) => a.data.order - b.data.order
+);
 
 const levelColor: Record<string, string> = {
   beginner:     "var(--green-glow)",
@@ -26,7 +28,8 @@ const levelLabel: Record<string, string> = {
   <div class="curriculum-list container page-content">
     <div class="track-grid">
       {tracks.map(track => (
-        <div class="track-card card" data-private={track.data.private ? "true" : undefined}>
+        <a href={`/curriculum/${track.slug}`} class="track-card card"
+          data-private={track.data.private ? "true" : undefined}>
           <!-- Top color bar (slides in on hover via CSS) -->
           <div class="track-bar" style={`--bar-color: ${levelColor[track.data.level] ?? "var(--cyan)"}`}></div>
 
@@ -48,7 +51,7 @@ const levelLabel: Record<string, string> = {
               {track.data.bilingual && <span class="tag accent">EN · 한국어</span>}
             </div>
           </div>
-        </div>
+        </a>
       ))}
     </div>
   </div>

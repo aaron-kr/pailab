@@ -54,6 +54,41 @@ const curriculum = defineCollection({
   }),
 });
 
+const units = defineCollection({
+  type: "content",
+  schema: z.object({
+    title:          z.string(),
+    title_ko:       z.string().optional(),
+    track:          z.string(),          // matches curriculum track slug (e.g. "track-05-arduino")
+    unit_number:    z.number(),
+    description:    z.string().optional(),
+    description_ko: z.string().optional(),
+    duration:       z.string().optional(),
+    image:          z.string().optional(),
+    objectives:     z.array(z.string()).default([]),
+    order:          z.number().default(99),
+    private:        z.boolean().default(false),
+  }),
+});
+
+const pages = defineCollection({
+  type: "content",
+  schema: z.object({
+    title:          z.string(),
+    title_ko:       z.string().optional(),
+    description:    z.string().optional(),
+    description_ko: z.string().optional(),
+    parent_page:    z.string().optional(),  // slug of parent page for breadcrumb + child nav
+    eyebrow:        z.string().optional(),
+    nav_label:      z.string().optional(),  // shorter label if shown in nav
+    nav_label_ko:   z.string().optional(),
+    show_in_nav:    z.boolean().default(false),
+    nav_order:      z.number().default(99),
+    order:          z.number().default(99),
+    private:        z.boolean().default(false),
+  }),
+});
+
 const projects = defineCollection({
   type: "content",
   schema: z.object({
@@ -118,4 +153,4 @@ const areas = defineCollection({
   }),
 });
 
-export const collections = { research, curriculum, projects, modules, notes, areas };
+export const collections = { research, curriculum, units, pages, projects, modules, notes, areas };

@@ -22,7 +22,11 @@ const lang = "en" as const;
       <!-- Profile column -->
       <div class="about-profile">
         <div class="profile-img-wrap">
-          <div class="profile-placeholder">AS</div>
+          <img
+            src="https://res.cloudinary.com/dobann7wi/image/upload/q_auto/f_auto/v1776419032/default_ps8fsj.jpg"
+            alt="Aaron Snowberger"
+            style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;border-radius:inherit"
+          />
         </div>
 
         <p style="font-size:.9rem; font-weight:600; margin-bottom:2px; color:var(--text);">
@@ -41,10 +45,10 @@ const lang = "en" as const;
         </div>
       </div>
 
-      <!-- Bio column -->
+      <!-- Bio column — sourced from aaronsnowberger.com/_data/bio.yml (bios[1] medium) -->
       <div>
-        <p style="font-size:.95rem; line-height:1.85; margin-bottom:1.25rem; color:var(--text);">
-          {t(lang, "about_body")}
+        <p style="font-size:.95rem; line-height:1.85; margin-bottom:1.25rem; color:var(--text);"
+           set:html={t(lang, "about_body")}>
         </p>
 
         <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:2rem;">

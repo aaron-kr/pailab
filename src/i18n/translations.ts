@@ -29,11 +29,20 @@ export const translations = {
     sec_notes:       "Notes",
     sec_about:       "About",
 
-    // About
+    // About — bio sourced from aaronsnowberger.com/_data/bio.yml (bios[1] medium)
     about_pi_role:   "Principal Investigator",
-    about_body:      "The Physical AI Laboratory is an independent research group focused on the intersection of machine learning, embedded systems, and physical world interaction. Based in Jeonju, Korea, the lab supports multiple university partnerships and is committed to open, reproducible research.",
+    about_body:      "Aaron Snowberger is an American AI researcher and computer science educator based in Jeonju, South Korea, where he lectures at five universities. He holds a Ph.D. in Information and Communications Engineering (specializing in Computer Vision and AI), an MFA in Media Design, and a B.S. in Computer Science. His research sits at the intersection of Physical AI, computer vision, and CS education — with a focus on handwritten character recognition, digital twin simulation, and cross-cultural technology pedagogy. He is a co-founding member of the Korea Society for Physical AI (KSPAI).",
     about_affiliated: "Affiliated institutions",
     about_naver:     "Naver blog (KR)",
+
+    // Curriculum / units
+    nav_units:       "Units",
+    unit_back_track: "← Back to track",
+    unit_back_all:   "All tracks",
+    unit_objectives: "OBJECTIVES",
+
+    // Pages
+    nav_pages:       "Pages",
 
     // Status pills
     status_published: "Published",
@@ -75,9 +84,16 @@ export const translations = {
     sec_about:       "소개",
 
     about_pi_role:   "책임 연구원",
-    about_body:      "피지컬 AI 연구소는 기계 학습, 임베디드 시스템, 물리 세계 상호작용의 교차점을 연구하는 독립 연구 그룹입니다. 전주에 기반을 두고 여러 대학과 협력하며 개방적이고 재현 가능한 연구를 지향합니다.",
+    about_body:      "에런 스노버거 박사는 전주 소재 5개 대학에서 강의하는 미국인 AI 연구자이자 컴퓨터공학 교육자입니다. 정보통신공학 박사(컴퓨터 비전·AI 전공), 미디어 디자인 석사, 컴퓨터공학 학사 학위를 보유하고 있습니다. 피지컬 AI, 컴퓨터 비전, CS 교육의 교차점을 연구하며, 한국 피지컬 AI 학회(KSPAI) 공동 창립 멤버입니다.",
     about_affiliated: "관련 기관",
     about_naver:     "네이버 블로그",
+
+    nav_units:       "단원",
+    unit_back_track: "← 트랙으로 돌아가기",
+    unit_back_all:   "전체 트랙",
+    unit_objectives: "학습 목표",
+
+    nav_pages:       "페이지",
 
     status_published: "게시됨",
     status_active:    "진행 중",

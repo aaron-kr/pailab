@@ -68,7 +68,11 @@ pailab/
 │   │   ├── config.ts              ← Zod schemas for all collections
 │   │   ├── areas/                 ← one .md per research area (8 areas)
 │   │   ├── research/              ← one .md per paper
-│   │   ├── curriculum/            ← one .md per track
+│   │   ├── curriculum/            ← one .md per track (links to unit grid)
+│   │   ├── units/                 ← one .md per lesson, nested by track slug
+│   │   │   ├── track-05-arduino/  ←   8 Arduino units
+│   │   │   └── track-06-esp32/    ←   8 ESP32/IoT units
+│   │   ├── pages/                 ← freeform static pages (/pages/[slug])
 │   │   ├── projects/              ← one .md per project
 │   │   ├── modules/               ← one .md per plug-in module
 │   │   └── notes/                 ← blog posts (MDX supported)
@@ -102,7 +106,11 @@ pailab/
 │   │   │   └── category/
 │   │   │       └── [category].astro
 │   │   ├── curriculum/
-│   │   │   └── [slug].astro       ← curriculum track detail pages
+│   │   │   ├── [slug].astro       ← track detail + unit card grid
+│   │   │   └── [trackSlug]/
+│   │   │       └── [unitSlug].astro ← individual unit/lesson pages
+│   │   ├── pages/
+│   │   │   └── [slug].astro       ← freeform content pages
 │   │   ├── projects/
 │   │   │   └── [slug].astro
 │   │   ├── admin/
@@ -125,7 +133,9 @@ pailab/
 │   │       ├── join.astro         ← redirects to EN + shows banner
 │   │       ├── rss.xml.ts         ← KO RSS feed
 │   │       ├── curriculum/
-│   │       │   └── [slug].astro
+│   │       │   ├── [slug].astro
+│   │       │   └── [trackSlug]/
+│   │       │       └── [unitSlug].astro
 │   │       └── notes/
 │   │           ├── index.astro
 │   │           └── [slug].astro
@@ -342,6 +352,9 @@ Do not include `slug` in any content collection schema. Use `entry.slug` (not `e
 
 ### Completed (April 2026)
 - [x] Curriculum track detail pages (`/curriculum/[slug]`, EN + KO)
+- [x] Unit detail pages (`/curriculum/[track]/[unit]`, EN + KO)
+- [x] Arduino (Track 05) + ESP32 (Track 06) curriculum tracks with 8 units each
+- [x] Freeform `pages` collection (`/pages/[slug]`) with parent/child hierarchy
 - [x] RSS feeds (`/rss.xml` EN, `/ko/rss.xml` KO)
 - [x] Pagefind full-text search (`/search` + nav overlay)
 - [x] Mobile hamburger menu
@@ -351,3 +364,5 @@ Do not include `slug` in any content collection schema. Use `entry.slug` (not `e
 - [x] `private: true` frontmatter support — hides content from public, reveals on login
 - [x] Nav login button → profile avatar + dropdown when authenticated (Firebase Auth)
 - [x] Admin email moved from hardcoded to `PUBLIC_FIREBASE_ADMIN_EMAIL` env var
+- [x] Profile image updated to Cloudinary portrait (about page + homepage)
+- [x] Bio text updated from aaronsnowberger.com `_data/bio.yml` (medium bio)

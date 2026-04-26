@@ -54,12 +54,28 @@ All static content in `src/content/` (Markdown files):
 |---|---|---|
 | `areas` | `content/areas/` | Links to `/notes/category/[slug]` |
 | `research` | `content/research/` | `/research` (list), no individual pages |
-| `curriculum` | `content/curriculum/` | `/curriculum` (list) + `/curriculum/[slug]` (detail) |
+| `curriculum` | `content/curriculum/` | `/curriculum` (list) + `/curriculum/[slug]` (detail with unit grid) |
+| `units` | `content/units/[track-slug]/` | `/curriculum/[track-slug]/[unit-slug]` |
 | `projects` | `content/projects/` | `/projects` + `/projects/[slug]` |
 | `modules` | `content/modules/` | `/modules` (list only) |
 | `notes` | `content/notes/` | `/notes` + `/notes/[slug]` |
+| `pages` | `content/pages/` | `/pages/[slug]` (freeform static pages) |
+
+**Curriculum → Units → Lessons hierarchy:**
+- `src/content/curriculum/track-05-arduino.md` → `/curriculum/track-05-arduino`  
+- `src/content/units/track-05-arduino/unit-01-intro.md` → `/curriculum/track-05-arduino/unit-01-intro`
+- Unit files use `track: "track-05-arduino"` frontmatter to associate with their parent track.
+- The track detail page queries units where `unit.data.track === track.slug`.
+
+**Pages collection:**
+- Freeform static content pages at `/pages/[slug]`
+- `parent_page: "slug"` creates breadcrumb navigation and shows a sidebar child list on the parent
+- `show_in_nav: true` signals intent to add the page to the nav (still requires manual NAV array edit)
+- See `ADDING_CONTENT.md` for full instructions including how to add pages to the nav
 
 **Critical schema note:** Do NOT put `slug` in any content collection schema. Astro auto-generates it from the filename. Use `entry.slug`, never `entry.data.slug`.
+
+**Units slug pattern:** Unit files in subdirectories produce compound slugs: `track-05-arduino/unit-01-intro`. Split with `unit.slug.split("/")` to get `[trackSlug, unitSlug]` for routing.
 
 ---
 
@@ -257,8 +273,9 @@ Topics: Mapping PAI Landscape, Sim-to-Real, Edge Vision, Gesture Arm, Physical L
 - [ ] Mobile hamburger nav menu refinements (currently functional, may need polish)
 - [ ] SiteSearch modal works, but has a double-injected input field. Removing pagefind's injected input field disables Search.
 - [ ] The full `/search` page has a single input field, but does not return results.
+- [ ] Pre-existing implicit-any TypeScript errors in `index.astro` (IDE reports them; `astro check` behavior pending verification)
 
-### Recently completed
+### Recently completed (April 2026)
 - [x] Curriculum track detail pages `/curriculum/[slug]` (EN + KO)
 - [x] RSS feeds (EN `/rss.xml` + KO `/ko/rss.xml`)
 - [x] Pagefind search (`/search` page + compact nav trigger)
@@ -269,6 +286,11 @@ Topics: Mapping PAI Landscape, Sim-to-Real, Edge Vision, Gesture Arm, Physical L
 - [x] Nav login → profile avatar + dropdown when authenticated
 - [x] Admin email moved to `PUBLIC_FIREBASE_ADMIN_EMAIL` env var (no hardcoded secrets)
 - [x] CSS consolidated from per-page `<style>` blocks into `global.css`
+- [x] `units` collection + `/curriculum/[track]/[unit]` routing (EN + KO) — unit cards on track detail page
+- [x] `pages` collection + `/pages/[slug]` routing — parent/child hierarchy, optional nav linking
+- [x] Arduino (Track 05) + ESP32 (Track 06) curriculum tracks with 8 units each
+- [x] Profile image updated to Cloudinary portrait URL (bio.yml portrait_src) — about page + homepage
+- [x] Bio text updated from aaronsnowberger.com `_data/bio.yml` medium bio (bios[1])
 
 ---
 

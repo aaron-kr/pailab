@@ -36,9 +36,11 @@ See **FIREBASE_SETUP.md** for step-by-step instructions. Summary:
 
 ## Admin account
 
-The admin email is hardcoded in `src/lib/firebase.ts`:
+The admin email is pulled into `src/lib/firebase.ts` via an `.env` variable (private):
 ```typescript
-export const ADMIN_EMAIL = "aaronkr.trainer@gmail.com";
+/** Admin email loaded from env — never hardcode here.
+ *  Set PUBLIC_FIREBASE_ADMIN_EMAIL in .env / Vercel env settings. */
+export const ADMIN_EMAIL = import.meta.env.PUBLIC_FIREBASE_ADMIN_EMAIL ?? "";
 ```
 
 On first login, your Firestore user document is created with `role: "member"`. To upgrade to admin:

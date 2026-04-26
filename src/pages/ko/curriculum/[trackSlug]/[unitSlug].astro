@@ -1,0 +1,100 @@
+---
+// src/pages/ko/curriculum/[trackSlug]/[unitSlug].astro
+// KO unit detail page — URL: /ko/curriculum/track-05-arduino/unit-01-intro
+import { getCollection, type CollectionEntry } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageHeader from "@/components/PageHeader.astro";
+
+export async function getStaticPaths() {
+  const allUnits = await getCollection("units");
+  return allUnits.map((unit) => {
+    const [trackSlug, unitSlug] = unit.slug.split("/");
+    return {
+      params: { trackSlug, unitSlug },
+      props: { unit },
+    };
+  });
+}
+
+interface Props {
+  unit: CollectionEntry<"units">;
+}
+
+const { unit } = Astro.props;
+const lang = "ko";
+
+const title    = unit.data.title_ko ?? unit.data.title;
+const desc     = unit.data.description_ko ?? unit.data.description ?? unit.data.title;
+const trackSlug = unit.data.track;
+
+const { Content } = await unit.render();
+
+const allTracks = await getCollection("curriculum");
+const track = allTracks.find((t) => t.slug === unit.data.track);
+const trackTitle = track?.data.title_ko ?? track?.data.title ?? trackSlug;
+---
+
+<BaseLayout
+  title={`${title} — PAI Lab`}
+  description={desc}
+  lang={lang}
+  privatePage={unit.data.private}
+>
+  <PageHeader
+    title={title}
+    eyebrow={`단원 ${unit.data.unit_number}`}
+    description={desc}
+    size="md"
+  />
+
+  <main class="page-content">
+    <div class="container">
+      <div class="unit-detail-grid">
+
+        <aside class="curriculum-meta-sidebar">
+          <div class="curriculum-meta-card">
+            <div class="meta-row">
+              <span class="meta-label">단원</span>
+              <span class="meta-value">{unit.data.unit_number}</span>
+            </div>
+            {unit.data.duration && (
+              <div class="meta-row">
+                <span class="meta-label">소요 시간</span>
+                <span class="meta-value">{unit.data.duration}</span>
+              </div>
+            )}
+            <div class="meta-row">
+              <span class="meta-label">트랙</span>
+              <span class="meta-value" style="font-size:.65rem;">{trackTitle}</span>
+            </div>
+          </div>
+
+          {unit.data.objectives.length > 0 && (
+            <div class="unit-objectives">
+              <p class="unit-obj-label">학습 목표</p>
+              <ul class="unit-obj-list">
+                {unit.data.objectives.map(obj => <li>{obj}</li>)}
+              </ul>
+            </div>
+          )}
+
+          <div style="display:flex; flex-direction:column; gap:8px; margin-top:1.25rem;">
+            <a href={`/ko/curriculum/${trackSlug}`} class="btn-slide btn-slide-green"
+              style="display:inline-flex; font-size:.72rem;">
+              ← 트랙으로 돌아가기
+            </a>
+            <a href="/ko/curriculum" class="btn-slide"
+              style="display:inline-flex; font-size:.72rem; border-color:var(--border);">
+              전체 트랙
+            </a>
+          </div>
+        </aside>
+
+        <article class="prose unit-body">
+          <Content />
+        </article>
+
+      </div>
+    </div>
+  </main>
+</BaseLayout>

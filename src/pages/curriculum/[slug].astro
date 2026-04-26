@@ -1,11 +1,12 @@
 ---
+// src/pages/curriculum/[slug].astro
 import { getCollection, type CollectionEntry } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
 
 export async function getStaticPaths() {
   const tracks = await getCollection("curriculum");
-  return tracks.map((track) => ({
+  return tracks.map((track: CollectionEntry<"curriculum">) => ({
     params: { slug: track.slug },
     props: { track },
   }));
@@ -19,6 +20,12 @@ const { track } = Astro.props;
 const lang = "en";
 
 const { Content } = await track.render();
+
+// Load units for this track, ordered by `order` field
+const allUnits = await getCollection("units");
+const trackUnits = allUnits
+  .filter((u) => u.data.track === track.slug)
+  .sort((a, b) => a.data.order - b.data.order);
 
 const levelColors: Record<string, string> = {
   beginner:     "ok",
@@ -76,15 +83,48 @@ const levelBadgeColor = levelColors[track.data.level] ?? "";
         </aside>
 
         <!-- Main content -->
-        <article class="prose curriculum-body">
-          {track.data.description_ko && (
-            <p class="ko-description">{track.data.description_ko}</p>
+        <div class="curriculum-body-wrap">
+          <article class="prose curriculum-body">
+            {track.data.description_ko && (
+              <p class="ko-description">{track.data.description_ko}</p>
+            )}
+            <Content />
+          </article>
+
+          <!-- Unit grid -->
+          {trackUnits.length > 0 && (
+            <div class="unit-section">
+              <h2 class="unit-section-title">Units</h2>
+              <div class="unit-grid">
+                {trackUnits.map((unit) => {
+                  const [trackSlug, unitSlug] = unit.slug.split("/");
+                  return (
+                    <a href={`/curriculum/${trackSlug}/${unitSlug}`} class="unit-card">
+                      <div class="unit-img">
+                        {unit.data.image
+                          ? <img src={unit.data.image} alt={unit.data.title} />
+                          : <div class="unit-img-placeholder"><span class="unit-num-badge">{unit.data.unit_number}</span></div>
+                        }
+                      </div>
+                      <div class="unit-card-body">
+                        <span class="unit-num-label">UNIT {unit.data.unit_number}</span>
+                        <h3 class="unit-card-title">{unit.data.title}</h3>
+                        {unit.data.description && (
+                          <p class="unit-card-desc">{unit.data.description}</p>
+                        )}
+                        {unit.data.duration && (
+                          <span class="tag" style="margin-top:auto;">{unit.data.duration}</span>
+                        )}
+                      </div>
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
           )}
-          <Content />
-        </article>
+        </div>
 
       </div>
     </div>
   </main>
 </BaseLayout>
-

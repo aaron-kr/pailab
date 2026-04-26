@@ -48,3 +48,4 @@ For the most part, research papers (in the sciences) follow this pattern:
 6. Not listing study Limitations nor Future Directions in the `Conclusion.`
 7. Not following the paper format provided by the Academic Society or Journal.
 8. Not following the paper's correct citation format (usually outlined in the template). Societies do not all accept MLA, APA, nor IEEE format for citations. Some want a modified form. Always check what the template says.
+9. Writing for the wrong audience or the wrong location. A conference paper should be short and to the point. A journal article should include all the minute details of your work.

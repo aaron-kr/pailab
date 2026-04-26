@@ -102,20 +102,130 @@ Full project description in Markdown. This appears on the individual project pag
 
 ## Curriculum Tracks (`src/content/curriculum/`)
 
+Tracks appear on the `/curriculum` page as linked cards. Each card leads to the track detail page
+which shows the track overview and a grid of its units.
+
 ```markdown
 ---
 title: "Track 01: Physical AI Foundations"
 title_ko: "트랙 01: 피지컬 AI 기초"
-track: "01"            # track number string
+track: "01"            # track number string (displayed as "TRACK 01")
 level: "beginner"      # beginner | intermediate | advanced | open
-units: 8               # number of course units
+units: 8               # number of course units (informational — actual count from unit files)
 bilingual: true        # true = shows EN · 한국어 badge
 description: "English description shown on curriculum page."
 description_ko: "한국어 설명."             # optional
-order: 1               # display order
+order: 1               # display order on /curriculum list
 ---
 
 Optional extended description or syllabus outline in Markdown.
+```
+
+**URL:** `/curriculum/[filename-without-md]`  
+The filename becomes the slug — use kebab-case like `track-05-arduino`.
+
+---
+
+## Curriculum Units (`src/content/units/[track-slug]/`)
+
+Units live inside a subdirectory named after their parent track slug (e.g. `track-05-arduino`).
+The subdirectory name must match the `track` field exactly.
+
+**URL:** `/curriculum/[track-slug]/[unit-slug]`  
+Example: `src/content/units/track-05-arduino/unit-03-analog-io.md` → `/curriculum/track-05-arduino/unit-03-analog-io`
+
+```markdown
+---
+title: "Analog I/O: Sensors and PWM Output"
+title_ko: "아날로그 입출력: 센서와 PWM"
+track: "track-05-arduino"   # MUST match the parent curriculum file's slug (filename)
+unit_number: 3               # shown as "UNIT 3" in the header and sidebar
+description: "One-sentence description for the unit card and page header."
+description_ko: "한국어 설명."           # optional
+duration: "1.5 hours"        # optional — shown as a tag on the unit card
+image: "/images/units/analog-io.jpg"   # optional thumbnail (16:9 ratio recommended)
+                                        # place in /public/images/units/
+objectives:                  # optional — shown in sidebar on unit detail page
+  - "Read analog values with analogRead()"
+  - "Generate PWM with analogWrite()"
+order: 3                     # display order within the track (lower = first)
+---
+
+Full unit content in Markdown. Code blocks, tables, headings, etc. all render normally.
+```
+
+**To add a unit image:** place a 16:9 image in `/public/images/units/` and set `image: "/images/units/filename.jpg"` in frontmatter. Without an image, a placeholder with the unit number is shown.
+
+---
+
+## Course Plug-in Modules (`src/content/modules/`)
+
+```markdown
+---
+title: "Sensor Fusion for IoT Courses"
+title_ko: "IoT 과목용 센서 융합"
+course_tag: "IoT"      # short label shown as the course type badge
+duration: "2 weeks"
+description: "English description."
+description_ko: "한국어 설명."
+order: 1
+---
+
+Extended module description in Markdown.
+```
+
+---
+
+## Static Pages (`src/content/pages/`)
+
+Pages are freeform content pages — use them for resources, overviews, guides, or any content that
+doesn't fit notes (blog) or curriculum. They live at `/pages/[slug]`.
+
+```markdown
+---
+title: "Arduino at PAI Lab"
+title_ko: "PAI Lab의 아두이노"            # optional Korean title
+description: "One-sentence description for SEO and page header."
+description_ko: "한국어 설명."            # optional
+eyebrow: "RESOURCES · ARDUINO"           # optional label above the title
+parent_page: "arduino-overview"          # optional — slug of a parent page
+                                         # creates breadcrumb + sidebar child list
+show_in_nav: false                       # true = can be added to nav (see below)
+nav_label: "Arduino"                     # shorter nav label (optional)
+nav_label_ko: "아두이노"                  # optional
+nav_order: 1                             # order within nav group (optional)
+order: 1                                 # display order if listed with siblings
+private: false                           # true = hidden from public
+---
+
+Full page content in Markdown.
+```
+
+**URL:** `/pages/[filename-without-md]`
+
+**Parent / child pages:**  
+Set `parent_page: "parent-slug"` on child pages. The parent page shows a sidebar listing all
+its children. The child page shows a breadcrumb `Pages › Parent › Current`.
+
+**Adding a page to the navigation:**  
+1. Set `show_in_nav: true` in the page frontmatter
+2. Edit `src/components/Nav.astro` and add a link to the `NAV` array:
+
+```typescript
+// Add to an existing dropdown (e.g., "Learn"):
+{ label: "Arduino", href: `${p}/pages/arduino-overview` }
+
+// Or add a new top-level item:
+{ label: "Resources", href: `${p}/pages/arduino-overview` }
+
+// Or add a dropdown group:
+{
+  label: "Resources",
+  items: [
+    { label: "Arduino",  href: `${p}/pages/arduino-overview` },
+    { label: "ESP32",    href: `${p}/pages/esp32-overview` },
+  ],
+},
 ```
 
 ---
