@@ -22,7 +22,7 @@ interface Props {
 const { page } = Astro.props;
 const lang = "en";
 
-const { Content } = await page.render();
+const { Content, headings } = await page.render();
 
 // Resolve parent page for breadcrumb
 let parentPage: CollectionEntry<"pages"> | undefined;
@@ -68,9 +68,10 @@ const childPages = allPages
       <div class="page-detail-grid">
 
         <!-- Sidebar: child pages (if any) -->
-        {childPages.length > 0 && (
-          <aside class="page-sidebar">
-            <p class="page-sidebar-label">IN THIS SECTION</p>
+        <aside class="page-sidebar">
+          <p class="page-sidebar-label">IN THIS SECTION</p>
+          {childPages.length > 0 && (
+            <>
             <ul class="page-child-list">
               {childPages.map(child => (
                 <li>
@@ -80,14 +81,26 @@ const childPages = allPages
                 </li>
               ))}
             </ul>
+            </>
+            )}
+
             {parentPage && (
               <a href={`/pages/${parentPage.slug}`} class="btn-slide btn-slide-green"
                 style="display:inline-flex; margin-top:1rem; font-size:.72rem;">
                 ← {parentPage.data.title}
               </a>
             )}
+
+            <ul class="page-child-list">
+              {headings
+                .filter(h => h.depth <= 2)
+                .map(h => (
+                <li class={`lvl-${h.depth}`}>
+                  <a class="page-child-link" href={`#${h.slug}`}>{h.text}</a>
+                </li>
+              ))}
+            </ul>
           </aside>
-        )}
 
         <!-- Main prose content -->
         <article class={`prose page-body${childPages.length > 0 ? " has-sidebar" : ""}`}>

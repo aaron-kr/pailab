@@ -4,6 +4,8 @@
 // Usage in any content page:
 //   <PageHeader title="Research" description="Papers and publications." />
 //   <PageHeader title="Research" bgImage="/images/research-bg.jpg" />
+// When bgImage is absent, a canvas wave animation is injected automatically.
+// The .wave-btn toggle (🌊 / 〰) lets users show/hide the animation.
 
 interface Props {
   title: string;
@@ -20,9 +22,15 @@ const {
   bgImage,
   size = "md",
 } = Astro.props;
+
+// Show waves when no bgImage is provided; show image instead when bgImage is set.
+const showWaves = !bgImage;
 ---
 
-<section class={`page-header page-header--${size}`}>
+<section
+  class={`page-header page-header--${size}`}
+  data-waves={showWaves ? "" : undefined}
+>
   <!-- Animated gradient mesh -->
   <div class="page-header-bg"></div>
   <!-- Grid overlay -->
@@ -36,6 +44,11 @@ const {
   )}
   <!-- Bottom fade into page bg -->
   <div class="page-header-fade"></div>
+
+  <!-- Wave toggle button (only shown when waves are active) -->
+  {showWaves && (
+    <button class="wave-btn" aria-label="Toggle wave animation">〰</button>
+  )}
 
   <!-- Text content -->
   <div class="container page-header-inner">

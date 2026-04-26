@@ -2,8 +2,9 @@
 // src/layouts/BaseLayout.astro
 // Changes from previous version:
 // • Imports + renders <TranslationBanner /> for ?notranslated=1 redirects
+// • Waves animation: early head script adds html.waves-off (default OFF),
+//   body script wires up .wave-btn toggles, waves.js loaded via Vite
 // • <main> has no container — pages manage their own width
-// (Identical otherwise)
 
 import Nav from "@/components/Nav.astro";
 import Footer from "@/components/Footer.astro";
@@ -57,11 +58,14 @@ const fullTitle = title.includes("PAI LAB") ? title : `${title} · ${siteName}`;
 
   <title>{fullTitle}</title>
 
+  <!-- Apply saved theme + waves state before first paint (prevents flash) -->
   <script is:inline>
     (function () {
       const saved = localStorage.getItem("pailab-theme");
-      const sys   = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
       document.documentElement.setAttribute("data-theme", saved || "dark");
+      if (localStorage.getItem("pailab-waves") !== "on") {
+        document.documentElement.classList.add("waves-off");
+      }
     })();
   </script>
 </head>
@@ -84,6 +88,9 @@ const fullTitle = title.includes("PAI LAB") ? title : `${title} · ${siteName}`;
   </footer>
 
   <script>
+    import "@/scripts/waves.js";
+
+    // ── Theme toggle ──────────────────────────────────────────
     const btn = document.getElementById("theme-toggle");
     if (btn) {
       const update = (t: string) => {
@@ -96,6 +103,21 @@ const fullTitle = title.includes("PAI LAB") ? title : `${title} · ${siteName}`;
         update(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark");
       });
     }
+
+    // ── Waves toggle ──────────────────────────────────────────
+    const applyWaves = (on: boolean) => {
+      document.documentElement.classList.toggle("waves-off", !on);
+      document.querySelectorAll<HTMLButtonElement>(".wave-btn").forEach(b => {
+        b.textContent = on ? "🌊" : "〰";
+      });
+      localStorage.setItem("pailab-waves", on ? "on" : "off");
+    };
+    applyWaves(localStorage.getItem("pailab-waves") === "on");
+    document.querySelectorAll(".wave-btn").forEach(b =>
+      b.addEventListener("click", () =>
+        applyWaves(document.documentElement.classList.contains("waves-off"))
+      )
+    );
   </script>
 </body>
 </html>

@@ -4,7 +4,6 @@ title_ko: "PAI Lab의 ESP32"
 description: "How the ESP32 is used for IoT, edge AI, and wireless sensing at the Physical AI Laboratory."
 description_ko: "PAI Lab에서 ESP32를 IoT, 엣지 AI, 무선 센싱에 활용하는 방법."
 eyebrow: "RESOURCES · ESP32"
-parent_page: "arduino-overview"
 show_in_nav: false
 nav_label: "ESP32"
 order: 2

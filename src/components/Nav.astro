@@ -20,22 +20,42 @@ const NAV: Array<
   {
     label: "Research",
     items: [
-      { label: "Areas",       href: `${p}/areas` },
+      { label: "Research Areas", href: `${p}/areas` },
       { label: "Papers",      href: `${p}/research` },
       { label: "Projects",    href: `${p}/projects` },
+      // { label: "Publishing",  href: `${p}/publishing` },
+      { label: "Conferences", href: `${p}/pages/conferences` },
+      // { label: "Datasets",    href: `${p}/datasets` },
+      // { label: "Code",        href: `${p}/code` },
+    ],
+  },
+  {
+    label: "Resources",
+    items: [
+      { label: "Arduino", href: `${p}/pages/arduino-overview` },
+      { label: "ESP32", href: `${p}/pages/esp32-overview` },
+      { label: "Raspberry Pi", href: `${p}/pages/raspberry-pi-overview` },
+      { label: "Jetson", href: `${p}/pages/jetson-overview` },
+      // { label: "Other Systems", href: `${p}/pages/other-systems-and-products` },
+      // { label: "Tools / Setup", href: `${p}/pages/tools-and-setup-guides` },
     ],
   },
   {
     label: "Learn",
     items: [
       { label: "Curriculum",  href: `${p}/curriculum` },
-      { label: "Modules",     href: `${p}/modules` },
-      { label: "Notes",       href: `${p}/notes` },
+      { label: "Teaching Modules", href: `${p}/modules` },
+      { label: "Lab Notes",   href: `${p}/notes` },
     ],
   },
-  { label: "Team",  href: `/team` },
-  { label: "Join",  href: `${p}/join` },
-  { label: "About", href: `${p}/about` },
+  {
+    label: "About",
+    items: [
+      { label: "About", href: `${p}/about` },
+      { label: "Team",  href: `/team` },
+      { label: "Join",  href: `${p}/join` },
+    ],
+  },
   { label: "Search", href: "/search", hideOnKo: false },
 ];
 // ────────────────────────────────────────────────────────────
@@ -45,7 +65,7 @@ const NAV: Array<
   <div class="nav-inner container">
 
     <a href={`${p}/`} class="nav-logo">
-      <img src="/logo-horz.png" alt="PAI LAB" class="nav-logo-img" />
+      <img src="/img/logo-horz.png" alt="PAI LAB" class="nav-logo-img" />
       <span class="sub">{lang === "ko" ? "피지컬 AI 연구소" : "Physical AI Lab"}</span>
     </a>
 
@@ -141,7 +161,7 @@ const NAV: Array<
 
     <div class="mobile-panel-top">
       <a href={`${p}/`} class="nav-logo">
-        <img src="/logo-horz.png" alt="PAI LAB" class="nav-logo-img" />
+        <img src="/img/logo-horz.png" alt="PAI LAB" class="nav-logo-img" />
       </a>
       <button class="mobile-close" id="mobile-close" aria-label="Close menu">✕</button>
     </div>
