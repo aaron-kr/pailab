@@ -9,7 +9,7 @@ year: 2025
 status: "published"
 researchgate_url: "https://www.researchgate.net/publication/392027581_A_Cross-Cultural_Comparison_of_Korean_and_International_Student_Perceptions_and_Use_of_Al_in_Education"
 proceedings_url: ""
-tags: ["PAI Education"]
+tags: ["Education"]
 featured: false
 date: 2025-05-23
 keywords: ["Artificial Intelligence", "AI in Education", "International Students", "AI Perception"]

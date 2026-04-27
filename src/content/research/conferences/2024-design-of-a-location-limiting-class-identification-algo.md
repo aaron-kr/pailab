@@ -9,7 +9,7 @@ year: 2024
 status: "published"
 researchgate_url: ""
 proceedings_url: ""
-tags: ["Script AI", "Edge AI"]
+tags: ["Computer Vision", "Software", "Design"]
 featured: false
 date: 2024-01-12
 ---

@@ -9,7 +9,8 @@ year: 2023
 status: "published"
 researchgate_url: ""
 proceedings_url: "https://kmms.or.kr/102/11956955"
-tags: ["Script AI"]
+tags: ["Dataset"]
 featured: false
 date: 2023-11-18
+tags: ["ML Education", "MNIST", "Dataset"]
 ---

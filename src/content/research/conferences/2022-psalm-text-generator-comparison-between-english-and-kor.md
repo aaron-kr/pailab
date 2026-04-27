@@ -9,7 +9,7 @@ year: 2022
 status: "published"
 researchgate_url: ""
 proceedings_url: "http://kiice.org/84"
-tags: ["Edge AI"]
+tags: ["Generative AI"]
 featured: false
 date: 2022-10-28
 keywords: ["LSTM", "RNN", "Text Generation", "Bilingual Comparison"]

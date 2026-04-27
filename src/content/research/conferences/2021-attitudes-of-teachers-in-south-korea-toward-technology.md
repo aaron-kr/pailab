@@ -9,8 +9,8 @@ year: 2021
 status: "published"
 researchgate_url: "https://www.researchgate.net/publication/388568395_Attitudes_of_Teachers_in_South_Korea_Toward_Technology_Use_for_Their_Classrooms_During_the_COVID-19_Pandemic"
 proceedings_url: "http://kipee.or.kr/Conference/ConferenceView.asp?AC=0&CODE=CC20210701&CpPage=3#CONF"
-tags: ["PAI Education"]
+tags: ["Education"]
 featured: false
 date: 2021-11-05
-keywords: ["COVID-19", "Elementary Teachers"]
+keywords: ["COVID-19", "Elementary Teachers", "Classroom Technology"]
 ---

@@ -9,8 +9,8 @@ year: 2021
 status: "published"
 researchgate_url: "https://www.researchgate.net/publication/388567807_Mask_Wearing_Detection_Using_OpenCV_Training_Data_OpenCV_hagseub_deiteoleul_iyonghan_maseukeu_chag-yong_gamji"
 proceedings_url: "http://kiice.org/84"
-tags: ["Physical AI"]
+tags: ["Computer Vision"]
 featured: false
 date: 2021-10-29
-keywords: ["COVID-19", "Haarcascades", "Mask Wearing", "OpenCV"]
+keywords: ["COVID-19", "Haarcascades", "Mask Wearing", "OpenCV", "Computer Vision"]
 ---

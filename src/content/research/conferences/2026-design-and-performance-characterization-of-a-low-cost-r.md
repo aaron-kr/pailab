@@ -8,7 +8,7 @@ year: 2026
 status: "published"
 researchgate_url: ""
 proceedings_url: ""
-tags: ["Script AI"]
+tags: ["Physical AI", "Education"]
 featured: false
 date: 2026-05-25
 ---

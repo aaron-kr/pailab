@@ -11,7 +11,7 @@ status: "published"
 doi: "https://doi.org/10.59434/JQoLR.2023.1.2.027"
 pdf: ""
 researchgate_url: "https://www.researchgate.net/publication/373678865_A_Systematic_Review_of_Handwritten_Hangul_OCR_Techniques_and_Datasets"
-tags: ["Script AI"]
+tags: ["OCR", "Dataset", "Literature Review"]
 featured: false
 thumbnailUrl: ""
 date: 2023-08-30

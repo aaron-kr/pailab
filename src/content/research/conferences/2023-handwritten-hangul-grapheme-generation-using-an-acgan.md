@@ -9,7 +9,7 @@ year: 2023
 status: "published"
 researchgate_url: "https://www.researchgate.net/publication/388553460_Handwritten_Hangul_Grapheme_Generation_Using_an_ACGAN"
 proceedings_url: "http://kiice.org/84"
-tags: ["Script AI"]
+tags: ["Generative AI", "Dataset"]
 featured: false
 date: 2023-05-26
 keywords: ["GAN", "ACGAN", "Hangul", "Handwriting"]

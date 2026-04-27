@@ -8,7 +8,7 @@ year: 2025
 status: "published"
 researchgate_url: ""
 proceedings_url: ""
-tags: ["IoT / Edge"]
+tags: ["Physical AI", "IoT", "Edge AI", "Medical AI"]
 featured: false
 date: 2025-07-10
 ---

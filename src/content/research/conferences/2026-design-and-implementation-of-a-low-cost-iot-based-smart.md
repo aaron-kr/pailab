@@ -8,7 +8,7 @@ year: 2026
 status: "published"
 researchgate_url: ""
 proceedings_url: ""
-tags: ["IoT / Edge"]
+tags: ["Physical AI", "IoT", "Edge AI", "Agriculture"]
 featured: false
 date: 2026-05-24
 ---

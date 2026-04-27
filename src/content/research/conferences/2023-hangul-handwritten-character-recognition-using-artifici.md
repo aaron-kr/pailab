@@ -9,7 +9,8 @@ year: 2023
 status: "published"
 researchgate_url: ""
 proceedings_url: "http://kiice.org/85"
-tags: ["Script AI", "Edge AI"]
+tags: ["Computer Vision", "Dataset"]
 featured: false
 date: 2023-01-12
+keywords: ["CNN", "MLP", "RNN", "OCR", "Hangul", "Dataset"]
 ---

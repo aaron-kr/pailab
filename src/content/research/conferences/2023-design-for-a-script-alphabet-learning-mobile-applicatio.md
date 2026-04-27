@@ -9,7 +9,7 @@ year: 2023
 status: "published"
 researchgate_url: "https://www.researchgate.net/publication/388617012_Design_for_a_Script_Alphabet_Learning_Mobile_Application"
 proceedings_url: ""
-tags: ["Script AI"]
+tags: ["Software", "Design"]
 featured: false
 date: 2023-07-07
 keywords: ["Script Alphabet", "Mobile Application", "App Design"]

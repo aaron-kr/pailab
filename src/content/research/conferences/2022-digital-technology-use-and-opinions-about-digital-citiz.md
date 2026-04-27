@@ -9,8 +9,8 @@ year: 2022
 status: "published"
 researchgate_url: ""
 proceedings_url: "http://kipee.or.kr/Conference/ConferenceView.asp?AC=0&CODE=CC20220801&B_CATE=BBC1"
-tags: ["PAI Education"]
+tags: ["Education"]
 featured: false
 date: 2022-11-04
-keywords: ["COVID-19", "Digital Citizenship"]
+keywords: ["COVID-19", "Digital Citizenship", "Classroom Technology"]
 ---

@@ -8,7 +8,8 @@ year: 2023
 status: "published"
 researchgate_url: ""
 proceedings_url: ""
-tags: ["PAI Education"]
+tags: ["Education", "Physical AI"]
 featured: false
 date: 2023-07-14
+keywords: ["PAI Education", "Self-Driving Robots"]
 ---

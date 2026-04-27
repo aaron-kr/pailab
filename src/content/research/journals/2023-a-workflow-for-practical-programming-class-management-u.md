@@ -11,7 +11,7 @@ status: "published"
 doi: "https://doi.org/10.14702/JPEE.2023.331"
 pdf: ""
 researchgate_url: "https://www.researchgate.net/publication/380637639_A_Workflow_for_Practical_Programming_Class_Management_Using_GitHub_Pages_and_GitHub_Classroom"
-tags: ["PAI Education"]
+tags: ["Education", "Software"]
 featured: false
 thumbnailUrl: ""
 date: 2023-08-30

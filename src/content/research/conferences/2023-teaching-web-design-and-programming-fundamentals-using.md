@@ -9,7 +9,7 @@ year: 2023
 status: "published"
 researchgate_url: "https://kipee.or.kr/journal/journal02.asp"
 proceedings_url: ""
-tags: ["PAI Education"]
+tags: ["Education", "Physical AI"]
 featured: false
 date: 2023-11-03
 ---

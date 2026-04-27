@@ -7,7 +7,7 @@ venue: "Hanbat National University"
 year: 2024   # confirm your graduation year
 status: "published"
 researchgate_url: "https://www.researchgate.net/..."
-tags: ["Script AI", "Generative AI", "Dataset Creation"]
+tags: ["Generative AI", "Dataset", "Computer Vision", "OCR"]
 role: "first"
 featured: true
 ---

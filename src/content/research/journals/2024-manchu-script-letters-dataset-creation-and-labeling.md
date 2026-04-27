@@ -11,7 +11,7 @@ status: "published"
 doi: "https://doi.org/10.56977/jicce.2024.22.1.80"
 pdf: ""
 researchgate_url: "https://www.researchgate.net/publication/379444779_Manchu_Script_Letters_Dataset_Creation_and_Labeling"
-tags: ["Script AI"]
+tags: ["OCR", "Dataset", "Computer Vision"]
 featured: false
 thumbnailUrl: ""
 date: 2024-03-31

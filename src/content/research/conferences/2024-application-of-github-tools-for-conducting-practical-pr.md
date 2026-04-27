@@ -8,7 +8,7 @@ year: 2024
 status: "published"
 researchgate_url: ""
 proceedings_url: ""
-tags: ["PAI Education"]
+tags: ["Education", "Physical AI"]
 featured: false
 date: 2024-07-04
 ---

@@ -8,7 +8,8 @@ year: 2022
 status: "published"
 researchgate_url: ""
 proceedings_url: "http://kiice.org/85"
-tags: ["Script AI"]
+tags: ["Computer Vision", "Dataset"]
 featured: false
 date: 2022-01-13
+keywords: ["Manchu Characters", "OCR", "Dataset", "Computer Vision"]
 ---

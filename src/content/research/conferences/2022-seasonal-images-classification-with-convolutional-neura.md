@@ -9,8 +9,8 @@ year: 2022
 status: "published"
 researchgate_url: "https://www.researchgate.net/publication/388625368_Seasonal_Images_Classification_with_Convolutional_Neural_Networks"
 proceedings_url: "http://kiice.org/84"
-tags: ["Edge AI"]
+tags: ["Computer Vision"]
 featured: false
 date: 2022-05-27
-keywords: ["CNN", "Image Classification"]
+keywords: ["CNN", "Image Classification", "Computer Vision"]
 ---

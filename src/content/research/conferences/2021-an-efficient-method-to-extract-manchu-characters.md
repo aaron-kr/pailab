@@ -9,8 +9,8 @@ year: 2021
 status: "published"
 researchgate_url: "https://www.researchgate.net/publication/388567805_An_Efficient_Method_to_Extract_Units_of_Manchu_Characters_manju_geuljaui_dan-wileul_chuchulhaneun_hyoyuljeog-in_bangbeob"
 proceedings_url: "http://kiice.org/84"
-tags: ["Physical AI"]
+tags: ["Computer Vision", "Dataset"]
 featured: false
 date: 2021-5-21
-keywords: ["Manchu Characters", "Computer Vision"]
+keywords: ["Manchu Characters", "Computer Vision", "OCR", "Dataset"]
 ---

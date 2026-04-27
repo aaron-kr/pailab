@@ -9,7 +9,8 @@ year: 2021
 status: "published"
 researchgate_url: ""
 proceedings_url: "http://kiice.org/84"
-tags: ["PAI Education"]
+tags: ["Education", "Physical AI"]
 featured: false
 date: 2021-05-21
+keywords: ["PAI Education", "Microprocessors"]
 ---

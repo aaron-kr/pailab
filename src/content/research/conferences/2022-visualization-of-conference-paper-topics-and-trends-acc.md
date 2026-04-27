@@ -8,7 +8,8 @@ year: 2022
 status: "published"
 researchgate_url: ""
 proceedings_url: "http://kiice.org/84"
-tags: ["Physical AI"]
+tags: ["Big Data"]
 featured: false
 date: 2022-05-27
+keywords: ["Big Data", "Visualization"]
 ---

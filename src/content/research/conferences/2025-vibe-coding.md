@@ -9,7 +9,7 @@ year: 2025
 status: "published"
 researchgate_url: ""
 proceedings_url: ""
-tags: ["PAI Education"]
+tags: ["Education", "Software", "Case Study"]
 featured: false
 date: 2025-07-10
 keywords: ["Vibe Coding", "Programming Education"]

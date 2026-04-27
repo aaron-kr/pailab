@@ -11,7 +11,7 @@ status: "published"
 doi: "https://doi.org/10.55479/JCCR.2025.5.2.15"
 pdf: ""
 researchgate_url: "https://www.researchgate.net/publication/394685317_AI_gyoyug-e_daehan_munhwa_gan_insig_geullokeol_sidae_hangug_daehagsaeng-gwa_oegug-in_yuhagsaeng-ui_bigyo"
-tags: ["AI", "Glocal", "Education"]
+tags: ["Education"]
 featured: true
 thumbnailUrl: ""
 date: 2025-06-25

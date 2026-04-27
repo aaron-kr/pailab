@@ -11,7 +11,7 @@ status: "published"
 doi: "https://doi.org/10.14702/JPEE.2025.049"
 pdf: ""
 researchgate_url: "https://www.researchgate.net/publication/389562024_Leveraging_GitHub_Classroom_and_Google_Colab_for_Short-Term_Student_Machine_Learning_Team_Projects"
-tags: ["PAI Education"]
+tags: ["Education", "Software"]
 featured: false
 thumbnailUrl: ""
 date: 2025-02-28

@@ -8,7 +8,7 @@ year: 2025
 status: "published"
 researchgate_url: ""
 proceedings_url: ""
-tags: ["PAI Education"]
+tags: ["Education", "Literature Review"]
 featured: false
 date: 2025-10-24
 ---
