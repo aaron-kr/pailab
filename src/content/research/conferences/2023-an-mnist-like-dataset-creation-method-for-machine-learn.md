@@ -12,5 +12,5 @@ proceedings_url: "https://kmms.or.kr/102/11956955"
 tags: ["Dataset"]
 featured: false
 date: 2023-11-18
-tags: ["ML Education", "MNIST", "Dataset"]
+keywords: ["ML Education", "MNIST", "Dataset"]
 ---
