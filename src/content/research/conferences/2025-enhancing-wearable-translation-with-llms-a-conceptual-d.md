@@ -13,4 +13,7 @@ tags: ["Physical AI", "IoT", "Edge AI"]
 featured: false
 date: 2025-10-24
 keywords: ["Wearable translation", "Smart glasses", "Large Language Models", "Slang translation", "Real-time translation"]
+awards: "BEST Paper Award"
+awards_ko: "최우수논문상"
+awards_url: "/pdf/25-154-최우수논문.pdf"
 ---

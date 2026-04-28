@@ -27,7 +27,7 @@ const { paper, lang = "en", variant = "journal" } = Astro.props;
 const {
   title, title_ko, authors, venue, year, status,
   doi, pdf, researchgate_url, proceedings_url, slides_url, video_url,
-  tags, thumbnailUrl,
+  tags, thumbnailUrl, awards, awards_ko
 } = paper.data;
 
 const displayTitle = lang === "ko" && title_ko ? title_ko : title;
@@ -90,6 +90,14 @@ const isConference = variant === "conference";
         <span class="paper-year">{year}</span>
         <span class="paper-sep">·</span>
         <span class="paper-venue">{venue}</span>
+        {awards && (
+          <>
+            <span class="paper-sep">·</span>
+            <span class="paper-awards" title={lang === "ko" && awards_ko ? awards_ko : awards}>
+              🏆 {awards}
+            </span>
+          </>
+        )}
       </div>
       <span
         class="status-pill"

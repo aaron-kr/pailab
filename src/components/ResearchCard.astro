@@ -9,7 +9,7 @@ interface Props {
   lang: Lang;
 }
 const { paper, lang } = Astro.props;
-const { title, title_ko, authors, venue, year, status, doi, pdf, tags } = paper.data;
+const { title, title_ko, authors, venue, year, status, doi, pdf, tags, awards, awards_ko } = paper.data;
 
 const rg        = (paper.data as any).researchgate_url as string | undefined;
 const procUrl   = (paper.data as any).proceedings_url  as string | undefined;
@@ -17,6 +17,7 @@ const slidesUrl = (paper.data as any).slides_url       as string | undefined;
 const videoUrl  = (paper.data as any).video_url        as string | undefined;
 const role      = ((paper.data as any).role as string | undefined) ?? "first";
 const volStr    = ((paper.data as any).volume as string | undefined) ?? "";
+const rissUrl   = (paper.data as any).riss             as string | undefined;
 
 // ── Language fallbacks ────────────────────────────────────────────────
 // Never require title_ko = title in .md files — fallback handles it here.
@@ -129,6 +130,7 @@ function tagCls(t: string) {
         {venueUrl ? <a class="paper-venue" href={venueUrl} target="_blank" rel="noopener">{venue}</a> : <span class="paper-venue">{venue}</span>}
         <span class="venue-tip">{tipText}</span>
       </span>
+      {awards ? <span class="pill warn paper-awards">{lang==="ko" ? awards_ko : awards}</span> : null}
       {showStatus && <span class={`pill ${pillClass}`} style="font-size:.54rem;padding:1px 5px">{pillLabel[status]?.[lang]??status}</span>}
     </div>
     <p class="paper-title-row">
@@ -142,6 +144,7 @@ function tagCls(t: string) {
       </div>
       <div class="rc-links rc-links--mobile">
         {hasDoi    && <a class="plink plink--doi"    href={doiUrl}    target="_blank" rel="noopener">DOI ↗</a>}
+        {rissUrl   && <a class="plink plink--riss"   href={rissUrl}   target="_blank" rel="noopener">RISS ↗</a>}
         {pdf       && <a class="plink plink--pdf"    href={pdf}       target="_blank" rel="noopener">PDF ↗</a>}
         {rg        && <a class="plink plink--rg"     href={rg}        target="_blank" rel="noopener">RG ↗</a>}
         {procUrl   && <a class="plink plink--proc"   href={procUrl}   target="_blank" rel="noopener">{lang==="ko"?"학술대회 ↗":"Proc ↗"}</a>}
@@ -153,6 +156,7 @@ function tagCls(t: string) {
   </div>
   <div class="rc-links rc-links--desktop">
     {hasDoi    && <a class="plink plink--doi"    href={doiUrl}    target="_blank" rel="noopener">DOI ↗</a>}
+    {rissUrl   && <a class="plink plink--riss"   href={rissUrl}   target="_blank" rel="noopener">RISS ↗</a>}
     {pdf       && <a class="plink plink--pdf"    href={pdf}       target="_blank" rel="noopener">PDF ↗</a>}
     {rg        && <a class="plink plink--rg"     href={rg}        target="_blank" rel="noopener">RG ↗</a>}
     {procUrl   && <a class="plink plink--proc"   href={procUrl}   target="_blank" rel="noopener">{lang==="ko"?"학술대회 ↗":"Proc ↗"}</a>}
@@ -214,6 +218,7 @@ function tagCls(t: string) {
 .venue-wrap:hover .venue-tip{opacity:1;transform:translateY(0)}
 .paper-venue{cursor:help;text-decoration:none !important}
 .paper-venue:hover{opacity:.75}
+.paper-awards{margin-bottom: 0.5rem;}
 .paper-alt-title{font-size:.72rem;color:var(--text-3);margin:.1rem 0 .3rem;line-height:1.4}
 .rc-footer{display:flex;align-items:flex-start;gap:.5rem;margin-top:.35rem;flex-wrap:wrap}
 .rc-tags{flex:1;display:flex;flex-wrap:wrap;gap:3px}
@@ -223,6 +228,7 @@ function tagCls(t: string) {
 .rc-links--mobile{display:none}
 @media(max-width:768px){.rc-links--desktop{display:none !important}.rc-links--mobile{display:flex;flex-direction:row;flex-wrap:wrap;gap:3px}}
 .plink{font-family:var(--font-mono);font-size:.6rem;border:.5px solid var(--border);border-radius:3px;padding:2px 7px;text-decoration:none;cursor:pointer;background:none;transition:background .12s,color .12s,border-color .12s;white-space:nowrap;display:block;text-align:center}
+.plink--riss{color:var(--warn-text);background:var(--warn-bg);border-color:rgba(255,165,0,.3)}.plink--riss:hover{background:rgba(255,165,0,.1)}
 .plink--doi{color:var(--green);border-color:rgba(45,212,191,.3)}.plink--doi:hover{background:rgba(45,212,191,.1)}
 .plink--pdf{color:var(--green);border-color:rgba(45,212,191,.3)}.plink--pdf:hover{background:rgba(45,212,191,.1)}
 .plink--rg{color:var(--blue-2);border-color:rgba(61,146,245,.28)}.plink--rg:hover{background:rgba(61,146,245,.1)}

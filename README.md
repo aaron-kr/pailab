@@ -60,7 +60,7 @@ pailab/
 │   │   ├── PageHeader.astro       ← page header strip (all content pages)
 │   │   ├── TranslationBanner.astro← "no Korean translation" alert
 │   │   ├── TeamSection.astro      ← homepage team grid (reads Firestore)
-│   │   ├── PaperRow.astro         ← paper list row with optional thumbnail
+│   │   ├── PaperRow.astro         ← paper list row with optional thumbnail (unused)
 │   │   ├── ResearchCard.astro     ← paper card alternative
 │   │   ├── ProjectRow.astro       ← project table row
 │   │   └── NoteRow.astro          ← note list row with lang badge

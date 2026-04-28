@@ -13,4 +13,7 @@ tags: ["Software", "Design"]
 featured: false
 date: 2023-07-07
 keywords: ["Script Alphabet", "Mobile Application", "App Design"]
+awards: "Excellent Paper Award"
+awards_ko: "우수논문상"
+awards_url: ""
 ---

@@ -13,4 +13,7 @@ tags: ["Education"]
 featured: false
 date: 2021-11-05
 keywords: ["COVID-19", "Elementary Teachers", "Classroom Technology"]
+awards: "Excellent Paper Award"
+awards_ko: "우수논문상"
+awards_url: ""
 ---

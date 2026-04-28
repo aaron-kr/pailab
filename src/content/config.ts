@@ -26,6 +26,7 @@ const research = defineCollection({
     proceedings_url: z.string().optional(),        // Conference proceedings index URL
     slides_url: z.string().optional(),             // SlideDeck or Google Slides URL
     video_url: z.string().optional(),              // YouTube recording URL
+    riss: z.string().optional(),                   // Korean thesis identifier for RISS linking
 
     // === Display ===
     tags: z.array(z.string()).default([]),
@@ -35,6 +36,11 @@ const research = defineCollection({
     // === Korean app fields (KORUS) — optional metadata ===
     issn: z.string().optional(),
     volume: z.string().optional(),                 // e.g. "21 (2), 167-173"
+
+    // === Korean app fields (KORUS) — optional metadata ===
+    awards: z.string().optional(),                // e.g. "Best Paper Award"
+    awards_ko: z.string().optional(),             // e.g. "최우수논문상"
+    awards_url: z.string().optional(),            // Link to award announcement or certificate
   }),
 });
 

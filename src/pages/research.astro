@@ -7,13 +7,14 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
 import ResearchCard from "@/components/ResearchCard.astro";
-import PaperRow from "@/components/PaperRow.astro";
+// import PaperRow from "@/components/PaperRow.astro";
 import { getCollection } from "astro:content";
 
 const lang = "en" as const;
 
 const all = await getCollection("research");
 
+const thesis      = all.filter(p => (p.data as any).type === "thesis").sort((a,b)=>b.data.year-a.data.year);
 const journals    = all.filter(p => (p.data as any).type === "journal").sort((a,b)=>b.data.year-a.data.year);
 const conferences = all.filter(p => ((p.data as any).type ?? "conference") === "conference").sort((a,b)=>b.data.year-a.data.year);
 const featured    = journals.filter(p => p.data.featured);
@@ -93,6 +94,26 @@ const total   = all.length;
         </div>
         <div class="papers-list">
           {featured.map(p => (
+            <div data-private={p.data.private ? "true" : undefined}>
+              <ResearchCard paper={p} lang={lang} />
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Thesis -->
+    {thesis.length > 0 && (
+      <section class="research-section" id="sec-thesis">
+        <div class="sec-header">
+          <span class="sec-kicker">Graduate</span>
+          <div class="sec-heading-group">
+            <h2 class="sec-heading">Theses <span class="count-badge">{thesis.length}</span></h2>
+            <p class="sec-note">Master's and doctoral theses completed by our lab members.</p>
+          </div>
+        </div>
+        <div class="papers-list">
+          {thesis.map(p => (
             <div data-private={p.data.private ? "true" : undefined}>
               <ResearchCard paper={p} lang={lang} />
             </div>

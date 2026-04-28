@@ -13,4 +13,7 @@ tags: ["Design", "Software"]
 featured: false
 date: 2025-10-24
 keywords: ["UI/UX", "Usability", "Application Redesign", "KakaoTalk", "Cognitive Load", "Functionality Creep"]
+awards: "Excellent Paper Award"
+awards_ko: "우수논문상"
+awards_url: "/pdf/05-01-우수논문.pdf"
 ---

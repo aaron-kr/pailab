@@ -13,4 +13,7 @@ tags: ["Physical AI", "IoT", "Edge AI"]
 featured: false
 date: 2025-10-24
 keywords: ["Pedestrian detection", "Smart traffic light", "YOLOv3-tiny", "Jetson Nano","Intelligent transportation systems"]
+awards: "Excellent Paper Award"
+awards_ko: "우수논문상"
+awards_url: "/pdf/25-204-우수논문.pdf"
 ---

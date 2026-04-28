@@ -10,5 +10,10 @@ researchgate_url: "https://www.researchgate.net/publication/388769937_CNN-Based_
 tags: ["Generative AI", "Dataset", "Computer Vision", "OCR"]
 role: "first"
 featured: true
-doi: "https://www.riss.kr/link?id=T16928583"
+riss: "https://www.riss.kr/link?id=T16928583"
+
+awards: "Excellent Thesis Award"
+awards_ko: "우수논문상"
+awards_url: ""
+awards_url_ko: ""
 ---
