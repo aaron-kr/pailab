@@ -7,7 +7,7 @@ import remarkBilingual from "./src/plugins/remark-bilingual.mjs";
 
 export default defineConfig({
   site: "https://pailab.io",
-  integrations: [pagefind(), mdx(), sitemap()],
+  integrations: [mdx(), sitemap(), pagefind()],
   adapter: vercel({
     webAnalytics: {
       enabled: true,
