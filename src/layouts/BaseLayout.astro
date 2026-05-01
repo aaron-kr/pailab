@@ -74,10 +74,11 @@ const fullTitle = title.includes("PAI LAB") ? title : `${title} · ${siteName}`;
   data-private-page={privatePage ? "true" : undefined}
   style={privatePage ? "visibility:hidden" : undefined}
 >
+  <a href="#main-content" class="skip-link">Skip to main content</a>
   <Nav lang={lang} currentPath={Astro.url.pathname} />
   <TranslationBanner />
 
-  <main>
+  <main id="main-content">
     <slot />
   </main>
 

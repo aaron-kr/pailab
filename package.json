@@ -9,6 +9,7 @@
     "check": "astro check",
     "typecheck": "astro check",
     "lint:css": "stylelint src/styles/global.css --fix",
+    "compress-images": "node scripts/compress-images.mjs",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -31,6 +32,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "pagefind": "^1.5.0",
+    "sharp": "^0.33.5",
     "stylelint": "^17.8.0",
     "typescript": "^5.9.3"
   }

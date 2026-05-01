@@ -166,11 +166,11 @@ function tagCls(t: string) {
   </div>
 </div>
 
-<div class="cite-overlay" id={citeId} aria-hidden="true">
+<div class="cite-overlay" id={citeId} aria-hidden="true" role="dialog" aria-modal="true" aria-label={lang==="ko" ? "인용 형식" : "Cite this paper"}>
   <div class="cite-box">
     <div class="cite-header">
       <span class="cite-header-label">{lang==="ko"?"인용 형식":"Cite this paper"}</span>
-      <button class="cite-close" data-cite-close={citeId}>✕</button>
+      <button class="cite-close" data-cite-close={citeId} aria-label="Close citation dialog">✕</button>
     </div>
     <div class="cite-tabs">
       <button class="cite-tab is-active" data-tab="bib">BibTeX</button>

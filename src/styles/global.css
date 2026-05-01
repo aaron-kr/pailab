@@ -8,7 +8,7 @@
   --font-mono:'JetBrains Mono',monospace;
 
   --bg:#f3f5f7;--bg-surface:#ffffff;--bg-subtle:#e8edf2;--bg-deep:#030a14;--fade-less:#aaabac;
-  --text:#080f1a;--text-2:#3d5470;--text-3:#7a9ab8;
+  --text:#080f1a;--text-2:#3d5470;--text-3:#467090;
   --border:rgba(8,15,26,.10);--border-2:rgba(8,15,26,.18);
 
   --green:#0a8f7a;--green-2:#12b89e;--green-glow:#2dd4bf;
@@ -26,7 +26,7 @@
 /* ── Tokens: dark ───────────────────────────────────────── */
 [data-theme="dark"] {
   --bg:#040c14;--bg-surface:#081624;--bg-subtle:#0c1e30;--bg-deep:#020810;
-  --text:#d0e4f0;--text-2:#6a9ab8;--text-3:#355570;
+  --text:#d0e4f0;--text-2:#6a9ab8;--text-3:#5a82a0;
   --border:rgba(36,180,255,.17);--border-2:rgba(36,180,255,.33);
 
   --green:#2dd4bf;--green-2:#1dbf9e;--green-glow:#24fffc;
@@ -54,6 +54,46 @@ a{color:var(--green);text-decoration:none}
 a:hover{text-decoration:underline}
 img{max-width:100%;display:block}
 code,pre{font-family:var(--font-mono);font-size:.85em}
+
+/* ── Screen-reader only utility ────────────────────────── */
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+
+/* ── Skip link ──────────────────────────────────────────── */
+.skip-link{
+  position:absolute;top:-100%;left:1rem;
+  background:var(--cyan);color:#040c14;
+  font-family:var(--font-mono);font-size:.78rem;font-weight:700;
+  padding:.5rem 1rem;border-radius:0 0 var(--r-md) var(--r-md);
+  text-decoration:none;z-index:9999;
+  transition:top 0s;
+}
+.skip-link:focus{top:0}
+
+/* ── Focus styles ───────────────────────────────────────── */
+/* Remove default outline only when we supply our own */
+:focus{outline:none}
+:focus-visible{
+  outline:2px solid var(--cyan);
+  outline-offset:3px;
+  border-radius:var(--r-sm);
+}
+/* Buttons and links with custom styles — keep cyan ring */
+button:focus-visible,
+a:focus-visible,
+[role="menuitem"]:focus-visible,
+[role="button"]:focus-visible{
+  outline:2px solid var(--cyan);
+  outline-offset:3px;
+  border-radius:var(--r-sm);
+}
+[data-theme="light"] :focus-visible,
+[data-theme="light"] button:focus-visible,
+[data-theme="light"] a:focus-visible{
+  outline-color:var(--green);
+}
 
 /* ── Layout ─────────────────────────────────────────────── */
 .container{width:100%;max-width:var(--max-w);margin:0 auto;padding:0 2rem}

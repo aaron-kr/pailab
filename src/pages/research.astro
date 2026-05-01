@@ -51,12 +51,12 @@ const total   = all.length;
 
         <!-- Topics dropdown -->
         <div class="filter-topics" id="topics-wrap">
-          <button class="filter-topics-btn" id="topics-btn" aria-haspopup="true" aria-expanded="false">
+          <button class="filter-topics-btn" id="topics-btn" aria-haspopup="true" aria-expanded="false" aria-controls="topics-panel">
             Topics <span id="topics-count" class="topics-count" style="display:none"></span>
-            <span class="topics-caret">▾</span>
+            <span class="topics-caret" aria-hidden="true">▾</span>
           </button>
           <!-- Popover panel -->
-          <div class="topics-panel" id="topics-panel" aria-hidden="true">
+          <div class="topics-panel" id="topics-panel" aria-hidden="true" role="region" aria-label="Filter by topic">
             <div class="topics-pills">
               {allTags.map(tag => (
                 <button class="filter-pill" data-tag={tag}>{tag}</button>

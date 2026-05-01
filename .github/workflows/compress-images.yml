@@ -1,0 +1,26 @@
+name: Compress Images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "public/img/**/*.jpg"
+      - "public/img/**/*.jpeg"
+      - "public/img/**/*.png"
+      - "public/img/**/*.webp"
+
+jobs:
+  compress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compress images
+        uses: calibreapp/image-actions@main
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          compressOnly: true   # commit compressed images directly (no PR)
+          jpegQuality: "82"
+          pngQuality: "85"
+          webpQuality: "85"
+          ignorePaths: "scripts/image-originals/**"

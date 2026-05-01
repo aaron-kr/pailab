@@ -9,13 +9,13 @@ const { lang } = Astro.props;
 
 <div class="hero full-bleed">
   <!-- Gradient mesh (animated) — sits behind any bg image -->
-  <div class="hero-bg"></div>
+  <div class="hero-bg" aria-hidden="true"></div>
   <!-- Circuit grid overlay -->
-  <div class="hero-grid"></div>
+  <div class="hero-grid" aria-hidden="true"></div>
   <!-- Overlay: light in dark mode, heavier in light mode for text legibility -->
-  <div class="hero-overlay"></div>
+  <div class="hero-overlay" aria-hidden="true"></div>
   <!-- Fade to page bg at bottom -->
-  <div class="hero-fade"></div>
+  <div class="hero-fade" aria-hidden="true"></div>
 
   <div class="container">
     <div class="hero-inner">

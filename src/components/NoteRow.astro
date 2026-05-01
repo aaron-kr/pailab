@@ -38,6 +38,7 @@ const prefix = lang === "ko" ? "/ko" : "";
 
     {noteLang === "both" && naver_url && lang === "en" && (
       <a href={naver_url} target="_blank" rel="noopener"
+         aria-label={`Read "${displayTitle}" in Korean (opens Naver Blog)`}
          style="font-size: 0.68rem; color: var(--text-3);">
         한국어 버전 ↗
       </a>

@@ -43,16 +43,18 @@ const { variant = "compact" } = Astro.props;
           <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/>
           <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
+        <label for="pagefind-search-input" class="sr-only">Search this site</label>
         <input
           id="pagefind-search-input"
           type="search"
           placeholder="Search notes, projects, research…"
           autocomplete="off"
           class="search-input"
+          aria-label="Search this site"
         />
         <kbd class="search-esc" aria-label="Press Escape to close">Esc</kbd>
       </div>
-      <div id="pagefind-results" class="search-results"></div>
+      <div id="pagefind-results" class="search-results" aria-live="polite" aria-label="Search results"></div>
     </div>
   </div>
 ) : (
@@ -63,15 +65,17 @@ const { variant = "compact" } = Astro.props;
         <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/>
         <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
+      <label for="pagefind-search-input" class="sr-only">Search this site</label>
       <input
         id="pagefind-search-input"
         type="search"
         placeholder="Search notes, projects, research…"
         autocomplete="off"
         class="search-input"
+        aria-label="Search this site"
       />
     </div>
-    <div id="pagefind-results" class="search-results search-results--full"></div>
+    <div id="pagefind-results" class="search-results search-results--full" aria-live="polite" aria-label="Search results"></div>
   </div>
 )}
 

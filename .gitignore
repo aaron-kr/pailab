@@ -26,3 +26,5 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 service-account.json
+# Image compression backups
+scripts/image-originals/

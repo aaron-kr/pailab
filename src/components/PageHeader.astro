@@ -32,18 +32,19 @@ const showWaves = !bgImage;
   data-waves={showWaves ? "" : undefined}
 >
   <!-- Animated gradient mesh -->
-  <div class="page-header-bg"></div>
+  <div class="page-header-bg" aria-hidden="true"></div>
   <!-- Grid overlay -->
-  <div class="page-header-grid"></div>
+  <div class="page-header-grid" aria-hidden="true"></div>
   <!-- Optional background image (blended over the mesh) -->
   {bgImage && (
     <div
       class="page-header-image"
       style={`background-image: url('${bgImage}')`}
+      aria-hidden="true"
     ></div>
   )}
   <!-- Bottom fade into page bg -->
-  <div class="page-header-fade"></div>
+  <div class="page-header-fade" aria-hidden="true"></div>
 
   <!-- Wave toggle button (only shown when waves are active) -->
   {showWaves && (
