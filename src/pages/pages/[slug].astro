@@ -96,7 +96,7 @@ const childPages = allPages
                 .filter(h => h.depth <= 2)
                 .map(h => (
                 <li class={`lvl-${h.depth}`}>
-                  <a class="page-child-link" href={`#${h.id}`}>{h.text}</a>
+                  <a class="page-child-link" href={`#${h.slug}`}>{h.text}</a>
                 </li>
               ))}
             </ul>

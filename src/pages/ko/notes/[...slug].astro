@@ -41,7 +41,7 @@ const {
 const lang = "ko" as const;
 
 // A note has Korean content if it uses the bilingual marker or has an external Naver URL.
-const hasKoTranslation = noteLang === "ko" || noteLang === "both" || note.body.includes("<!-- ko -->");
+const hasKoTranslation = noteLang === "ko" || noteLang === "both" || (note.body?.includes("<!-- ko -->") ?? false);
 ---
 
 <PostLayout

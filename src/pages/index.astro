@@ -84,7 +84,7 @@ const projIcons = { "gesture-robot-arm":"🦾","kasd-dataset":"📜","epib-bench
               </div>
               <div class="project-body">
                 <p class="project-title">{proj.data.title}</p>
-                <p class="project-desc">{proj.body.slice(0, 120).trim()}...</p>
+                <p class="project-desc">{(proj.body ?? "").slice(0, 120).trim()}...</p>
                 <div>
                   {proj.data.tags.map((tag) => (
                     <span class={`tag${tag === "Physical AI" ? " green" : tag === "Dataset" ? " blue" : ""}`}>{tag}</span>

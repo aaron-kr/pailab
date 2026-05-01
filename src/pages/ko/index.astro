@@ -62,7 +62,7 @@ const projGradients = ["proj-g1","proj-g2","proj-g3","proj-g4"];
               </div>
               <div class="project-body">
                 <p class="project-title">{proj.data.title_ko ?? proj.data.title}</p>
-                <p class="project-desc">{proj.body.slice(0, 100).trim()}...</p>
+                <p class="project-desc">{(proj.body ?? "").slice(0, 100).trim()}...</p>
                 <div>{proj.data.tags.map((t) => <span class="tag">{t}</span>)}</div>
               </div>
             </div>
