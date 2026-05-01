@@ -1,7 +1,7 @@
 # PAI LAB — Physical AI Laboratory
 
 A bilingual (EN / 한국어) academic lab website for the Physical AI Laboratory.  
-Built with **Astro v4**, deployed on **Vercel**.  
+Built with **Astro v6** (Node >=22.12.0), deployed on **Vercel**.  
 Authenticated members and admin areas powered by **Firebase Auth + Firestore**.
 
 **Live:** [pailab.io](https://pailab.io) · **Repo:** [github.com/aaron-kr/pailab](https://github.com/aaron-kr/pailab)
@@ -13,18 +13,21 @@ Authenticated members and admin areas powered by **Firebase Auth + Firestore**.
 ```bash
 git clone https://github.com/aaron-kr/pailab.git
 cd pailab
-npm install
+pnpm install
 
 # Copy env template and fill in Firebase values
 cp .env.example .env
 
-npm run dev        # → http://localhost:4321
-npm run build      # astro check + production build + Pagefind index
-npm run preview    # preview production build locally
-npm run check      # Astro type check only
-npm run typecheck  # TypeScript check only
-npm run lint:css   # Stylelint (src/styles/global.css)
+pnpm dev             # → http://localhost:4321
+pnpm build           # production build + Pagefind index (no type check — used by Vercel)
+pnpm build:check     # astro check + production build (run before pushing)
+pnpm preview         # preview production build locally
+pnpm check           # Astro type check only
+pnpm typecheck       # TypeScript check only
+pnpm lint:css        # Stylelint (src/styles/global.css)
 ```
+
+> **Node.js >=22.12.0** is required (Astro 6 minimum). Use `nvm use` (`.nvmrc` is set to 22).
 
 Pre-commit hooks (Husky) run Stylelint automatically on every commit. CI runs TypeScript + Astro check + Stylelint on every push to `main`.
 
@@ -34,12 +37,12 @@ Pre-commit hooks (Husky) run Stylelint automatically on every commit. CI runs Ty
 
 | Layer | Tool |
 |---|---|
-| Framework | Astro v4 (static) |
+| Framework | Astro v6 (static, Content Layer API) |
 | Styling | CSS custom properties (`global.css`), no Tailwind |
 | Fonts | Oxanium (display), DM Sans (body), JetBrains Mono (code/labels) |
 | Auth + DB | Firebase Auth (Google only) + Firestore |
 | Hosting | Vercel |
-| Content | Astro content collections (Markdown / MDX) |
+| Content | Astro Content Layer API — `glob()` loaders (Markdown / MDX) |
 | Search | Pagefind (build-time CLI) |
 | Feeds | `@astrojs/rss` — EN + KO separate feeds |
 

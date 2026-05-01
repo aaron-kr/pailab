@@ -1,13 +1,13 @@
 # CLAUDE.md — PAI LAB Project Briefing
 
 > Read this first in any new conversation about this project.  
-> Last updated: April 2026.
+> Last updated: May 2026.
 
 ---
 
 ## What this project is
 
-A bilingual (EN / 한국어) academic lab website for the Physical AI Laboratory (PAI Lab), run by Aaron Snowberger at universities in Jeonju, Korea. Built with Astro v4. Has a public-facing site AND a Firebase-authenticated admin/members backend.
+A bilingual (EN / 한국어) academic lab website for the Physical AI Laboratory (PAI Lab), run by Aaron Snowberger at universities in Jeonju, Korea. Built with Astro v6. Has a public-facing site AND a Firebase-authenticated admin/members backend.
 
 **Live:** pailab.io (deployment in progress)  
 **Repo:** https://github.com/aaron-kr/pailab (public)  
@@ -17,7 +17,7 @@ A bilingual (EN / 한국어) academic lab website for the Physical AI Laboratory
 
 ## Tech stack
 
-- **Astro v4** — static site generator, content collections for all content
+- **Astro v6** — static site generator, Content Layer API for all collections (Node >=22.12.0 required)
 - **CSS custom properties** — all styling in `src/styles/global.css`, no Tailwind
 - **Fonts:** Oxanium (display/headings), DM Sans (body), JetBrains Mono (labels/code)
 - **Firebase Auth** — Google sign-in only
@@ -73,14 +73,16 @@ All static content in `src/content/` (Markdown files):
 - `show_in_nav: true` signals intent to add the page to the nav (still requires manual NAV array edit)
 - See `ADDING_CONTENT.md` for full instructions including how to add pages to the nav
 
-**Critical schema note:** Do NOT put `slug` in any content collection schema. Astro auto-generates it from the filename. Use `entry.slug`, never `entry.data.slug`.
+**Critical schema note (Astro 6 Content Layer API):** Collections are defined in `src/content.config.ts` (NOT `src/content/config.ts`) using `loader: glob({...})`. Each entry's identifier is now `.id` (not `.slug`). Never use `entry.slug` — it no longer exists.
 
-**Units slug pattern:** Unit files in subdirectories produce compound slugs: `track-05-arduino/unit-01-intro`. Split with `unit.slug.split("/")` to get `[trackSlug, unitSlug]` for routing.
+**Units id pattern:** Unit files in subdirectories produce compound IDs: `track-05-arduino/unit-01-intro`. Split with `unit.id.split("/")` to get `[trackSlug, unitSlug]` for routing.
+
+**Rendering content:** Use `import { render } from 'astro:content'` and `await render(entry)`. The old `await entry.render()` method is removed in Astro 6.
 
 **Year-folder pattern (notes + research):**
-- Notes are organized by year: `content/notes/2025/some-note.md` → slug `2025/some-note` → URL `/notes/2025/some-note`
-- Route uses `[...slug].astro` (rest parameter) to handle the compound slug. `params: { slug: note.slug }` works as-is.
-- Research is organized by year too: `content/research/conferences/2025/paper.md` — slug not used for routing (no individual pages).
+- Notes are organized by year: `content/notes/2025/some-note.md` → id `2025/some-note` → URL `/notes/2025/some-note`
+- Route uses `[...slug].astro` (rest parameter) to handle the compound id. `params: { slug: note.id }` works as-is.
+- Research is organized by year too: `content/research/conferences/2025/paper.md` — id not used for routing (no individual pages).
 - Do NOT add year prefix to the filename if it's already in the folder. The folder IS the year.
 
 **Research year folders:**
@@ -140,7 +142,7 @@ NOT `import { app } from "@/lib/firebase"` in page scripts — this causes doubl
 | `src/components/PageHeader.astro` | Reusable mesh-gradient header strip — `size`, `title`, `bgImage` props |
 | `src/components/TranslationBanner.astro` | Shown when `?notranslated=1` in URL |
 | `src/i18n/translations.ts` | All UI strings + `altLangUrl()` (fixed for /ko/ko/ko bug) |
-| `src/content/config.ts` | Zod schemas for all collections — areas schema has NO `slug` field |
+| `src/content.config.ts` | Astro 6 Content Layer config — all 8 collections with `loader: glob({...})` and Zod schemas |
 | `src/styles/global.css` | Everything — CSS variables, layout, all component styles |
 | `src/pages/rss.xml.ts` | EN RSS feed at `/rss.xml` — notes where `lang: en` or `both` |
 | `src/pages/ko/rss.xml.ts` | Korean RSS feed at `/ko/rss.xml` — notes where `lang: ko` or `both` |
@@ -148,7 +150,7 @@ NOT `import { app } from "@/lib/firebase"` in page scripts — this causes doubl
 | `src/pages/api/og.png.ts` | Dynamic OG image endpoint (requires hybrid output + `@vercel/og`) |
 | `firestore.rules` | Security rules — deploy with `firebase deploy --only firestore:rules` |
 | `.env.example` | Template for all 6 `PUBLIC_FIREBASE_*` env vars |
-| `astro.config.mjs` | Integrations: `mdx()`, `sitemap()` — NO pagefind integration (see below) |
+| `astro.config.mjs` | Integrations: `mdx()`, `sitemap()`, `pagefind()` — and `@astrojs/vercel` adapter |
 
 ---
 
@@ -173,11 +175,12 @@ Dropdowns use click (not hover) for touch compatibility. Hamburger slides in a r
 
 Pagefind runs as a with `astro build`. There is a double-UI bug (inserting its own search input) from `astro-pagefind`, so we tried to remove `pagefind` as an integration and run it in the CLI _after_ `build`. However, this caused it not to function, so we undid those changes.
 
-**`package.json` build script:**
+**`package.json` build scripts:**
 ```json
-"build": "astro check && astro build"
+"build":       "astro build"          ← used by Vercel (no type check to avoid blocking deploys)
+"build:check": "astro check && astro build"  ← run locally before pushing
 ```
-Type errors now block the production build. Fix all `astro check` errors before running `npm run build`.
+Run `pnpm run build:check` before pushing to catch type errors. Vercel runs `astro build` directly.
 
 The index is generated into `dist/pagefind/` and served as static files. `SiteSearch.astro` loads `pagefind-ui.js` via a runtime-injected `<script>` tag (not `import()`) to bypass Vite's static analysis.
 
