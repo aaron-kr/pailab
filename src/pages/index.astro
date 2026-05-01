@@ -72,7 +72,7 @@ const projIcons = { "gesture-robot-arm":"🦾","kasd-dataset":"📜","epib-bench
       </div>
       <div class="projects-grid">
         {projects.map((proj, i) => {
-          const icon = projIcons[proj.slug as keyof typeof projIcons] ?? "🔬";
+          const icon = projIcons[proj.id as keyof typeof projIcons] ?? "🔬";
           const gradClass = projGradients[i % 4];
           const pillCls = proj.data.status === "active" ? "ok" : proj.data.status === "published" ? "blue" : "warn";
           const pillLbl = proj.data.status === "active" ? "Active" : proj.data.status === "published" ? "Published" : "Planned";
@@ -111,7 +111,7 @@ const projIcons = { "gesture-robot-arm":"🦾","kasd-dataset":"📜","epib-bench
       <p class="section-sub">Four structured tracks from first principles to advanced robotics. Fully bilingual EN / 한국어.</p>
       <div class="curriculum-grid">
         {curriculum.map((track, i) => (
-          <a href={`/curriculum/${track.slug}`} class="track-card">
+          <a href={`/curriculum/${track.id}`} class="track-card">
             <div class="track-bar" style={`background:${trackColors[i % 4]}`}></div>
             <div class="track-meta">TRACK {track.data.track} · {track.data.level.toUpperCase()}</div>
             <p class="track-title">{track.data.title}</p>
@@ -137,7 +137,7 @@ const projIcons = { "gesture-robot-arm":"🦾","kasd-dataset":"📜","epib-bench
       <p class="section-sub">Physical AI add-ons for courses not primarily focused on AI — drop into any syllabus in 1–3 weeks.</p>
       <div class="modules-grid">
         {modules.map((mod) => (
-          <a href={`/modules/${mod.slug}`} class="module-card">
+          <a href={`/modules/${mod.id}`} class="module-card">
             <div class="module-course-badge">{mod.data.course_tag.toUpperCase()}</div>
             <p class="module-title">{mod.data.title}</p>
             <p class="module-desc">{mod.data.description}</p>

@@ -16,7 +16,7 @@ const modules = (await getCollection("modules")).sort((a,b) => a.data.order - b.
   <div class="modules-list container page-content">
     <div class="module-grid">
       {modules.map(mod => (
-        <a href={`/ko/modules/${mod.slug}`} class="module-card card" data-private={mod.data.private ? "true" : undefined}>
+        <a href={`/ko/modules/${mod.id}`} class="module-card card" data-private={mod.data.private ? "true" : undefined}>
           <div class="module-bar"></div>
           <div class="module-course-tag">{mod.data.course_tag.toUpperCase()}</div>
           <h3 class="module-title">{mod.data.title_ko ?? mod.data.title}</h3>

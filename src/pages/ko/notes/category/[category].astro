@@ -9,7 +9,7 @@ import { getCollection } from "astro:content";
 export async function getStaticPaths() {
   const areas = await getCollection("areas");
   return areas.map((area) => ({
-    params: { category: area.slug },
+    params: { category: area.id },
     props:  { area },
   }));
 }
@@ -24,7 +24,7 @@ const areaDesc  = area.data.description_ko ?? area.data.description;
 const allNotes = (await getCollection("notes")).sort(
   (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
 );
-const categoryNotes = allNotes.filter(n => n.data.category === area.slug);
+const categoryNotes = allNotes.filter(n => n.data.category === area.id);
 const featuredNote  = categoryNotes.find(n => n.data.categoryFeatured) ?? null;
 const restNotes     = categoryNotes.filter(n => !n.data.categoryFeatured);
 const publicCount   = categoryNotes.filter(n => !n.data.private).length;
@@ -61,7 +61,7 @@ const publicCount   = categoryNotes.filter(n => !n.data.private).length;
     {featuredNote && (
       <section style="margin-bottom:3rem;" data-private={featuredNote.data.private ? "true" : undefined}>
         <p class="sub-label">추천 노트</p>
-        <a href={`/notes/${featuredNote.slug}`} class="featured-post-card card">
+        <a href={`/notes/${featuredNote.id}`} class="featured-post-card card">
           {featuredNote.data.featuredImage && (
             <div class="featured-post-img">
               <img src={featuredNote.data.featuredImage} alt={featuredNote.data.title_ko ?? featuredNote.data.title} loading="lazy" />
@@ -103,7 +103,7 @@ const publicCount   = categoryNotes.filter(n => !n.data.private).length;
       <div style="text-align:center; padding:3rem 0; color:var(--text-3);">
         <p style="font-size:.88rem;">이 카테고리에 아직 노트가 없습니다.</p>
         <p style="font-size:.78rem; margin-top:.5rem;">
-          노트 프론트매터에 <code style="font-family:var(--font-mono)">category: "{area.slug}"</code>을 추가하세요.
+          노트 프론트매터에 <code style="font-family:var(--font-mono)">category: "{area.id}"</code>을 추가하세요.
         </p>
       </div>
     ) : null}

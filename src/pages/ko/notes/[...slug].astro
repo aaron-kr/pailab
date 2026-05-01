@@ -1,24 +1,24 @@
 ---
-// src/pages/ko/notes/[...slug].astro
+// src/pages/ko/notes/[...id].astro
 // Serves ALL notes at /ko/notes/[year]/[slug].
 // Notes with a <!-- ko --> bilingual marker show Korean content (via CSS lang-block).
 // Notes without Korean content show English text + an inline "not translated" banner.
 import PostLayout from "@/layouts/PostLayout.astro";
-import { getCollection, type CollectionEntry } from "astro:content";
+import { render, getCollection, type CollectionEntry } from "astro:content";
 
 export async function getStaticPaths() {
   const notes = (await getCollection("notes"))
     .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
 
   return notes.map((note, index) => ({
-    params: { slug: note.slug },
+    params: { slug: note.id },
     props: {
       note,
       prevPost: index < notes.length - 1
-        ? { title: notes[index + 1].data.title_ko ?? notes[index + 1].data.title, slug: notes[index + 1].slug }
+        ? { title: notes[index + 1].data.title_ko ?? notes[index + 1].data.title, id: notes[index + 1].id }
         : undefined,
       nextPost: index > 0
-        ? { title: notes[index - 1].data.title_ko ?? notes[index - 1].data.title, slug: notes[index - 1].slug }
+        ? { title: notes[index - 1].data.title_ko ?? notes[index - 1].data.title, id: notes[index - 1].id }
         : undefined,
     },
   }));
@@ -26,12 +26,12 @@ export async function getStaticPaths() {
 
 interface Props {
   note: CollectionEntry<"notes">;
-  prevPost?: { title: string; slug: string };
-  nextPost?: { title: string; slug: string };
+  prevPost?: { title: string; id: string };
+  nextPost?: { title: string; id: string };
 }
 
 const { note, prevPost, nextPost } = Astro.props;
-const { Content } = await note.render();
+const { Content } = await render(note);
 
 const {
   title, title_ko, pubDate, tags, naver_url, lang: noteLang,

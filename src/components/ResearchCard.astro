@@ -112,7 +112,7 @@ function ieeeNm(a: PA) { return a.first ? `${a.first.split(/\s+/).map(p=>p[0]+".
 const ieeeAuth = parsed.length===1?ieeeNm(parsed[0]):parsed.length===2?`${ieeeNm(parsed[0])} and ${ieeeNm(parsed[1])}`:parsed.slice(0,-1).map(ieeeNm).join(", ")+", and "+ieeeNm(parsed.at(-1)!);
 const ieeeText = `${ieeeAuth}, "${title}," *${tipText}*${volStr?`, ${volStr}`:""}${hasDoi?`, doi: ${doiClean}.`:availUrl?`. [Online]. Available: ${availUrl}`:"."}`;
 
-const citeId = `cite-rc-${paper.slug}`;
+const citeId = `cite-rc-${paper.id}`;
 
 function tagCls(t: string) {
   if (["Physical AI","PAI Education","AI in Education","Dev Tools"].includes(t)) return "green";

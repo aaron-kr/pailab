@@ -1,14 +1,14 @@
 ---
 // src/pages/ko/curriculum/[trackSlug]/[unitSlug].astro
 // KO unit detail page — URL: /ko/curriculum/track-05-arduino/unit-01-intro
-import { getCollection, type CollectionEntry } from "astro:content";
+import { render, getCollection, type CollectionEntry } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
 
 export async function getStaticPaths() {
   const allUnits = await getCollection("units");
   return allUnits.map((unit) => {
-    const [trackSlug, unitSlug] = unit.slug.split("/");
+    const [trackSlug, unitSlug] = unit.id.split("/");
     return {
       params: { trackSlug, unitSlug },
       props: { unit },
@@ -27,10 +27,10 @@ const title    = unit.data.title_ko ?? unit.data.title;
 const desc     = unit.data.description_ko ?? unit.data.description ?? unit.data.title;
 const trackSlug = unit.data.track;
 
-const { Content } = await unit.render();
+const { Content } = await render(unit);
 
 const allTracks = await getCollection("curriculum");
-const track = allTracks.find((t) => t.slug === unit.data.track);
+const track = allTracks.find((t) => t.id === unit.data.track);
 const trackTitle = track?.data.title_ko ?? track?.data.title ?? trackSlug;
 ---
 

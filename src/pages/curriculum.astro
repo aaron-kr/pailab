@@ -28,7 +28,7 @@ const levelLabel: Record<string, string> = {
   <div class="curriculum-list container page-content">
     <div class="track-grid">
       {tracks.map(track => (
-        <a href={`/curriculum/${track.slug}`} class="track-card card"
+        <a href={`/curriculum/${track.id}`} class="track-card card"
           data-private={track.data.private ? "true" : undefined}>
           <!-- Top color bar (slides in on hover via CSS) -->
           <div class="track-bar" style={`--bar-color: ${levelColor[track.data.level] ?? "var(--cyan)"}`}></div>

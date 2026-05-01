@@ -3,14 +3,14 @@
 // Static content pages — URL: /pages/arduino-overview
 // Link in nav via Nav.astro NAV array or add as standalone links.
 // Parent/child relationship via `parent_page` frontmatter (slug of parent).
-import { getCollection, type CollectionEntry } from "astro:content";
+import { render, getCollection, type CollectionEntry } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
 
 export async function getStaticPaths() {
   const allPages = await getCollection("pages");
   return allPages.map((page) => ({
-    params: { slug: page.slug },
+    params: { slug: page.id },
     props:  { page },
   }));
 }
@@ -22,19 +22,19 @@ interface Props {
 const { page } = Astro.props;
 const lang = "en";
 
-const { Content, headings } = await page.render();
+const { Content, headings } = await render(page);
 
 // Resolve parent page for breadcrumb
 let parentPage: CollectionEntry<"pages"> | undefined;
 if (page.data.parent_page) {
   const allPages = await getCollection("pages");
-  parentPage = allPages.find((p) => p.slug === page.data.parent_page);
+  parentPage = allPages.find((p) => p.id === page.data.parent_page);
 }
 
 // Resolve child pages
 const allPages = await getCollection("pages");
 const childPages = allPages
-  .filter((p) => p.data.parent_page === page.slug)
+  .filter((p) => p.data.parent_page === page.id)
   .sort((a, b) => a.data.order - b.data.order);
 ---
 
@@ -59,7 +59,7 @@ const childPages = allPages
         <nav class="page-breadcrumb" aria-label="Breadcrumb">
           <a href="/pages">Pages</a>
           <span class="crumb-sep">›</span>
-          <a href={`/pages/${parentPage.slug}`}>{parentPage.data.title}</a>
+          <a href={`/pages/${parentPage.id}`}>{parentPage.data.title}</a>
           <span class="crumb-sep">›</span>
           <span>{page.data.title}</span>
         </nav>
@@ -75,7 +75,7 @@ const childPages = allPages
             <ul class="page-child-list">
               {childPages.map(child => (
                 <li>
-                  <a href={`/pages/${child.slug}`} class="page-child-link">
+                  <a href={`/pages/${child.id}`} class="page-child-link">
                     {child.data.nav_label ?? child.data.title}
                   </a>
                 </li>
@@ -85,7 +85,7 @@ const childPages = allPages
             )}
 
             {parentPage && (
-              <a href={`/pages/${parentPage.slug}`} class="btn-slide btn-slide-green"
+              <a href={`/pages/${parentPage.id}`} class="btn-slide btn-slide-green"
                 style="display:inline-flex; margin-top:1rem; font-size:.72rem;">
                 ← {parentPage.data.title}
               </a>
@@ -96,7 +96,7 @@ const childPages = allPages
                 .filter(h => h.depth <= 2)
                 .map(h => (
                 <li class={`lvl-${h.depth}`}>
-                  <a class="page-child-link" href={`#${h.slug}`}>{h.text}</a>
+                  <a class="page-child-link" href={`#${h.id}`}>{h.text}</a>
                 </li>
               ))}
             </ul>

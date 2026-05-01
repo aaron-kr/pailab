@@ -79,7 +79,7 @@ const projGradients = ["proj-g1","proj-g2","proj-g3","proj-g4"];
       <p class="section-sub">기초부터 고급 로보틱스까지 4개 트랙. 완전 이중 언어 EN / 한국어.</p>
       <div class="curriculum-grid">
         {curriculum.map((track, i) => (
-          <a href={`/ko/curriculum/${track.slug}`} class="track-card">
+          <a href={`/ko/curriculum/${track.id}`} class="track-card">
             <div class="track-bar" style={`background:${trackColors[i % 4]}`}></div>
             <div class="track-meta">TRACK {track.data.track} · {track.data.level.toUpperCase()}</div>
             <p class="track-title">{track.data.title_ko ?? track.data.title}</p>
@@ -99,7 +99,7 @@ const projGradients = ["proj-g1","proj-g2","proj-g3","proj-g4"];
       <p class="section-sub">AI 중심이 아닌 과목에 바로 적용할 수 있는 피지컬 AI 모듈 — 1~3주 분량.</p>
       <div class="modules-grid">
         {modules.map((mod) => (
-          <a href={`/modules/${mod.slug}`} class="module-card">
+          <a href={`/modules/${mod.id}`} class="module-card">
             <div class="module-course-badge">{mod.data.course_tag.toUpperCase()}</div>
             <p class="module-title">{mod.data.title_ko ?? mod.data.title}</p>
             <p class="module-desc">{mod.data.description_ko ?? mod.data.description}</p>

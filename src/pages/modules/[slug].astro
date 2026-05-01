@@ -1,13 +1,13 @@
 ---
 // src/pages/modules/[slug].astro
-import { getCollection, type CollectionEntry } from "astro:content";
+import { render, getCollection, type CollectionEntry } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
 
 export async function getStaticPaths() {
   const mods = await getCollection("modules");
   return mods.map((mod) => ({
-    params: { slug: mod.slug },
+    params: { slug: mod.id },
     props: { mod },
   }));
 }
@@ -18,7 +18,7 @@ interface Props {
 
 const { mod } = Astro.props;
 const lang = "en" as const;
-const { Content } = await mod.render();
+const { Content } = await render(mod);
 ---
 
 <BaseLayout

@@ -2,16 +2,16 @@
 // src/pages/ko/projects/[slug].astro
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
-import { getCollection, type CollectionEntry } from "astro:content";
+import { render, getCollection, type CollectionEntry } from "astro:content";
 
 export async function getStaticPaths() {
   const projects = await getCollection("projects");
-  return projects.map(project => ({ params: { slug: project.slug }, props: { project } }));
+  return projects.map(project => ({ params: { slug: project.id }, props: { project } }));
 }
 
 interface Props { project: CollectionEntry<"projects">; }
 const { project } = Astro.props;
-const { Content } = await project.render();
+const { Content } = await render(project);
 const { title, title_ko, year, status, tags, github, thumbnailUrl, private: isPrivate } = project.data;
 const lang = "ko" as const;
 

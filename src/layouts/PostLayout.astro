@@ -20,8 +20,8 @@ interface Props {
   category?: string;
   naverUrl?: string;
   lang?: Lang;
-  prevPost?: { title: string; slug: string };
-  nextPost?: { title: string; slug: string };
+  prevPost?: { title: string; id: string };
+  nextPost?: { title: string; id: string };
   featuredImage?: string;
   headerBgImage?: string;
   categoryFeatured?: boolean;
@@ -70,7 +70,7 @@ let areaInfo: any = null;
 if (category) {
   try {
     const areas = await getCollection("areas" as any);
-    areaInfo = (areas as any[]).find((a: any) => a.data.slug === category)?.data ?? null;
+    areaInfo = (areas as any[]).find((a: any) => a.data.id === category)?.data ?? null;
   } catch {}
 }
 
@@ -193,7 +193,7 @@ const breadcrumbs = [
               {prevPost && (
                 <>
                   <p class="post-nav-label">← older</p>
-                  <a href={`${notesPath}/${prevPost.slug}`} class="post-nav-link">{prevPost.title}</a>
+                  <a href={`${notesPath}/${prevPost.id}`} class="post-nav-link">{prevPost.title}</a>
                 </>
               )}
             </div>
@@ -201,7 +201,7 @@ const breadcrumbs = [
               {nextPost && (
                 <>
                   <p class="post-nav-label">newer →</p>
-                  <a href={`${notesPath}/${nextPost.slug}`} class="post-nav-link">{nextPost.title}</a>
+                  <a href={`${notesPath}/${nextPost.id}`} class="post-nav-link">{nextPost.title}</a>
                 </>
               )}
             </div>
@@ -245,7 +245,7 @@ const breadcrumbs = [
             <p class="sidebar-widget-label">RELATED</p>
             <div class="related-list">
               {relatedNotes.map(n => (
-                <a href={`${notesPath}/${n.slug}`} class="related-item">
+                <a href={`${notesPath}/${n.id}`} class="related-item">
                   {n.data.category === category && areaInfo && (
                     <span class="related-category-dot"
                           style={`background:${areaInfo.color ?? "var(--cyan)"}`}></span>

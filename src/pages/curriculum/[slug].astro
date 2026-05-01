@@ -1,13 +1,13 @@
 ---
 // src/pages/curriculum/[slug].astro
-import { getCollection, type CollectionEntry } from "astro:content";
+import { render, getCollection, type CollectionEntry } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
 
 export async function getStaticPaths() {
   const tracks = await getCollection("curriculum");
   return tracks.map((track: CollectionEntry<"curriculum">) => ({
-    params: { slug: track.slug },
+    params: { slug: track.id },
     props: { track },
   }));
 }
@@ -19,12 +19,12 @@ interface Props {
 const { track } = Astro.props;
 const lang = "en";
 
-const { Content } = await track.render();
+const { Content } = await render(track);
 
 // Load units for this track, ordered by `order` field
 const allUnits = await getCollection("units");
 const trackUnits = allUnits
-  .filter((u) => u.data.track === track.slug)
+  .filter((u) => u.data.track === track.id)
   .sort((a, b) => a.data.order - b.data.order);
 
 const levelColors: Record<string, string> = {
@@ -97,7 +97,7 @@ const levelBadgeColor = levelColors[track.data.level] ?? "";
               <h2 class="unit-section-title">Units</h2>
               <div class="unit-grid">
                 {trackUnits.map((unit) => {
-                  const [trackSlug, unitSlug] = unit.slug.split("/");
+                  const [trackSlug, unitSlug] = unit.id.split("/");
                   return (
                     <a href={`/curriculum/${trackSlug}/${unitSlug}`} class="unit-card">
                       <div class="unit-img">

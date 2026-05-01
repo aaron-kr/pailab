@@ -15,7 +15,7 @@ export async function GET(_ctx: APIContext) {
       title: n.data.title,
       date: n.data.pubDate.toISOString().slice(0, 7), // "YYYY-MM"
       tag: n.data.tags?.[0] ?? n.data.category ?? "",
-      url: `/notes/${n.slug}/`,
+      url: `/notes/${n.id}/`,
       summary: n.data.summary ?? "",
     }));
 

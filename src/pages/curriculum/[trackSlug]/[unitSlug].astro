@@ -1,14 +1,14 @@
 ---
 // src/pages/curriculum/[trackSlug]/[unitSlug].astro
 // Individual unit/lesson page — URL: /curriculum/track-05-arduino/unit-01-intro
-import { getCollection, type CollectionEntry } from "astro:content";
+import { render, getCollection, type CollectionEntry } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
 
 export async function getStaticPaths() {
   const allUnits = await getCollection("units");
   return allUnits.map((unit) => {
-    const [trackSlug, unitSlug] = unit.slug.split("/");
+    const [trackSlug, unitSlug] = unit.id.split("/");
     return {
       params: { trackSlug, unitSlug },
       props: { unit },
@@ -23,11 +23,11 @@ interface Props {
 const { unit } = Astro.props;
 const lang = "en";
 
-const { Content } = await unit.render();
+const { Content } = await render(unit);
 
 // Load the parent track for breadcrumb and back link
 const allTracks = await getCollection("curriculum");
-const track = allTracks.find((t) => t.slug === unit.data.track);
+const track = allTracks.find((t) => t.id === unit.data.track);
 
 const trackTitle = track?.data.title ?? unit.data.track;
 const trackSlug  = unit.data.track;

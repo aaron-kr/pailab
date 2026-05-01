@@ -1,13 +1,13 @@
 ---
 // src/pages/ko/curriculum/[slug].astro
-import { getCollection, type CollectionEntry } from "astro:content";
+import { render, getCollection, type CollectionEntry } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
 
 export async function getStaticPaths() {
   const tracks = await getCollection("curriculum");
   return tracks.map((track: CollectionEntry<"curriculum">) => ({
-    params: { slug: track.slug },
+    params: { slug: track.id },
     props: { track },
   }));
 }
@@ -22,11 +22,11 @@ const lang = "ko";
 const title_ko = track.data.title_ko ?? track.data.title;
 const desc_ko  = track.data.description_ko ?? track.data.description;
 
-const { Content } = await track.render();
+const { Content } = await render(track);
 
 const allUnits = await getCollection("units");
 const trackUnits = allUnits
-  .filter((u) => u.data.track === track.slug)
+  .filter((u) => u.data.track === track.id)
   .sort((a, b) => a.data.order - b.data.order);
 
 const levelColors: Record<string, string> = {
@@ -92,7 +92,7 @@ const levelBadgeColor = levelColors[track.data.level] ?? "";
               <h2 class="unit-section-title">단원 목록</h2>
               <div class="unit-grid">
                 {trackUnits.map((unit) => {
-                  const [trackSlug, unitSlug] = unit.slug.split("/");
+                  const [trackSlug, unitSlug] = unit.id.split("/");
                   const title  = unit.data.title_ko ?? unit.data.title;
                   const desc   = unit.data.description_ko ?? unit.data.description;
                   return (

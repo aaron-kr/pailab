@@ -34,7 +34,7 @@ const statusLabels: Record<string, string> = {
           </p>
           <div class="project-grid">
             {group.map(project => (
-              <a href={`/projects/${project.slug}`} class="project-card card"
+              <a href={`/projects/${project.id}`} class="project-card card"
                  data-private={project.data.private ? "true" : undefined}>
                 {project.data.thumbnailUrl ? (
                   <div class="project-thumb">

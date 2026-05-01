@@ -18,7 +18,7 @@ export async function GET(context: APIContext) {
       title: note.data.title,
       description: note.data.summary ?? "",
       pubDate: new Date(note.data.pubDate),
-      link: `/notes/${note.slug}/`,
+      link: `/notes/${note.id}/`,
       categories: note.data.tags ?? [],
     })),
     customData: `<language>en-us</language>`,

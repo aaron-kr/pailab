@@ -21,7 +21,7 @@ const prefix = lang === "ko" ? "/ko" : "";
   <span style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-3);">{dateStr}</span>
 
   <div style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;">
-    <a href={`${prefix}/notes/${note.slug}`}
+    <a href={`${prefix}/notes/${note.id}`}
        style="font-size: 0.875rem; font-weight: 500; color: var(--text);">
       {displayTitle}
     </a>

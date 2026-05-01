@@ -16,7 +16,7 @@ const areas = (await getCollection("areas")).sort((a,b) => a.data.order - b.data
   <div class="container page-content">
     <div class="areas-grid">
       {areas.map(area => (
-        <a href={`/notes/category/${area.slug}`} class="area-card card">
+        <a href={`/notes/category/${area.id}`} class="area-card card">
           <div class="area-bar" style={`--bar-color: ${area.data.color ?? "var(--cyan)"}`}></div>
           <span class="area-icon">{area.data.icon ?? "◉"}</span>
           <h2 class="area-name">{area.data.title_ko ?? area.data.title}</h2>
