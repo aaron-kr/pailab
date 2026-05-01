@@ -5,7 +5,7 @@ interface Props { lang: Lang }
 const { lang } = Astro.props;
 ---
 
-<div class="join-section full-bleed" id="join">
+<div class="join-section full-bleed" id="join" data-waves>
   <div class="container">
     <div class="join-inner">
       <div>
@@ -30,5 +30,6 @@ const { lang } = Astro.props;
         </a>
       </div>
     </div>
+    <button class="wave-btn" aria-label="Toggle wave animation">〰</button>
   </div>
 </div>

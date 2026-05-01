@@ -82,7 +82,34 @@ const breadcrumbs = [
 ];
 ---
 
-<BaseLayout lang={lang} title={`${title} · PAI LAB`} description={description} privatePage={privatePage}>
+<BaseLayout lang={lang} title={`${title} · PAI LAB`} description={description} privatePage={privatePage} ogType="article">
+
+  <!-- JSON-LD: BlogPosting — Fragment wrapper is required so slot="head" works
+       when the content is conditional. A bare {condition && <el slot="head">}
+       does NOT forward the slot; <Fragment slot="head"> always does. -->
+  <Fragment slot="head">
+    {!privatePage && (
+      <script is:inline type="application/ld+json" set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": title,
+        "description": description ?? "",
+        "datePublished": pubDate.toISOString(),
+        "inLanguage": lang === "ko" ? "ko-KR" : "en-US",
+        "author": {
+          "@type": "Person",
+          "name": "Aaron Snowberger",
+          "url": "https://aaronsnowberger.com"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Physical AI Laboratory (PAI LAB)",
+          "url": "https://pailab.io",
+          "logo": "https://pailab.io/img/logo2.png"
+        }
+      })} />
+    )}
+  </Fragment>
 
   <!-- ── PAGE HEADER SIZE ─────────────────────────────────────
        Change "md" here to affect ALL notes pages at once:

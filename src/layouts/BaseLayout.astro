@@ -18,6 +18,8 @@ interface Props {
   ogImage?: string;
   /** Set true on private content pages: body is hidden until Nav confirms Firebase auth */
   privatePage?: boolean;
+  /** Override og:type — defaults to "website"; set "article" for blog/note pages */
+  ogType?: "website" | "article";
 }
 
 const {
@@ -26,10 +28,36 @@ const {
   lang = "en",
   ogImage = "/og-default.png",
   privatePage = false,
+  ogType = "website",
 } = Astro.props;
 
 const siteName  = lang === "ko" ? "피지컬 AI 연구소" : "PAI LAB";
 const fullTitle = title.includes("PAI LAB") ? title : `${title} · ${siteName}`;
+
+// JSON-LD: Organization for all pages; rendered inline in <head>
+const orgJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Physical AI Laboratory (PAI LAB)",
+  "url": "https://pailab.io",
+  "logo": "https://pailab.io/img/logo2.png",
+  "sameAs": [
+    "https://github.com/aaron-kr/pailab",
+    "https://kspai.org",
+    "https://aaron.kr"
+  ],
+  "founder": {
+    "@type": "Person",
+    "name": "Aaron Snowberger",
+    "url": "https://aaronsnowberger.com",
+    "jobTitle": "Principal Investigator",
+    "affiliation": {
+      "@type": "Organization",
+      "name": "Physical AI Laboratory"
+    }
+  },
+  "description": "Research group based in Jeonju, Korea, working at the intersection of machine learning, embedded hardware, and physical systems."
+};
 ---
 
 <!doctype html>
@@ -42,14 +70,21 @@ const fullTitle = title.includes("PAI LAB") ? title : `${title} · ${siteName}`;
 
   <meta property="og:title"       content={fullTitle} />
   <meta property="og:description" content={description} />
-  <meta property="og:image"       content={ogImage} />
-  <meta property="og:type"        content="website" />
+  <meta property="og:image"       content={new URL(ogImage, Astro.site).href} />
+  <meta property="og:url"         content={Astro.url.href} />
+  <meta property="og:type"        content={ogType} />
   <meta property="og:site_name"   content={siteName} />
+  <meta property="og:locale"      content={lang === "ko" ? "ko_KR" : "en_US"} />
+
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content={fullTitle} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image"       content={new URL(ogImage, Astro.site).href} />
 
   <link rel="canonical" href={Astro.url.href} />
-  {lang === "en" && <link rel="alternate" hreflang="ko" href={`/ko${Astro.url.pathname}`} />}
-  {lang === "ko" && <link rel="alternate" hreflang="en" href={Astro.url.pathname.replace(/^(\/ko)+/, "") || "/"} />}
-  <link rel="alternate" hreflang="x-default" href={Astro.url.pathname} />
+  {lang === "en" && <link rel="alternate" hreflang="ko" href={new URL(`/ko${Astro.url.pathname}`, Astro.site).href} />}
+  {lang === "ko" && <link rel="alternate" hreflang="en" href={new URL(Astro.url.pathname.replace(/^(\/ko)+/, "") || "/", Astro.site).href} />}
+  <link rel="alternate" hreflang="x-default" href={new URL(lang === "ko" ? (Astro.url.pathname.replace(/^(\/ko)+/, "") || "/") : Astro.url.pathname, Astro.site).href} />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -57,6 +92,19 @@ const fullTitle = title.includes("PAI LAB") ? title : `${title} · ${siteName}`;
   <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <title>{fullTitle}</title>
+
+  <!-- RSS autodiscovery -->
+  <link rel="alternate" type="application/rss+xml" title="PAI LAB Notes (EN)" href="/rss.xml" />
+  <link rel="alternate" type="application/rss+xml" title="PAI LAB Notes (한국어)" href="/ko/rss.xml" />
+
+  <!-- Robots: index public pages, block private pages via ProtectedLayout -->
+  {!privatePage && <meta name="robots" content="index, follow" />}
+
+  <!-- JSON-LD: Organization (all public pages) -->
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(orgJsonLd)} />
+
+  <!-- Named slot for page-specific head content (e.g. article JSON-LD) -->
+  <slot name="head" />
 
   <!-- Apply saved theme + waves state before first paint (prevents flash) -->
   <script is:inline>
