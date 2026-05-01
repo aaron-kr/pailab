@@ -26,6 +26,8 @@ interface Props {
   headerBgImage?: string;
   categoryFeatured?: boolean;
   privatePage?: boolean;
+  /** True when rendered at /ko/... but the note has no Korean translation yet */
+  noKoTranslation?: boolean;
 }
 
 const {
@@ -33,7 +35,11 @@ const {
   tags = [], category, naverUrl, lang = "en",
   prevPost, nextPost, featuredImage, headerBgImage, categoryFeatured,
   privatePage = false,
+  noKoTranslation = false,
 } = Astro.props;
+
+// For the no-KO banner: compute the equivalent EN URL by stripping the /ko prefix
+const enEquivalentPath = Astro.url.pathname.replace(/^\/ko\//, "/");
 
 const notesPath = lang === "ko" ? "/ko/notes" : "/notes";
 const dateStr   = pubDate.toLocaleDateString(lang === "ko" ? "ko-KR" : "en-US", {
@@ -137,6 +143,17 @@ const breadcrumbs = [
           </div>
         )}
 
+        <!-- No-Korean-translation inline banner (replaces the redirect+?notranslated=1 approach) -->
+        {noKoTranslation && (
+          <div class="no-ko-banner" role="alert">
+            <span class="no-ko-icon">🌐</span>
+            <span class="no-ko-text">
+              이 페이지는 아직 한국어로 제공되지 않습니다 — 영어 버전을 표시합니다.
+            </span>
+            <a href={enEquivalentPath} class="no-ko-en-link">영어로 보기 →</a>
+          </div>
+        )}
+
         <!-- Body -->
         <div class="prose">
           <slot />
@@ -234,6 +251,37 @@ const breadcrumbs = [
 </BaseLayout>
 
 <style>
+/* ── No-KO translation banner ─────────────────────────────── */
+.no-ko-banner {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .625rem .875rem;
+  margin-bottom: 1.5rem;
+  background: rgba(36,180,255,.07);
+  border: .5px solid rgba(36,180,255,.2);
+  border-radius: var(--r-md);
+  font-size: .82rem;
+  color: var(--cyan);
+  font-family: var(--font-body);
+}
+[data-theme="light"] .no-ko-banner {
+  background: #e8f0fe;
+  border-color: rgba(26,86,219,.2);
+  color: #1a56db;
+}
+.no-ko-icon { flex-shrink: 0; }
+.no-ko-text { flex: 1; font-family: var(--font-body); }
+.no-ko-en-link {
+  font-size: .75rem;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.no-ko-en-link:hover { opacity: .75; }
+
 /* ── Layout ──────────────────────────────────────────────── */
 .post-layout { display:grid; grid-template-columns:1fr 220px; gap:3.5rem; align-items:start; }
 .post-article { min-width:0; }

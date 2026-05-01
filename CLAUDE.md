@@ -58,7 +58,7 @@ All static content in `src/content/` (Markdown files):
 | `units` | `content/units/[track-slug]/` | `/curriculum/[track-slug]/[unit-slug]` |
 | `projects` | `content/projects/` | `/projects` + `/projects/[slug]` |
 | `modules` | `content/modules/` | `/modules` (list only) |
-| `notes` | `content/notes/` | `/notes` + `/notes/[slug]` |
+| `notes` | `content/notes/[year]/` | `/notes` + `/notes/[year]/[slug]` |
 | `pages` | `content/pages/` | `/pages/[slug]` (freeform static pages) |
 
 **Curriculum → Units → Lessons hierarchy:**
@@ -76,6 +76,17 @@ All static content in `src/content/` (Markdown files):
 **Critical schema note:** Do NOT put `slug` in any content collection schema. Astro auto-generates it from the filename. Use `entry.slug`, never `entry.data.slug`.
 
 **Units slug pattern:** Unit files in subdirectories produce compound slugs: `track-05-arduino/unit-01-intro`. Split with `unit.slug.split("/")` to get `[trackSlug, unitSlug]` for routing.
+
+**Year-folder pattern (notes + research):**
+- Notes are organized by year: `content/notes/2025/some-note.md` → slug `2025/some-note` → URL `/notes/2025/some-note`
+- Route uses `[...slug].astro` (rest parameter) to handle the compound slug. `params: { slug: note.slug }` works as-is.
+- Research is organized by year too: `content/research/conferences/2025/paper.md` — slug not used for routing (no individual pages).
+- Do NOT add year prefix to the filename if it's already in the folder. The folder IS the year.
+
+**Research year folders:**
+- `content/research/conferences/[year]/` — files do NOT include year in filename (folder provides it)
+- `content/research/journals/[year]/` — same pattern
+- `content/research/dissertations/` — no year subfolder (rare, few files)
 
 ---
 
@@ -210,6 +221,38 @@ Three layers — keep all three, do not bypass:
 
 3. **`src/pages/ko/`** — Korean URL space for SEO. Each page sets `const lang = "ko" as const`, renders `_ko` data and Korean UI strings via `t()`. Pages without Korean content are redirect stubs.
 
+**Bilingual single-file notes (the "third way"):**
+
+For notes and simple markdown files, you can put BOTH English and Korean text in the same `.md` file using a `<!-- ko -->` divider:
+
+```markdown
+[English content here]
+
+<!-- ko -->
+
+[Korean content here]
+```
+
+The `src/plugins/remark-bilingual.mjs` remark plugin (wired into `astro.config.mjs`) detects this marker and wraps each half in:
+- `<div class="lang-block lang-block-en">` — shown by default, hidden on `html[lang="ko"]` pages
+- `<div class="lang-block lang-block-ko">` — hidden by default, shown on `html[lang="ko"]` pages
+
+CSS in `global.css` handles show/hide. `BaseLayout.astro` already sets `<html lang={lang}>` so no JS is needed.
+
+**When to use each approach:**
+| Content type | Approach |
+|---|---|
+| Note body text | Single file with `<!-- ko -->` divider |
+| Paper/project titles, descriptions | `_ko` frontmatter fields |
+| UI strings (buttons, nav, headings) | `translations.ts` |
+| Complex index pages with HTML | `translations.ts` + `t()` |
+
+**Notes without Korean translation:**
+- Set `lang: "en"` in frontmatter (default)
+- `/ko/notes/[year]/[slug]` still renders — but shows the English content with an inline banner saying "아직 한국어로 제공되지 않습니다"
+- The banner has a "영어로 보기 →" link to the canonical EN URL
+- This eliminates the redirect loop (`?notranslated=1` bounce) that was the old behavior
+
 **Korean pages status:**
 | Page | Status |
 |---|---|
@@ -275,7 +318,7 @@ Topics: Mapping PAI Landscape, Sim-to-Real, Edge Vision, Gesture Arm, Physical L
 - [ ] The full `/search` page has a single input field, but does not return results.
 - [ ] Pre-existing implicit-any TypeScript errors in `index.astro` (IDE reports them; `astro check` behavior pending verification)
 
-### Recently completed (April 2026)
+### Recently completed (April–May 2026)
 - [x] Curriculum track detail pages `/curriculum/[slug]` (EN + KO)
 - [x] RSS feeds (EN `/rss.xml` + KO `/ko/rss.xml`)
 - [x] Pagefind search (`/search` page + compact nav trigger)
@@ -291,6 +334,10 @@ Topics: Mapping PAI Landscape, Sim-to-Real, Edge Vision, Gesture Arm, Physical L
 - [x] Arduino (Track 05) + ESP32 (Track 06) curriculum tracks with 8 units each
 - [x] Profile image updated to Cloudinary portrait URL (bio.yml portrait_src) — about page + homepage
 - [x] Bio text updated from aaronsnowberger.com `_data/bio.yml` medium bio (bios[1])
+- [x] Notes + research year folders: `content/notes/[year]/`, `content/research/conferences/[year]/`, `content/research/journals/[year]/`
+- [x] `[...slug].astro` routes for notes (both EN + KO) to handle compound year/slug paths
+- [x] `remark-bilingual.mjs` plugin — `<!-- ko -->` marker splits a .md file into EN/KO halves
+- [x] KO notes route now serves all notes (not just `lang:both/ko`) with inline no-KO banner instead of redirect
 
 ---
 
@@ -328,6 +375,9 @@ When using Claude Code or any AI assistant on this codebase:
 - **Firebase page script pattern is critical** — use `pailab:auth-ready` event to get `db`. Never `import { app }` in page scripts — causes double initialization and silent Firestore failures.
 - **Run `astro check` on `src/` only** — do not point it at `dist/` (minified Firebase SDK generates thousands of false warnings).
 - **Keep CLAUDE.md current** — if a new collection, Firestore path, or page pattern is added, document it here so future AI sessions don't rediscover it the hard way.
+- **New notes go in the correct year folder** — e.g., a 2026 note goes in `content/notes/2026/`. Do NOT place notes in `content/notes/` directly.
+- **New conference/journal papers go in year folders** — `content/research/conferences/[year]/` and `content/research/journals/[year]/`. Do NOT include the year in the filename (the folder provides it).
+- **Bilingual notes**: use `<!-- ko -->` as the ONLY divider. Do NOT use headings or `---` for this. The remark plugin only recognizes the exact HTML comment `<!-- ko -->`.
 
 ---
 

@@ -428,6 +428,13 @@ nav.site-nav{
 .footer-social a{font-family:var(--font-mono);font-size:.6rem;color:rgba(106,154,184,.65);transition:color .15s}
 .footer-social a:hover{color:var(--cyan);text-decoration:none}
 
+/* ── Bilingual content blocks ───────────────────────────── */
+/* Files with \3c !-- ko --> marker get wrapped by remark-bilingual.mjs.
+   EN block is shown by default; KO block shown on html[lang="ko"] pages. */
+.lang-block-ko { display: none; }
+html[lang="ko"] .lang-block-ko { display: block; }
+html[lang="ko"] .lang-block-en { display: none; }
+
 /* ── Prose ──────────────────────────────────────────────── */
 .prose{max-width:780px}
 .prose h2{margin:2rem 0 .75rem;font-size:1.15rem}
@@ -878,7 +885,7 @@ nav.site-nav{
 
 /* ════════════════════════════════════════════════════════════
    ADMIN / MEMBERS — shared utilities
-   Consolidated from per-page <style> blocks.
+   Consolidated from per-page \3c style> blocks.
    All selectors here are intentionally global (no Astro scope)
    so they apply to both template-rendered AND JS-created DOM.
    ════════════════════════════════════════════════════════════ */
