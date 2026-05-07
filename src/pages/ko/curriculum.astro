@@ -28,6 +28,14 @@ const levelLabel: Record<string, string> = {
       {tracks.map(track => (
         <a href={`/ko/curriculum/${track.id}`} class="track-card card"
            data-private={track.data.private ? "true" : undefined}>
+
+          {track.data.thumbnailUrl && (
+            <div class="track-thumb">
+              <img src={track.data.thumbnailUrl} alt={track.data.title_ko ?? track.data.title} loading="lazy" />
+              <div class="track-thumb-overlay"></div>
+            </div>
+          )}
+
           <div class="track-bar" style={`--bar-color: ${levelColor[track.data.level] ?? "var(--cyan)"}`}></div>
 
           <div class="track-header">

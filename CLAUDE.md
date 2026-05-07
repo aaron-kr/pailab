@@ -67,6 +67,25 @@ All static content in `src/content/` (Markdown files):
 - Unit files use `track: "track-05-arduino"` frontmatter to associate with their parent track.
 - The track detail page queries units where `unit.data.track === track.slug`.
 
+**Curriculum + Units schema additions (May 2026):**
+
+| Field | Collection | Type | Purpose |
+|---|---|---|---|
+| `thumbnailUrl` | curriculum | `string?` | Card image on `/curriculum` list (hover-zooms, dark overlay) |
+| `featuredImgUrl` | curriculum, units | `string?` | Hero image above content grid on track/unit detail page |
+| `featuredYouTubeUrl` | curriculum, units | `string?` | YouTube embed above content grid (normalized to `youtube-nocookie.com`). Takes precedence over `featuredImgUrl` |
+
+**Progress tracking (localStorage, no login):**
+- LocalStorage key: `pailab:done:{unitId}` where `unitId` is the compound path e.g. `track-05-arduino/unit-01-intro`
+- Value: `{ done: true, at: "ISO_DATE_STRING" }`
+- Toggled via "Mark as Complete" button on every unit page (EN + KO)
+- Auto-marked after `duration` time on page (`parseDurationMs` parses "10 minutes", "1 hour", "2 hours 30 minutes")
+- Progress reads on track detail page: green ✓ badge on unit cards, progress bar in units section header
+- Progress is per-browser/device — each student's computer keeps its own state. No UUID or server-side tracking needed since localStorage is inherently per-browser.
+
+**YouTube URL normalization:**  
+Pass any of: `https://youtu.be/VIDEO_ID`, `https://www.youtube.com/watch?v=VIDEO_ID`, or `https://www.youtube.com/embed/VIDEO_ID`. All are normalized to `https://www.youtube-nocookie.com/embed/VIDEO_ID?rel=0` at build time by the `youtubeEmbed()` helper in the page frontmatter.
+
 **Pages collection:**
 - Freeform static content pages at `/pages/[slug]`
 - `parent_page: "slug"` creates breadcrumb navigation and shows a sidebar child list on the parent
@@ -310,18 +329,27 @@ Topics: Mapping PAI Landscape, Sim-to-Real, Edge Vision, Gesture Arm, Physical L
 
 ---
 
-## What's NOT done yet (as of April 2026)
+## What's NOT done yet (as of May 2026)
 
 - [ ] Korean pages for individual project detail (`/ko/projects/[slug]`)
 - [ ] Korean category pages (`/ko/notes/category/[category]`)
 - [ ] OG image endpoint live (needs `output: "hybrid"` + `@astrojs/vercel` adapter)
 - [ ] Place a static `/public/og-default.png` fallback image
-- [ ] Mobile hamburger nav menu refinements (currently functional, may need polish)
-- [ ] SiteSearch modal works, but has a double-injected input field. Removing pagefind's injected input field disables Search.
-- [ ] The full `/search` page has a single input field, but does not return results.
 - [ ] Pre-existing implicit-any TypeScript errors in `index.astro` (IDE reports them; `astro check` behavior pending verification)
+- [ ] `unit.data` / `track.data` typed as `unknown` in IDE (pre-existing Astro 6 Content Layer + deprecated `z` from `astro:content` — `astro check` is authoritative, not the IDE)
 
 ### Recently completed (April–May 2026)
+- [x] **Search page fixed** — full-variant SiteSearch uses `pf-full-input`/`pf-full-results` IDs (separate from compact overlay); split into `pfCompact`/`pfFull` instances so `/search` page initializes independently of Nav's compact trigger
+- [x] **Double search bar fixed** — `.pagefind-ui__form { display:none !important }` in global.css hides pagefind's injected input while leaving results visible; `triggerSearch()` is programmatic so it still works
+- [x] **Nav split-button** — dropdown groups with `href?` (e.g. About) get a clickable label link + separate chevron button; touch-friendly (tap label = navigate, tap arrow = open dropdown)
+- [x] **Multiple simultaneous dropdowns** — removed "close others" logic; clicking a trigger toggles only that dropdown
+- [x] **Sub-group accordion** — add `{ groupLabel: "Label", items: [...] }` in any dropdown's `items` array; expands downward inline with darker background (`rgba(0,0,0,.28)` dark / `.12` light); chevron rotates right→down
+- [x] **Unit prev/next navigation** — bottom of each unit page; arrows + unit number + title
+- [x] **Featured media on units + tracks** — `featuredImgUrl` (hero image) or `featuredYouTubeUrl` (embedded video) in frontmatter; shown above the content grid; YouTube normalized to `youtube-nocookie.com/embed/` format
+- [x] **Track thumbnails on curriculum list** — `thumbnailUrl` in track frontmatter; image shown at top of track card with hover zoom + overlay gradient; same design as project cards
+- [x] **Mark as Complete button** — on every unit page (EN + KO); localStorage key `pailab:done:{unitId}`; toggleable; shows completion date; auto-marks after `duration` time on page (via `setTimeout`)
+- [x] **Auto-complete toast** — pops up from bottom of screen when auto-marked or manually marked; fades out after 3 s
+- [x] **Unit completion overlay on track page** — green ✓ badge on unit card when completed; progress bar (`X / N completed`) in units section header; reads localStorage on page load
 - [x] Curriculum track detail pages `/curriculum/[slug]` (EN + KO)
 - [x] RSS feeds (EN `/rss.xml` + KO `/ko/rss.xml`)
 - [x] Pagefind search (`/search` page + compact nav trigger)
@@ -330,17 +358,12 @@ Topics: Mapping PAI Landscape, Sim-to-Real, Edge Vision, Gesture Arm, Physical L
 - [x] All `/ko/` list pages — areas, curriculum, projects, modules, about (April 2026)
 - [x] `private: true` frontmatter — hides content from public, reveals on Firebase login
 - [x] Nav login → profile avatar + dropdown when authenticated
-- [x] Admin email moved to `PUBLIC_FIREBASE_ADMIN_EMAIL` env var (no hardcoded secrets)
 - [x] CSS consolidated from per-page `<style>` blocks into `global.css`
-- [x] `units` collection + `/curriculum/[track]/[unit]` routing (EN + KO) — unit cards on track detail page
+- [x] `units` collection + `/curriculum/[track]/[unit]` routing (EN + KO)
 - [x] `pages` collection + `/pages/[slug]` routing — parent/child hierarchy, optional nav linking
 - [x] Arduino (Track 05) + ESP32 (Track 06) curriculum tracks with 8 units each
-- [x] Profile image updated to Cloudinary portrait URL (bio.yml portrait_src) — about page + homepage
-- [x] Bio text updated from aaronsnowberger.com `_data/bio.yml` medium bio (bios[1])
-- [x] Notes + research year folders: `content/notes/[year]/`, `content/research/conferences/[year]/`, `content/research/journals/[year]/`
-- [x] `[...slug].astro` routes for notes (both EN + KO) to handle compound year/slug paths
+- [x] Notes + research year folders with compound-slug routing
 - [x] `remark-bilingual.mjs` plugin — `<!-- ko -->` marker splits a .md file into EN/KO halves
-- [x] KO notes route now serves all notes (not just `lang:both/ko`) with inline no-KO banner instead of redirect
 
 ---
 

@@ -12,16 +12,12 @@ export async function getStaticPaths() {
   }));
 }
 
-interface Props {
-  track: CollectionEntry<"curriculum">;
-}
-
+interface Props { track: CollectionEntry<"curriculum">; }
 const { track } = Astro.props;
 const lang = "en";
 
 const { Content } = await render(track);
 
-// Load units for this track, ordered by `order` field
 const allUnits = await getCollection("units");
 const trackUnits = allUnits
   .filter((u) => u.data.track === track.id)
@@ -33,8 +29,20 @@ const levelColors: Record<string, string> = {
   advanced:     "pink",
   open:         "warn",
 };
-
 const levelBadgeColor = levelColors[track.data.level] ?? "";
+
+function youtubeEmbed(url: string): string {
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return m ? `https://www.youtube-nocookie.com/embed/${m[1]}?rel=0` : url;
+}
+
+const featuredEmbedUrl = track.data.featuredYouTubeUrl
+  ? youtubeEmbed(track.data.featuredYouTubeUrl)
+  : null;
+const hasFeaturedMedia = !!(featuredEmbedUrl || track.data.featuredImgUrl);
+
+// Unit IDs serialized for client-side progress reading
+const unitIds = trackUnits.map(u => u.id);
 ---
 
 <BaseLayout
@@ -52,6 +60,31 @@ const levelBadgeColor = levelColors[track.data.level] ?? "";
 
   <main class="page-content">
     <div class="container">
+
+      <!-- Featured media above the detail grid -->
+      {hasFeaturedMedia && (
+        <div class="featured-media">
+          {featuredEmbedUrl ? (
+            <div class="yt-embed">
+              <iframe
+                src={featuredEmbedUrl}
+                title={track.data.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                loading="lazy"
+              ></iframe>
+            </div>
+          ) : (
+            <img
+              src={track.data.featuredImgUrl}
+              alt={track.data.title}
+              class="featured-hero-img"
+              loading="eager"
+            />
+          )}
+        </div>
+      )}
+
       <div class="curriculum-detail-grid">
 
         <!-- Sidebar meta -->
@@ -91,21 +124,36 @@ const levelBadgeColor = levelColors[track.data.level] ?? "";
             <Content />
           </article>
 
-          <!-- Unit grid -->
+          <!-- Unit grid with progress tracking -->
           {trackUnits.length > 0 && (
             <div class="unit-section">
-              <h2 class="unit-section-title">Units</h2>
-              <div class="unit-grid">
+              <div class="unit-section-header">
+                <h2 class="unit-section-title">Units</h2>
+                <!-- Progress bar (populated by client-side JS) -->
+                <div class="track-progress" id="track-progress" style="display:none">
+                  <p class="track-progress-label" id="track-progress-label">0 / {trackUnits.length} completed</p>
+                  <div class="track-progress-bar">
+                    <div class="track-progress-fill" id="track-progress-fill" style="width:0%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="unit-grid" id="unit-grid">
                 {trackUnits.map((unit) => {
                   const [trackSlug, unitSlug] = unit.id.split("/");
                   return (
-                    <a href={`/curriculum/${trackSlug}/${unitSlug}`} class="unit-card">
+                    <a href={`/curriculum/${trackSlug}/${unitSlug}`}
+                       class="unit-card"
+                       data-unit-id={unit.id}>
                       <div class="unit-img">
                         {unit.data.image
                           ? <img src={unit.data.image} alt={unit.data.title} />
-                          : <div class="unit-img-placeholder"><span class="unit-num-badge">{unit.data.unit_number}</span></div>
+                          : <div class="unit-img-placeholder">
+                              <span class="unit-num-badge">{unit.data.unit_number}</span>
+                            </div>
                         }
                       </div>
+                      <!-- Completion badge (hidden until JS runs) -->
+                      <div class="unit-done-badge" aria-label="Completed" hidden></div>
                       <div class="unit-card-body">
                         <span class="unit-num-label">UNIT {unit.data.unit_number}</span>
                         <h3 class="unit-card-title">{unit.data.title}</h3>
@@ -128,3 +176,35 @@ const levelBadgeColor = levelColors[track.data.level] ?? "";
     </div>
   </main>
 </BaseLayout>
+
+<script define:vars={{ unitIds }} is:inline>
+// Show completion badges and progress bar from localStorage
+(function () {
+  let done = 0;
+  unitIds.forEach((id) => {
+    try {
+      const rec = JSON.parse(localStorage.getItem(`pailab:done:${id}`) ?? "null");
+      if (rec?.done) {
+        done++;
+        const card = document.querySelector(`[data-unit-id="${id}"]`);
+        if (card) {
+          card.classList.add("is-done");
+          const badge = card.querySelector(".unit-done-badge");
+          if (badge) badge.removeAttribute("hidden");
+        }
+      }
+    } catch {}
+  });
+
+  if (done > 0 || unitIds.length > 0) {
+    const bar   = document.getElementById("track-progress");
+    const label = document.getElementById("track-progress-label");
+    const fill  = document.getElementById("track-progress-fill");
+    if (bar && label && fill) {
+      bar.style.display = "";
+      label.textContent = `${done} / ${unitIds.length} completed`;
+      fill.style.width  = `${Math.round((done / unitIds.length) * 100)}%`;
+    }
+  }
+})();
+</script>

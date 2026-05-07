@@ -13,9 +13,14 @@ const altUrl = altLangUrl(currentPath, lang);
 const p = lang === "ko" ? "/ko" : "";
 
 // ── EDIT THIS to change the nav structure ───────────────────
+type NavLeaf     = { label: string; href: string };
+type NavDivider  = { divider: true };
+type NavSubGroup = { groupLabel: string; items: NavLeaf[] };
+type NavSubItem  = NavLeaf | NavDivider | NavSubGroup;
+
 const NAV: Array<
   | { label: string; href: string; hideOnKo?: boolean }
-  | { label: string; items: { label: string; href: string }[] }
+  | { label: string; href?: string; items: NavSubItem[] }
 > = [
   {
     label: "Research",
@@ -25,10 +30,16 @@ const NAV: Array<
       { label: "Research Projects",    href: `${p}/projects` },
       // { label: "Publishing",  href: `${p}/publishing` },
       { divider: true },
-      { label: "> Doing Research", href: `${p}/pages/1-doing-research` },
-      { label: "> Presenting Research", href: `${p}/pages/2-presenting-research` },
-      { label: "> Publishing Research", href: `${p}/pages/3-publishing-research` },
-      { label: "> Research Q&A", href: `${p}/pages/4-research-q-and-a` },
+      { 
+        label: "Doing Research →", 
+        href: `${p}/pages/1-doing-research`,
+        items: [
+          { label: "> Presenting Research", href: `${p}/pages/2-presenting-research` },
+          { label: "> Publishing Research", href: `${p}/pages/3-publishing-research` },
+          { label: "> Research Q&A", href: `${p}/pages/4-research-q-and-a` },
+        ]
+      },
+      
       // { label: "Datasets",    href: `${p}/datasets` },
       // { label: "Code",        href: `${p}/code` },
     ],
@@ -54,12 +65,11 @@ const NAV: Array<
   },
   {
     label: "About",
+    href: `${p}/about`,
     items: [
-      { label: "About", href: `${p}/about` },
       { label: "Team",  href: `/team` },
       { label: "Join",  href: `${p}/join` },
     ],
-    // href: `${p}/about`
   },
   // { label: "Search", href: "/search", hideOnKo: false },
 ];
@@ -77,48 +87,99 @@ const NAV: Array<
     <!-- Desktop nav links -->
     <ul class="nav-links">
       {NAV.map((item) => {
-        if ("href" in item) {
-          return (
-            <li>
-              <a href={item.href}
-                 class:list={["nav-link", { "nav-link--active": currentPath === item.href || currentPath.startsWith(item.href + "/") }]}>
-                {item.label}
-              </a>
-            </li>
-          );
-        } else {
+        if ("items" in item) {
           const isGroupActive = item.items.some(i =>
-            currentPath === i.href || currentPath.startsWith(i.href + "/")
+            "href" in i && (currentPath === i.href || currentPath.startsWith(i.href + "/"))
           );
           return (
             <li class="nav-dropdown-wrap">
-              <button
-                class:list={["nav-link nav-dropdown-trigger", { "nav-link--active": isGroupActive }]}
-                aria-expanded="false"
-                aria-haspopup="true"
-                type="button"
-              >
-                {item.label}
-                <svg class="nav-chevron" width="9" height="5" viewBox="0 0 9 5" fill="none" aria-hidden="true">
-                  <path d="M1 1l3.5 3L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-              </button>
+              {item.href ? (
+                /* Split button: link navigates, chevron button opens dropdown */
+                <div class="nav-link-split">
+                  <a href={item.href}
+                     class:list={["nav-link nav-link--label", { "nav-link--active": isGroupActive }]}>
+                    {item.label}
+                  </a>
+                  <button
+                    class="nav-dropdown-trigger nav-split-btn"
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    aria-label={`Open ${item.label} submenu`}
+                    type="button"
+                  >
+                    <svg class="nav-chevron" width="9" height="5" viewBox="0 0 9 5" fill="none" aria-hidden="true">
+                      <path d="M1 1l3.5 3L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                /* Full-button trigger when no top-level href */
+                <button
+                  class:list={["nav-link nav-dropdown-trigger", { "nav-link--active": isGroupActive }]}
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  type="button"
+                >
+                  {item.label}
+                  <svg class="nav-chevron" width="9" height="5" viewBox="0 0 9 5" fill="none" aria-hidden="true">
+                    <path d="M1 1l3.5 3L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </button>
+              )}
               <ul class="nav-dropdown" role="menu">
                 {item.items.map((sub) => (
-                  sub.divider ? (
+                  "divider" in sub ? (
                     <li role="none" aria-hidden="true">
                       <div class="nav-menu-divider"></div>
                     </li>
+                  ) : "groupLabel" in sub ? (
+                    /* Sub-group accordion — expands downward, darker background */
+                    <li class="nav-subgroup-wrap" role="none">
+                      <button class="nav-subgroup-trigger" aria-expanded="false" type="button">
+                        {sub.groupLabel}
+                        <svg class="nav-chevron" width="9" height="5" viewBox="0 0 9 5" fill="none" aria-hidden="true">
+                          <path d="M1 1l3.5 3L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                      </button>
+                      <ul class="nav-subgroup-list" role="menu">
+                        {sub.items.map((leaf) => (
+                          <li role="none">
+                            <a href={leaf.href} role="menuitem"
+                               class:list={["nav-dropdown-item nav-dropdown-item--sub", { "nav-dropdown-item--active": currentPath === leaf.href }]}>
+                              {leaf.label}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
                   ) : (
-                  <li role="none">
-                    <a href={sub.href} class="nav-dropdown-item" role="menuitem"
-                       class:list={["nav-dropdown-item", { "nav-dropdown-item--active": currentPath === sub.href }]}>
-                      {sub.label}
-                    </a>
-                  </li>
+                    <li role="none">
+                      <a href={sub.href} role="menuitem"
+                         class:list={["nav-dropdown-item", { "nav-dropdown-item--active": currentPath === sub.href }]}>
+                        {sub.label}
+                      </a>
+                    </li>
                   )
                 ))}
               </ul>
+            </li>
+          );
+        } else {
+          return (
+            <li>
+              <a
+                href={item.href}
+                class:list={[
+                  "nav-link",
+                  {
+                    "nav-link--active":
+                      currentPath === item.href ||
+                      currentPath.startsWith(item.href + "/")
+                  }
+                ]}
+              >
+                {item.label}
+              </a>
             </li>
           );
         }
@@ -189,12 +250,28 @@ const NAV: Array<
         } else {
           return (
             <div class="mobile-nav-group">
-              <span class="mobile-group-label">{item.label}</span>
-              {item.items.map((sub) => (
-                <a href={sub.href}
-                   class:list={["mobile-nav-link mobile-nav-link--sub", { "mobile-nav-link--active": currentPath === sub.href }]}>
-                  {sub.label}
+              {item.href ? (
+                <a href={item.href}
+                   class:list={["mobile-nav-link mobile-group-link", { "mobile-nav-link--active": currentPath === item.href }]}>
+                  {item.label}
                 </a>
+              ) : (
+                <span class="mobile-group-label">{item.label}</span>
+              )}
+              {item.items.map((sub) => (
+                "divider" in sub ? null
+                : "groupLabel" in sub ? sub.items.map((leaf) => (
+                    <a href={leaf.href}
+                       class:list={["mobile-nav-link mobile-nav-link--sub", { "mobile-nav-link--active": currentPath === leaf.href }]}>
+                      {leaf.label}
+                    </a>
+                  ))
+                : (
+                  <a href={sub.href}
+                     class:list={["mobile-nav-link mobile-nav-link--sub", { "mobile-nav-link--active": currentPath === sub.href }]}>
+                    {sub.label}
+                  </a>
+                )
               ))}
             </div>
           );
@@ -213,20 +290,38 @@ const NAV: Array<
 </div>
 
 <script>
-// ── Desktop dropdown ─────────────────────────────────────────
+// ── Desktop dropdown — only one top-level menu open at a time ──
 document.querySelectorAll<HTMLButtonElement>(".nav-dropdown-trigger").forEach(btn => {
   btn.addEventListener("click", (e) => {
     e.stopPropagation();
+
     const wrap = btn.closest(".nav-dropdown-wrap")!;
     const isOpen = wrap.classList.contains("open");
+
+    // Close all OTHER top-level dropdowns
     document.querySelectorAll(".nav-dropdown-wrap.open").forEach(w => {
-      w.classList.remove("open");
-      (w.querySelector(".nav-dropdown-trigger") as HTMLElement)?.setAttribute("aria-expanded", "false");
+      if (w !== wrap) {
+        w.classList.remove("open");
+
+        const trigger = w.querySelector(".nav-dropdown-trigger");
+        trigger?.setAttribute("aria-expanded", "false");
+      }
     });
-    if (!isOpen) {
-      wrap.classList.add("open");
-      btn.setAttribute("aria-expanded", "true");
-    }
+
+    // Toggle current dropdown
+    wrap.classList.toggle("open", !isOpen);
+    btn.setAttribute("aria-expanded", String(!isOpen));
+  });
+});
+
+// ── Sub-group accordion (nested within dropdown) ─────────────
+document.querySelectorAll<HTMLButtonElement>(".nav-subgroup-trigger").forEach(btn => {
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const wrap = btn.closest(".nav-subgroup-wrap")!;
+    const isOpen = wrap.classList.contains("open");
+    wrap.classList.toggle("open", !isOpen);
+    btn.setAttribute("aria-expanded", String(!isOpen));
   });
 });
 document.addEventListener("click", () => {
@@ -237,7 +332,10 @@ document.addEventListener("click", () => {
 });
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") {
-    document.querySelectorAll(".nav-dropdown-wrap.open").forEach(w => w.classList.remove("open"));
+    document.querySelectorAll(".nav-dropdown-wrap.open").forEach(w => {
+      w.classList.remove("open");
+      (w.querySelector(".nav-dropdown-trigger") as HTMLElement)?.setAttribute("aria-expanded", "false");
+    });
     closeMobileMenu();
   }
 });
@@ -627,4 +725,84 @@ _signoutBtn?.addEventListener("click", async () => {
   color: var(--pink) !important;
   background: rgba(240,18,122,.08) !important;
 }
+
+/* ── Split nav link: label is a link, chevron button opens dropdown ── */
+.nav-link-split {
+  display: flex;
+  align-items: stretch;
+}
+/* The label part keeps standard nav-link height/padding minus right gap */
+.nav-link--label {
+  padding-right: .1rem;
+}
+/* Chevron-only button beside the label */
+.nav-split-btn {
+  background: none;
+  border: none;
+  padding: 0 .5rem 0 .15rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  height: var(--nav-h, 60px);
+  color: var(--text-2);
+  transition: color .15s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.nav-split-btn:hover { color: var(--text); }
+/* Rotate chevron when the split-button's parent wrap is open */
+.nav-dropdown-wrap.open .nav-split-btn .nav-chevron { transform: rotate(180deg); }
+
+/* ── Sub-group accordion inside dropdown ─────────────────────── */
+.nav-subgroup-trigger {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: .45rem .875rem;
+  font-size: .74rem;
+  font-family: var(--font-body);
+  color: var(--text-3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: var(--r-sm, 6px);
+  transition: background .1s, color .1s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.nav-subgroup-trigger:hover { background: var(--bg-subtle); color: var(--text-2); }
+/* Chevron points right (collapsed) → down (expanded) */
+.nav-subgroup-trigger .nav-chevron {
+  transform: rotate(-90deg);
+  transition: transform .18s ease;
+  flex-shrink: 0;
+}
+.nav-subgroup-wrap.open .nav-subgroup-trigger .nav-chevron { transform: rotate(0deg); }
+
+.nav-subgroup-list {
+  display: none;
+  list-style: none;
+  background: rgba(0, 0, 0, .12);
+  border-radius: var(--r-sm, 6px);
+  margin: 2px .25rem;
+  padding: .2rem;
+}
+[data-theme="dark"] .nav-subgroup-list { background: rgba(0, 0, 0, .28); }
+.nav-subgroup-wrap.open .nav-subgroup-list { display: block; }
+
+/* Sub-items inside accordion: indented, slightly smaller */
+.nav-dropdown-item--sub { padding-left: 1.25rem; font-size: .74rem; }
+
+/* Mobile group link (when the group has a top-level href) */
+.mobile-group-link {
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  padding: .4rem 1.25rem .25rem;
+}
+.mobile-group-link:hover { background: var(--bg-subtle); color: var(--cyan); }
+[data-theme="light"] .mobile-group-link:hover { color: var(--green-2); }
 </style>

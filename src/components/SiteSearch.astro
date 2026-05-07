@@ -65,9 +65,9 @@ const { variant = "compact" } = Astro.props;
         <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/>
         <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
-      <label for="pagefind-search-input" class="sr-only">Search this site</label>
+      <label for="pf-full-input" class="sr-only">Search this site</label>
       <input
-        id="pagefind-search-input"
+        id="pf-full-input"
         type="search"
         placeholder="Search notes, projects, research…"
         autocomplete="off"
@@ -75,47 +75,47 @@ const { variant = "compact" } = Astro.props;
         aria-label="Search this site"
       />
     </div>
-    <div id="pagefind-results" class="search-results search-results--full" aria-live="polite" aria-label="Search results"></div>
+    <div id="pf-full-results" class="search-results search-results--full" aria-live="polite" aria-label="Search results"></div>
   </div>
 )}
 
 <script>
-  let pf: any = null;
-
-  async function initPagefind(inputId: string, resultsId: string) {
-    if (pf) return;
-    try {
-      // Load pagefind via script tag — bypasses Vite's import analysis entirely
-      await new Promise<void>((resolve, reject) => {
-        if ((window as any).PagefindUI) { resolve(); return; }
-        const s = document.createElement("script");
-        s.src = "/pagefind/pagefind-ui.js";
-        s.onload = () => resolve();
-        s.onerror = () => reject();
-        document.head.appendChild(s);
-      });
-      // Load CSS once
-      if (!document.querySelector('link[href="/pagefind/pagefind-ui.css"]')) {
-        const link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.href = "/pagefind/pagefind-ui.css";
-        document.head.appendChild(link);
-      }
-      pf = new (window as any).PagefindUI({
-        element: `#${resultsId}`,
-        showSubResults: true,
-        resetStyles: false,
-        highlightParam: "highlight",
-      });
-      const input = document.getElementById(inputId) as HTMLInputElement | null;
-      if (!input) return;
-      input.addEventListener("input", () => pf.triggerSearch(input.value));
-    } catch {
-      // Dev mode — pagefind not built yet, fail silently
+  // Load pagefind assets once — idempotent
+  async function loadPFAssets() {
+    await new Promise<void>((resolve, reject) => {
+      if ((window as any).PagefindUI) { resolve(); return; }
+      const s = document.createElement("script");
+      s.src = "/pagefind/pagefind-ui.js";
+      s.onload = () => resolve();
+      s.onerror = () => reject();
+      document.head.appendChild(s);
+    });
+    if (!document.querySelector('link[href="/pagefind/pagefind-ui.css"]')) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "/pagefind/pagefind-ui.css";
+      document.head.appendChild(link);
     }
   }
 
   // ── Compact overlay variant ──────────────────────────
+  let pfCompact: any = null;
+
+  async function initCompact() {
+    if (pfCompact) return;
+    try {
+      await loadPFAssets();
+      pfCompact = new (window as any).PagefindUI({
+        element: "#pagefind-results",
+        showSubResults: true,
+        resetStyles: false,
+        highlightParam: "highlight",
+      });
+      const input = document.getElementById("pagefind-search-input") as HTMLInputElement | null;
+      if (input) input.addEventListener("input", () => pfCompact.triggerSearch(input.value));
+    } catch { /* dev mode */ }
+  }
+
   const trigger  = document.getElementById("search-trigger");
   const overlay  = document.getElementById("search-overlay") as HTMLElement | null;
   const backdrop = overlay?.querySelector(".search-backdrop");
@@ -125,7 +125,7 @@ const { variant = "compact" } = Astro.props;
     overlay.hidden = false;
     document.body.style.overflow = "hidden";
     const input = document.getElementById("pagefind-search-input") as HTMLInputElement | null;
-    initPagefind("pagefind-search-input", "pagefind-results").then(() => input?.focus());
+    initCompact().then(() => input?.focus());
   }
 
   function closeSearch() {
@@ -142,9 +142,28 @@ const { variant = "compact" } = Astro.props;
   });
 
   // ── Full variant (search page) ───────────────────────
-  if (document.getElementById("pagefind-search-input") && !trigger) {
-    initPagefind("pagefind-search-input", "pagefind-results");
-    (document.getElementById("pagefind-search-input") as HTMLInputElement | null)?.focus();
+  // Uses distinct IDs (pf-full-input / pf-full-results) to avoid conflict
+  // with the compact overlay that Nav renders on the same page.
+  let pfFull: any = null;
+
+  async function initFull() {
+    if (pfFull) return;
+    try {
+      await loadPFAssets();
+      pfFull = new (window as any).PagefindUI({
+        element: "#pf-full-results",
+        showSubResults: true,
+        resetStyles: false,
+        highlightParam: "highlight",
+      });
+      const input = document.getElementById("pf-full-input") as HTMLInputElement | null;
+      if (input) input.addEventListener("input", () => pfFull.triggerSearch(input.value));
+    } catch { /* dev mode */ }
+  }
+
+  const fullInput = document.getElementById("pf-full-input") as HTMLInputElement | null;
+  if (fullInput) {
+    initFull().then(() => fullInput.focus());
   }
 </script>
 

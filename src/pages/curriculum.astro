@@ -21,16 +21,26 @@ const levelLabel: Record<string, string> = {
 ---
 
 <BaseLayout lang={lang} title="Curriculum · PAI LAB"
-  description="Four structured tracks from first principles to advanced robotics.">
+  description="Various structured tracks from first principles to advanced robotics.">
   <PageHeader title="Curriculum" eyebrow="02 · CURRICULUM"
-    description="Four structured tracks from first principles to advanced robotics. All tracks are bilingual (EN / 한국어) and freely available." />
+    description="Various structured tracks from first principles to advanced robotics. All tracks are bilingual (EN / 한국어) and freely available." />
 
   <div class="curriculum-list container page-content">
     <div class="track-grid">
       {tracks.map(track => (
-        <a href={`/curriculum/${track.id}`} class="track-card card"
-          data-private={track.data.private ? "true" : undefined}>
-          <!-- Top color bar (slides in on hover via CSS) -->
+        <a href={`/curriculum/${track.id}`}
+           class={`track-card card${track.data.featured ? " featured" : ""}`}
+           data-private={track.data.private ? "true" : undefined}>
+
+          <!-- Thumbnail (if provided) -->
+          {track.data.thumbnailUrl && (
+            <div class="track-thumb">
+              <img src={track.data.thumbnailUrl} alt={track.data.title} loading="lazy" />
+              <div class="track-thumb-overlay"></div>
+            </div>
+          )}
+
+          <!-- Hover color bar -->
           <div class="track-bar" style={`--bar-color: ${levelColor[track.data.level] ?? "var(--cyan)"}`}></div>
 
           <div class="track-header">
@@ -56,4 +66,3 @@ const levelLabel: Record<string, string> = {
     </div>
   </div>
 </BaseLayout>
-

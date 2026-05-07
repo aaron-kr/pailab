@@ -1,6 +1,5 @@
 ---
 // src/pages/ko/curriculum/[trackSlug]/[unitSlug].astro
-// KO unit detail page — URL: /ko/curriculum/track-05-arduino/unit-01-intro
 import { render, getCollection, type CollectionEntry } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
@@ -9,22 +8,16 @@ export async function getStaticPaths() {
   const allUnits = await getCollection("units");
   return allUnits.map((unit) => {
     const [trackSlug, unitSlug] = unit.id.split("/");
-    return {
-      params: { trackSlug, unitSlug },
-      props: { unit },
-    };
+    return { params: { trackSlug, unitSlug }, props: { unit } };
   });
 }
 
-interface Props {
-  unit: CollectionEntry<"units">;
-}
-
+interface Props { unit: CollectionEntry<"units">; }
 const { unit } = Astro.props;
 const lang = "ko";
 
-const title    = unit.data.title_ko ?? unit.data.title;
-const desc     = unit.data.description_ko ?? unit.data.description ?? unit.data.title;
+const title = unit.data.title_ko ?? unit.data.title;
+const desc  = unit.data.description_ko ?? unit.data.description ?? unit.data.title;
 const trackSlug = unit.data.track;
 
 const { Content } = await render(unit);
@@ -32,6 +25,31 @@ const { Content } = await render(unit);
 const allTracks = await getCollection("curriculum");
 const track = allTracks.find((t) => t.id === unit.data.track);
 const trackTitle = track?.data.title_ko ?? track?.data.title ?? trackSlug;
+
+// Prev / Next units in this track
+const allUnits = await getCollection("units");
+const trackUnits = allUnits
+  .filter(u => u.data.track === unit.data.track)
+  .sort((a, b) => a.data.order - b.data.order);
+
+const currentIdx = trackUnits.findIndex(u => u.id === unit.id);
+const prevUnit   = currentIdx > 0                        ? trackUnits[currentIdx - 1] : null;
+const nextUnit   = currentIdx < trackUnits.length - 1   ? trackUnits[currentIdx + 1] : null;
+
+function unitUrl(u: CollectionEntry<"units">): string {
+  const [ts, us] = u.id.split("/");
+  return `/ko/curriculum/${ts}/${us}`;
+}
+
+function youtubeEmbed(url: string): string {
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return m ? `https://www.youtube-nocookie.com/embed/${m[1]}?rel=0` : url;
+}
+
+const featuredEmbedUrl = unit.data.featuredYouTubeUrl
+  ? youtubeEmbed(unit.data.featuredYouTubeUrl)
+  : null;
+const hasFeaturedMedia = !!(featuredEmbedUrl || unit.data.featuredImgUrl);
 ---
 
 <BaseLayout
@@ -49,6 +67,30 @@ const trackTitle = track?.data.title_ko ?? track?.data.title ?? trackSlug;
 
   <main class="page-content">
     <div class="container">
+
+      {hasFeaturedMedia && (
+        <div class="featured-media">
+          {featuredEmbedUrl ? (
+            <div class="yt-embed">
+              <iframe
+                src={featuredEmbedUrl}
+                title={title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                loading="lazy"
+              ></iframe>
+            </div>
+          ) : (
+            <img
+              src={unit.data.featuredImgUrl}
+              alt={title}
+              class="featured-hero-img"
+              loading="eager"
+            />
+          )}
+        </div>
+      )}
+
       <div class="unit-detail-grid">
 
         <aside class="curriculum-meta-sidebar">
@@ -78,6 +120,21 @@ const trackTitle = track?.data.title_ko ?? track?.data.title ?? trackSlug;
             </div>
           )}
 
+          <div class="mark-complete-wrap">
+            <button
+              id="btn-complete"
+              class="btn-complete"
+              data-unit-id={unit.id}
+              data-duration={unit.data.duration ?? ""}
+              type="button"
+              aria-pressed="false"
+            >
+              <span class="btn-complete-icon">○</span>
+              <span class="btn-complete-text">완료로 표시</span>
+            </button>
+            <p class="complete-status" id="complete-status"></p>
+          </div>
+
           <div style="display:flex; flex-direction:column; gap:8px; margin-top:1.25rem;">
             <a href={`/ko/curriculum/${trackSlug}`} class="btn-slide btn-slide-green"
               style="display:inline-flex; font-size:.72rem;">
@@ -90,11 +147,113 @@ const trackTitle = track?.data.title_ko ?? track?.data.title ?? trackSlug;
           </div>
         </aside>
 
-        <article class="prose unit-body">
-          <Content />
-        </article>
+        <div class="unit-content-col">
+          <article class="prose unit-body">
+            <Content />
+          </article>
+
+          {(prevUnit || nextUnit) && (
+            <nav class="unit-nav" aria-label="단원 탐색">
+              {prevUnit ? (
+                <a href={unitUrl(prevUnit)} class="unit-nav-btn unit-nav-btn--prev">
+                  <span class="unit-nav-label">← 이전</span>
+                  <span class="unit-nav-num">단원 {prevUnit.data.unit_number}</span>
+                  <span class="unit-nav-title">{prevUnit.data.title_ko ?? prevUnit.data.title}</span>
+                </a>
+              ) : <div></div>}
+              {nextUnit ? (
+                <a href={unitUrl(nextUnit)} class="unit-nav-btn unit-nav-btn--next">
+                  <span class="unit-nav-label">다음 →</span>
+                  <span class="unit-nav-num">단원 {nextUnit.data.unit_number}</span>
+                  <span class="unit-nav-title">{nextUnit.data.title_ko ?? nextUnit.data.title}</span>
+                </a>
+              ) : <div></div>}
+            </nav>
+          )}
+        </div>
 
       </div>
     </div>
   </main>
+
+  <div id="complete-toast" class="complete-toast" aria-live="polite" hidden>
+    <span class="complete-toast-icon">✓</span>
+    <span id="complete-toast-msg">단원 완료!</span>
+  </div>
 </BaseLayout>
+
+<script>
+function progressKey(unitId: string) { return `pailab:done:${unitId}`; }
+function isDone(unitId: string): boolean {
+  try { return !!JSON.parse(localStorage.getItem(progressKey(unitId)) ?? "null")?.done; }
+  catch { return false; }
+}
+function markDone(unitId: string) {
+  try { localStorage.setItem(progressKey(unitId), JSON.stringify({ done: true, at: new Date().toISOString() })); }
+  catch {}
+}
+function unmarkDone(unitId: string) {
+  try { localStorage.removeItem(progressKey(unitId)); }
+  catch {}
+}
+function parseDurationMs(str: string): number {
+  let ms = 0;
+  const h = str.match(/(\d+)\s*h/i);
+  const m = str.match(/(\d+)\s*m/i);
+  if (h) ms += +h[1] * 3_600_000;
+  if (m) ms += +m[1] *    60_000;
+  return ms;
+}
+function showToast(msg: string) {
+  const toast = document.getElementById("complete-toast");
+  const msgEl = document.getElementById("complete-toast-msg");
+  if (!toast || !msgEl) return;
+  msgEl.textContent = msg;
+  toast.hidden = false;
+  toast.classList.add("is-visible");
+  setTimeout(() => { toast.classList.remove("is-visible"); setTimeout(() => { toast.hidden = true; }, 400); }, 3000);
+}
+function updateBtn(btn: HTMLButtonElement, done: boolean) {
+  const icon = btn.querySelector(".btn-complete-icon");
+  const text = btn.querySelector(".btn-complete-text");
+  const status = document.getElementById("complete-status");
+  if (done) {
+    btn.classList.add("is-done");
+    btn.setAttribute("aria-pressed", "true");
+    if (icon) icon.textContent = "✓";
+    if (text) text.textContent = "완료됨";
+    if (status) {
+      try {
+        const rec = JSON.parse(localStorage.getItem(progressKey(btn.dataset.unitId!)) ?? "null");
+        if (rec?.at) { const d = new Date(rec.at); status.textContent = `${d.toLocaleDateString()} 완료`; }
+      } catch {}
+    }
+  } else {
+    btn.classList.remove("is-done");
+    btn.setAttribute("aria-pressed", "false");
+    if (icon) icon.textContent = "○";
+    if (text) text.textContent = "완료로 표시";
+    if (status) status.textContent = "진행 상황은 이 기기에 저장됩니다";
+  }
+}
+const btn = document.getElementById("btn-complete") as HTMLButtonElement | null;
+if (btn) {
+  const unitId = btn.dataset.unitId!;
+  const durationStr = btn.dataset.duration ?? "";
+  updateBtn(btn, isDone(unitId));
+  const status = document.getElementById("complete-status");
+  if (status && !isDone(unitId)) status.textContent = "진행 상황은 이 기기에 저장됩니다";
+  btn.addEventListener("click", () => {
+    if (isDone(unitId)) { unmarkDone(unitId); updateBtn(btn, false); }
+    else { markDone(unitId); updateBtn(btn, true); showToast("단원 완료!"); }
+  });
+  if (durationStr && !isDone(unitId)) {
+    const ms = parseDurationMs(durationStr);
+    if (ms > 0) {
+      setTimeout(() => {
+        if (!isDone(unitId)) { markDone(unitId); updateBtn(btn, true); showToast(`${durationStr} 후 자동 완료 처리되었습니다.`); }
+      }, ms);
+    }
+  }
+}
+</script>

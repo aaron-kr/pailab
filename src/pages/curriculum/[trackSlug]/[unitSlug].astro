@@ -1,6 +1,5 @@
 ---
 // src/pages/curriculum/[trackSlug]/[unitSlug].astro
-// Individual unit/lesson page — URL: /curriculum/track-05-arduino/unit-01-intro
 import { render, getCollection, type CollectionEntry } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
@@ -9,28 +8,47 @@ export async function getStaticPaths() {
   const allUnits = await getCollection("units");
   return allUnits.map((unit) => {
     const [trackSlug, unitSlug] = unit.id.split("/");
-    return {
-      params: { trackSlug, unitSlug },
-      props: { unit },
-    };
+    return { params: { trackSlug, unitSlug }, props: { unit } };
   });
 }
 
-interface Props {
-  unit: CollectionEntry<"units">;
-}
-
+interface Props { unit: CollectionEntry<"units">; }
 const { unit } = Astro.props;
 const lang = "en";
 
 const { Content } = await render(unit);
 
-// Load the parent track for breadcrumb and back link
+// Parent track (for breadcrumb + back link)
 const allTracks = await getCollection("curriculum");
 const track = allTracks.find((t) => t.id === unit.data.track);
-
 const trackTitle = track?.data.title ?? unit.data.track;
 const trackSlug  = unit.data.track;
+
+// Prev / Next units in this track
+const allUnits = await getCollection("units");
+const trackUnits = allUnits
+  .filter(u => u.data.track === unit.data.track)
+  .sort((a, b) => a.data.order - b.data.order);
+
+const currentIdx = trackUnits.findIndex(u => u.id === unit.id);
+const prevUnit   = currentIdx > 0                        ? trackUnits[currentIdx - 1] : null;
+const nextUnit   = currentIdx < trackUnits.length - 1   ? trackUnits[currentIdx + 1] : null;
+
+function unitUrl(u: CollectionEntry<"units">): string {
+  const [ts, us] = u.id.split("/");
+  return `/curriculum/${ts}/${us}`;
+}
+
+// YouTube normalizer (server-side, build time)
+function youtubeEmbed(url: string): string {
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return m ? `https://www.youtube-nocookie.com/embed/${m[1]}?rel=0` : url;
+}
+
+const featuredEmbedUrl = unit.data.featuredYouTubeUrl
+  ? youtubeEmbed(unit.data.featuredYouTubeUrl)
+  : null;
+const hasFeaturedMedia = !!(featuredEmbedUrl || unit.data.featuredImgUrl);
 ---
 
 <BaseLayout
@@ -41,16 +59,41 @@ const trackSlug  = unit.data.track;
 >
   <PageHeader
     title={unit.data.title}
-    eyebrow={`UNIT ${unit.data.unit_number}`}
+    eyebrow={`${trackTitle} — UNIT ${unit.data.unit_number}`}
     description={unit.data.description ?? ""}
     size="md"
   />
 
   <main class="page-content">
     <div class="container">
+
+      <!-- Featured media (image or YouTube) above the content grid -->
+      {hasFeaturedMedia && (
+        <div class="featured-media">
+          {featuredEmbedUrl ? (
+            <div class="yt-embed">
+              <iframe
+                src={featuredEmbedUrl}
+                title={unit.data.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                loading="lazy"
+              ></iframe>
+            </div>
+          ) : (
+            <img
+              src={unit.data.featuredImgUrl}
+              alt={unit.data.title}
+              class="featured-hero-img"
+              loading="eager"
+            />
+          )}
+        </div>
+      )}
+
       <div class="unit-detail-grid">
 
-        <!-- Sidebar meta -->
+        <!-- Sidebar -->
         <aside class="curriculum-meta-sidebar">
           <div class="curriculum-meta-card">
             <div class="meta-row">
@@ -78,6 +121,22 @@ const trackSlug  = unit.data.track;
             </div>
           )}
 
+          <!-- Progress tracking (localStorage, no login required) -->
+          <div class="mark-complete-wrap">
+            <button
+              id="btn-complete"
+              class="btn-complete"
+              data-unit-id={unit.id}
+              data-duration={unit.data.duration ?? ""}
+              type="button"
+              aria-pressed="false"
+            >
+              <span class="btn-complete-icon">○</span>
+              <span class="btn-complete-text">Mark as Complete</span>
+            </button>
+            <p class="complete-status" id="complete-status"></p>
+          </div>
+
           <div style="display:flex; flex-direction:column; gap:8px; margin-top:1.25rem;">
             <a href={`/curriculum/${trackSlug}`} class="btn-slide btn-slide-green"
               style="display:inline-flex; font-size:.72rem;">
@@ -90,15 +149,154 @@ const trackSlug  = unit.data.track;
           </div>
         </aside>
 
-        <!-- Main prose content -->
-        <article class="prose unit-body">
-          {unit.data.description_ko && (
-            <p class="ko-description">{unit.data.description_ko}</p>
+        <!-- Main content -->
+        <div class="unit-content-col">
+          <article class="prose unit-body">
+            {unit.data.description_ko && (
+              <p class="ko-description">{unit.data.description_ko}</p>
+            )}
+            <Content />
+          </article>
+
+          <!-- Prev / Next navigation -->
+          {(prevUnit || nextUnit) && (
+            <nav class="unit-nav" aria-label="Unit navigation">
+              {prevUnit ? (
+                <a href={unitUrl(prevUnit)} class="unit-nav-btn unit-nav-btn--prev">
+                  <span class="unit-nav-label">← Previous</span>
+                  <span class="unit-nav-num">Unit {prevUnit.data.unit_number}</span>
+                  <span class="unit-nav-title">{prevUnit.data.title}</span>
+                </a>
+              ) : <div></div>}
+              {nextUnit ? (
+                <a href={unitUrl(nextUnit)} class="unit-nav-btn unit-nav-btn--next">
+                  <span class="unit-nav-label">Next →</span>
+                  <span class="unit-nav-num">Unit {nextUnit.data.unit_number}</span>
+                  <span class="unit-nav-title">{nextUnit.data.title}</span>
+                </a>
+              ) : <div></div>}
+            </nav>
           )}
-          <Content />
-        </article>
+        </div>
 
       </div>
     </div>
   </main>
+
+  <!-- Auto-complete toast -->
+  <div id="complete-toast" class="complete-toast" aria-live="polite" hidden>
+    <span class="complete-toast-icon">✓</span>
+    <span id="complete-toast-msg">Unit marked as complete!</span>
+  </div>
 </BaseLayout>
+
+<script>
+// ── Progress tracking (localStorage, no login) ───────────────
+// Key: pailab:done:{unitId}  Value: { done: true, at: ISO_DATE }
+// Progress is per-browser — each device keeps its own record.
+
+function progressKey(unitId: string) { return `pailab:done:${unitId}`; }
+
+function isDone(unitId: string): boolean {
+  try { return !!JSON.parse(localStorage.getItem(progressKey(unitId)) ?? "null")?.done; }
+  catch { return false; }
+}
+
+function markDone(unitId: string) {
+  try {
+    localStorage.setItem(progressKey(unitId), JSON.stringify({ done: true, at: new Date().toISOString() }));
+  } catch {}
+}
+
+function unmarkDone(unitId: string) {
+  try { localStorage.removeItem(progressKey(unitId)); }
+  catch {}
+}
+
+function parseDurationMs(str: string): number {
+  let ms = 0;
+  const h = str.match(/(\d+)\s*h/i);
+  const m = str.match(/(\d+)\s*m/i);
+  if (h) ms += +h[1] * 3_600_000;
+  if (m) ms += +m[1] *    60_000;
+  return ms;
+}
+
+function showToast(msg: string) {
+  const toast = document.getElementById("complete-toast");
+  const msgEl = document.getElementById("complete-toast-msg");
+  if (!toast || !msgEl) return;
+  msgEl.textContent = msg;
+  toast.hidden = false;
+  toast.classList.add("is-visible");
+  setTimeout(() => {
+    toast.classList.remove("is-visible");
+    setTimeout(() => { toast.hidden = true; }, 400);
+  }, 3000);
+}
+
+function updateBtn(btn: HTMLButtonElement, done: boolean) {
+  const icon = btn.querySelector(".btn-complete-icon");
+  const text = btn.querySelector(".btn-complete-text");
+  const status = document.getElementById("complete-status");
+  if (done) {
+    btn.classList.add("is-done");
+    btn.setAttribute("aria-pressed", "true");
+    if (icon) icon.textContent = "✓";
+    if (text) text.textContent = "Completed";
+    if (status) {
+      try {
+        const rec = JSON.parse(localStorage.getItem(progressKey(btn.dataset.unitId!)) ?? "null");
+        if (rec?.at) {
+          const d = new Date(rec.at);
+          status.textContent = `Completed ${d.toLocaleDateString()}`;
+        }
+      } catch {}
+    }
+  } else {
+    btn.classList.remove("is-done");
+    btn.setAttribute("aria-pressed", "false");
+    if (icon) icon.textContent = "○";
+    if (text) text.textContent = "Mark as Complete";
+    if (status) status.textContent = "Progress saved on this device";
+  }
+}
+
+const btn = document.getElementById("btn-complete") as HTMLButtonElement | null;
+if (btn) {
+  const unitId   = btn.dataset.unitId!;
+  const durationStr = btn.dataset.duration ?? "";
+
+  // Set initial state
+  updateBtn(btn, isDone(unitId));
+  const status = document.getElementById("complete-status");
+  if (status && !isDone(unitId)) status.textContent = "Progress saved on this device";
+
+  // Toggle on click
+  btn.addEventListener("click", () => {
+    const wassDone = isDone(unitId);
+    if (wassDone) {
+      unmarkDone(unitId);
+      updateBtn(btn, false);
+    } else {
+      markDone(unitId);
+      updateBtn(btn, true);
+      showToast("Unit marked as complete!");
+    }
+  });
+
+  // Auto-mark after duration time spent on page
+  if (durationStr && !isDone(unitId)) {
+    const ms = parseDurationMs(durationStr);
+    if (ms > 0) {
+      setTimeout(() => {
+        if (!isDone(unitId)) {
+          markDone(unitId);
+          updateBtn(btn, true);
+          showToast(`Auto-marked complete after ${durationStr}.`);
+        }
+      }, ms);
+    }
+  }
+}
+</script>

@@ -12,10 +12,7 @@ export async function getStaticPaths() {
   }));
 }
 
-interface Props {
-  track: CollectionEntry<"curriculum">;
-}
-
+interface Props { track: CollectionEntry<"curriculum">; }
 const { track } = Astro.props;
 const lang = "ko";
 
@@ -35,8 +32,18 @@ const levelColors: Record<string, string> = {
   advanced:     "pink",
   open:         "warn",
 };
-
 const levelBadgeColor = levelColors[track.data.level] ?? "";
+
+function youtubeEmbed(url: string): string {
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return m ? `https://www.youtube-nocookie.com/embed/${m[1]}?rel=0` : url;
+}
+
+const featuredEmbedUrl = track.data.featuredYouTubeUrl
+  ? youtubeEmbed(track.data.featuredYouTubeUrl)
+  : null;
+const hasFeaturedMedia = !!(featuredEmbedUrl || track.data.featuredImgUrl);
+const unitIds = trackUnits.map(u => u.id);
 ---
 
 <BaseLayout
@@ -53,6 +60,30 @@ const levelBadgeColor = levelColors[track.data.level] ?? "";
 
   <main class="page-content">
     <div class="container">
+
+      {hasFeaturedMedia && (
+        <div class="featured-media">
+          {featuredEmbedUrl ? (
+            <div class="yt-embed">
+              <iframe
+                src={featuredEmbedUrl}
+                title={title_ko}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                loading="lazy"
+              ></iframe>
+            </div>
+          ) : (
+            <img
+              src={track.data.featuredImgUrl}
+              alt={title_ko}
+              class="featured-hero-img"
+              loading="eager"
+            />
+          )}
+        </div>
+      )}
+
       <div class="curriculum-detail-grid">
 
         <aside class="curriculum-meta-sidebar">
@@ -89,20 +120,33 @@ const levelBadgeColor = levelColors[track.data.level] ?? "";
 
           {trackUnits.length > 0 && (
             <div class="unit-section">
-              <h2 class="unit-section-title">단원 목록</h2>
-              <div class="unit-grid">
+              <div class="unit-section-header">
+                <h2 class="unit-section-title">단원 목록</h2>
+                <div class="track-progress" id="track-progress" style="display:none">
+                  <p class="track-progress-label" id="track-progress-label">0 / {trackUnits.length} 완료</p>
+                  <div class="track-progress-bar">
+                    <div class="track-progress-fill" id="track-progress-fill" style="width:0%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="unit-grid" id="unit-grid">
                 {trackUnits.map((unit) => {
                   const [trackSlug, unitSlug] = unit.id.split("/");
-                  const title  = unit.data.title_ko ?? unit.data.title;
-                  const desc   = unit.data.description_ko ?? unit.data.description;
+                  const title = unit.data.title_ko ?? unit.data.title;
+                  const desc  = unit.data.description_ko ?? unit.data.description;
                   return (
-                    <a href={`/ko/curriculum/${trackSlug}/${unitSlug}`} class="unit-card">
+                    <a href={`/ko/curriculum/${trackSlug}/${unitSlug}`}
+                       class="unit-card"
+                       data-unit-id={unit.id}>
                       <div class="unit-img">
                         {unit.data.image
                           ? <img src={unit.data.image} alt={title} />
-                          : <div class="unit-img-placeholder"><span class="unit-num-badge">{unit.data.unit_number}</span></div>
+                          : <div class="unit-img-placeholder">
+                              <span class="unit-num-badge">{unit.data.unit_number}</span>
+                            </div>
                         }
                       </div>
+                      <div class="unit-done-badge" aria-label="완료" hidden></div>
                       <div class="unit-card-body">
                         <span class="unit-num-label">단원 {unit.data.unit_number}</span>
                         <h3 class="unit-card-title">{title}</h3>
@@ -123,3 +167,33 @@ const levelBadgeColor = levelColors[track.data.level] ?? "";
     </div>
   </main>
 </BaseLayout>
+
+<script define:vars={{ unitIds }} is:inline>
+(function () {
+  let done = 0;
+  unitIds.forEach((id) => {
+    try {
+      const rec = JSON.parse(localStorage.getItem(`pailab:done:${id}`) ?? "null");
+      if (rec?.done) {
+        done++;
+        const card = document.querySelector(`[data-unit-id="${id}"]`);
+        if (card) {
+          card.classList.add("is-done");
+          const badge = card.querySelector(".unit-done-badge");
+          if (badge) badge.removeAttribute("hidden");
+        }
+      }
+    } catch {}
+  });
+  if (unitIds.length > 0) {
+    const bar   = document.getElementById("track-progress");
+    const label = document.getElementById("track-progress-label");
+    const fill  = document.getElementById("track-progress-fill");
+    if (bar && label && fill && done > 0) {
+      bar.style.display = "";
+      label.textContent = `${done} / ${unitIds.length} 완료`;
+      fill.style.width  = `${Math.round((done / unitIds.length) * 100)}%`;
+    }
+  }
+})();
+</script>
