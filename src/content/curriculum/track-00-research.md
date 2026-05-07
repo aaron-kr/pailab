@@ -1,6 +1,7 @@
 ---
 title: "Doing Academic Research"
 title_ko: "학술 연구 수행"
+featuredImage: "/img/curriculum/pai-robot-arm.png"
 featured: true
 track: "00"
 level: "beginner"
@@ -21,19 +22,4 @@ order: 0
 - Is your _Capstone Design_ project cool enough to share?
 - Interested in _presenting at conferences_ or _getting published in a journal_? 
 
-This first track will guide you through all the steps of the **Academic Writing journey** and provide _convenient checklists_ along the way to help you stay on track. If you would like to go more in-depth on any of the topics presented in these Units, external links will provide more information.
-
-## Units
-
-1. Understanding the Academic Research Process
-2. Finding & Citing Sources
-3. Conducting Experiments & Collecting Data
-4. Writing a Paper (IMRaD Structure)
-5. Presenting your Research (Conferences)
-6. Getting Published (Journals)
-7. Capstone Design
-8. The Biggest Mistakes Students Make in Research
-9. How to (and not to) Use AI in Research
-10. Research Ethics
-11. Additional / Advanced Topics 
-12. [**Quick Research Checklist**](./track-00-research/unit-12-research-checklist)
+This **12 units** in this track will guide you through all the steps of the **Academic Writing journey** and provide _convenient checklists_ along the way to help you stay on track.

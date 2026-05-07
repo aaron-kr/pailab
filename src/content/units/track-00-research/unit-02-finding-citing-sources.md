@@ -1,6 +1,8 @@
 ---
 title: "Finding & Citing Sources"
 title_ko: "연구 하기"
+featuredImgUrl: "/img/curriculum/pai-digital-twin.png"
+image: "/img/curriculum/pai-digital-twin.png"
 track: "track-00-research"
 unit_number: 2
 description: "A practical guide to conducting research, from structuring ideas to drafting, revising, and preparing for submission."
@@ -14,7 +16,9 @@ objectives:
 order: 2
 ---
 
-> **Main idea:** Good research builds upon, extends, and _cites_ previous works.
+```
+Good research builds upon, extends, and cites previous works.
+```
 
 # Step 4: References
 

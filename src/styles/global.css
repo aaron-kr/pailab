@@ -49,6 +49,12 @@ html{
 }
 body{min-height:100vh;transition:background .25s,color .25s}
 h1,h2,h3,h4,h5{font-family:var(--font-display);font-weight:700;line-height:1.1;letter-spacing:-.015em}
+h1 {margin: 2rem 0 1rem; font-size:clamp(1.75rem,4vw,2.25rem)}
+h2 {margin: 1.75rem 0 0.75rem; font-size:clamp(1.5rem,3.5vw,1.95rem)}
+h3 {margin: 1.5rem 0 0.5rem; font-size:clamp(1.25rem,3vw,1.75rem)}
+h4 {margin: 1.25rem 0 0.5rem; font-size:clamp(1.1rem,2.5vw,1.5rem)}
+h5 {margin: 1rem 0 0.5rem; font-size:clamp(1rem,2vw,1.25rem)}
+h6 {margin: 0.75rem 0 0.25rem; font-size:clamp(0.9rem,1.5vw,1.1rem)} 
 p{line-height:1.75}
 a{color:var(--green);text-decoration:none}
 a:hover{text-decoration:underline}
@@ -193,7 +199,7 @@ nav.site-nav{
 .hero-bg{
   position:absolute;inset:0;z-index:0;
   background:
-    url('/img/hero.jpg') center/cover no-repeat,
+    url('/img/curriculum/pai-digital-twin.png') center/cover no-repeat,
     radial-gradient(ellipse 65% 70% at 80% 15%,rgba(2,114,241,.28) 0%,transparent 60%),
     radial-gradient(ellipse 55% 55% at 15% 85%,rgba(13,191,158,.22) 0%,transparent 55%),
     radial-gradient(ellipse 40% 45% at 60% 65%,rgba(240,18,122,.12) 0%,transparent 50%),
@@ -1147,7 +1153,7 @@ textarea.form-input { resize: vertical; }
 .curriculum-meta-card .meta-label,
 .module-meta-card .meta-label { font-family:var(--font-mono); font-size:.58rem; color:var(--text-3); letter-spacing:.06em; }
 .curriculum-meta-card .meta-value,
-.module-meta-card .meta-value { font-family:var(--font-mono); font-size:.72rem; color:var(--cyan); }
+.module-meta-card .meta-value { font-family:var(--font-mono); font-size:.72rem; color:var(--cyan); text-align: right; }
 /* ko-description border differs by context */
 .curriculum-body .ko-description { border-left:2px solid var(--green); font-size:.88rem; color:var(--text-2); font-style:italic; padding-left:1rem; margin-bottom:1.75rem; }
 .curriculum-body { max-width:680px; }
@@ -1264,7 +1270,7 @@ textarea.form-input { resize: vertical; }
 }
 .unit-card-body { padding:.875rem 1rem 1rem; display:flex; flex-direction:column; flex:1; gap:.25rem; }
 .unit-num-label { font-family:var(--font-mono); font-size:.55rem; color:var(--cyan); letter-spacing:.1em; }
-.unit-card-title { font-family:var(--font-display); font-size:.85rem; font-weight:700; line-height:1.3; color:var(--text); }
+.unit-card-title { font-family:var(--font-display); font-size:.85rem; font-weight:700; line-height:1.3; color:var(--text); margin-top: 0.25rem }
 .unit-card-desc { font-size:.75rem; color:var(--text-2); line-height:1.6; flex:1; }
 @media (max-width: 768px) {
   .unit-grid { grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); }
@@ -1272,6 +1278,7 @@ textarea.form-input { resize: vertical; }
 @media (max-width: 480px) {
   .unit-grid { grid-template-columns:1fr 1fr; }
 }
+.unit-card-body .tag {margin-top: 0.5rem!important;display: inline-block;}
 
 /* ── Unit card completion state (track page) ─────────────── */
 .unit-done-badge {

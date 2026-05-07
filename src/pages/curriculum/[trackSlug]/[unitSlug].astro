@@ -97,6 +97,10 @@ const hasFeaturedMedia = !!(featuredEmbedUrl || unit.data.featuredImgUrl);
         <aside class="curriculum-meta-sidebar">
           <div class="curriculum-meta-card">
             <div class="meta-row">
+              <span class="meta-label">Track</span>
+              <span class="meta-value" style="font-size:.65rem;">{trackTitle}</span>
+            </div>
+            <div class="meta-row">
               <span class="meta-label">Unit</span>
               <span class="meta-value">{unit.data.unit_number}</span>
             </div>
@@ -106,10 +110,6 @@ const hasFeaturedMedia = !!(featuredEmbedUrl || unit.data.featuredImgUrl);
                 <span class="meta-value">{unit.data.duration}</span>
               </div>
             )}
-            <div class="meta-row">
-              <span class="meta-label">Track</span>
-              <span class="meta-value" style="font-size:.65rem;">{trackTitle}</span>
-            </div>
           </div>
 
           {unit.data.objectives.length > 0 && (

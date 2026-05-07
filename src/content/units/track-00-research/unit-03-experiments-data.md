@@ -14,7 +14,9 @@ objectives:
 order: 3
 ---
 
-> **Main idea:** Without data to analyze, you don't have a research project.
+```
+Main idea: Without data to analyze, you don't have a research project.
+```
 
 # Step 1: Start with a Question
 
