@@ -22,9 +22,13 @@ const NAV: Array<
     items: [
       { label: "Research Areas", href: `${p}/areas` },
       { label: "Research Papers",      href: `${p}/research` },
-      { label: "Projects",    href: `${p}/projects` },
+      { label: "Research Projects",    href: `${p}/projects` },
       // { label: "Publishing",  href: `${p}/publishing` },
-      { label: "Attending Conferences", href: `${p}/pages/conferences` },
+      { divider: true },
+      { label: "> Doing Research", href: `${p}/pages/1-doing-research` },
+      { label: "> Presenting Research", href: `${p}/pages/2-presenting-research` },
+      { label: "> Publishing Research", href: `${p}/pages/3-publishing-research` },
+      { label: "> Research Q&A", href: `${p}/pages/4-research-q-and-a` },
       // { label: "Datasets",    href: `${p}/datasets` },
       // { label: "Code",        href: `${p}/code` },
     ],
@@ -55,8 +59,9 @@ const NAV: Array<
       { label: "Team",  href: `/team` },
       { label: "Join",  href: `${p}/join` },
     ],
+    // href: `${p}/about`
   },
-  { label: "Search", href: "/search", hideOnKo: false },
+  // { label: "Search", href: "/search", hideOnKo: false },
 ];
 // ────────────────────────────────────────────────────────────
 ---
@@ -100,12 +105,18 @@ const NAV: Array<
               </button>
               <ul class="nav-dropdown" role="menu">
                 {item.items.map((sub) => (
+                  sub.divider ? (
+                    <li role="none" aria-hidden="true">
+                      <div class="nav-menu-divider"></div>
+                    </li>
+                  ) : (
                   <li role="none">
                     <a href={sub.href} class="nav-dropdown-item" role="menuitem"
                        class:list={["nav-dropdown-item", { "nav-dropdown-item--active": currentPath === sub.href }]}>
                       {sub.label}
                     </a>
                   </li>
+                  )
                 ))}
               </ul>
             </li>
