@@ -59,7 +59,9 @@ const hasFeaturedMedia = !!(featuredEmbedUrl || unit.data.featuredImgUrl);
 >
   <PageHeader
     title={unit.data.title}
-    eyebrow={`${trackTitle} — UNIT ${unit.data.unit_number}`}
+    eyebrow={`${trackTitle}`}
+    eyebrowUrl={`/curriculum/${trackSlug}`}
+    eyebrowSub={` — UNIT ${unit.data.unit_number}`}
     description={unit.data.description ?? ""}
     size="md"
   />

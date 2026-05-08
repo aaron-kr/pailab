@@ -9,7 +9,22 @@ nav_label: "Writing Papers"
 order: 1
 ---
 
-## How to Write Conference Papers
+# Crash Course in Preparing for Conferences
+
+For a **full** guide to writing research papers, see the ["Doing Research"](../curriculum/track-00-research) Curriculum. Units include:
+
+1. Understanding the Academic Research Process
+2. Finding & Citing Sources
+3. Conducting Experiments & Collecting Data
+4. Writing a Paper (IMRaD Structure)
+5. Presenting Research (Conferences)
+6. Getting Published (Journals)
+7. Capstone Design
+8. The Biggest Research Mistakes Students Make
+9. How to (and NOT to) Use AI in Research
+10. Research Ethics
+11. Additional / Advanced Topics
+12. Resources & Checklist
 
 ### 1. Find a topic (use the `ChatGPT` script below to help generate ideas):
 

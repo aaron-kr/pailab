@@ -111,7 +111,7 @@ const projIcons = { "gesture-robot-arm":"🦾","kasd-dataset":"📜","epib-bench
       <p class="section-sub">Four structured tracks from first principles to advanced robotics. Fully bilingual EN / 한국어.</p>
       <div class="curriculum-grid">
         {curriculum.map((track, i) => (
-          <a href={`/curriculum/${track.id}`} class="track-card">
+          <a href={`/curriculum/${track.id}`} class={`track-card${track.data.featured ? " featured" : ""}`} data-private={track.data.private ? "true" : undefined}>
             <div class="track-bar" style={`background:${trackColors[i % 4]}`}></div>
             <div class="track-meta">TRACK {track.data.track} · {track.data.level.toUpperCase()}</div>
             <p class="track-title">{track.data.title}</p>

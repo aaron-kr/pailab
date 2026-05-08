@@ -11,6 +11,8 @@ interface Props {
   title: string;
   description?: string;
   eyebrow?: string;       // small mono label above the title (e.g. "01 · RESEARCH")
+  eyebrowUrl?: string;    // optional URL for the eyebrow (makes it a link)
+  eyebrowSub?: string;    // optional secondary eyebrow text (e.g. "UNIT 01")
   bgImage?: string;       // optional background image URL (from page YAML or direct)
   size?: "sm" | "md" | "lg"; // sm=200px, md=280px (default), lg=380px
 }
@@ -19,6 +21,8 @@ const {
   title,
   description,
   eyebrow,
+  eyebrowUrl,
+  eyebrowSub,
   bgImage,
   size = "md",
 } = Astro.props;
@@ -53,7 +57,20 @@ const showWaves = !bgImage;
 
   <!-- Text content -->
   <div class="container page-header-inner">
-    {eyebrow && <p class="page-eyebrow">{eyebrow}</p>}
+    {eyebrow && (
+      <p class="page-eyebrow">
+        {eyebrowUrl ? (
+          <>
+            <a href={eyebrowUrl} rel="noopener noreferrer">
+              {eyebrow}
+            </a>
+            {eyebrowSub ? (<span class="eyebrow-sub">{eyebrowSub}</span>) : null}
+          </>
+        ) : (
+          eyebrow
+        )}
+      </p>
+    )}
     <h1 class="page-title" data-pagefind-meta="title">{title}</h1>
     {description && <p class="page-description">{description}</p>}
   </div>
