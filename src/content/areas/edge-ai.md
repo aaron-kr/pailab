@@ -6,5 +6,5 @@ icon: "⚡"
 description: "TensorRT, ONNX, quantization — making learned models fast and lean enough to run on constrained hardware at the edge."
 description_ko: "TensorRT, ONNX, 양자화 — 제한된 하드웨어에서 실행 가능한 경량 고성능 모델 최적화."
 color: "#f59e0b"
-order: 5
+order: 1
 ---

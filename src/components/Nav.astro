@@ -32,7 +32,7 @@ const NAV: Array<
       { divider: true },
       { 
         label: "Doing Research →", 
-        href: `${p}/pages/1-doing-research`,
+        href: `${p}/curriculum/track-00-research`,
         items: [
           { label: "> Presenting Research", href: `${p}/pages/2-presenting-research` },
           { label: "> Publishing Research", href: `${p}/pages/3-publishing-research` },
@@ -45,6 +45,15 @@ const NAV: Array<
     ],
   },
   {
+    label: "Learn",
+    items: [
+      { label: "Curriculum",  href: `${p}/curriculum` },
+      { label: "Teaching Modules", href: `${p}/modules` },
+      { divider: true },
+      { label: "Lab Notes →",   href: `${p}/notes` },
+    ],
+  },
+  {
     label: "Resources",
     items: [
       { label: "Arduino", href: `${p}/pages/arduino-overview` },
@@ -53,14 +62,6 @@ const NAV: Array<
       { label: "Jetson", href: `${p}/pages/jetson-overview` },
       // { label: "Other Systems", href: `${p}/pages/other-systems-and-products` },
       // { label: "Tools / Setup", href: `${p}/pages/tools-and-setup-guides` },
-    ],
-  },
-  {
-    label: "Learn",
-    items: [
-      { label: "Curriculum",  href: `${p}/curriculum` },
-      { label: "Teaching Modules", href: `${p}/modules` },
-      { label: "Lab Notes",   href: `${p}/notes` },
     ],
   },
   {

@@ -5,6 +5,7 @@ pubDate: 2025-02-28
 lang: "en"
 tags: ["TinyML", "Setup", "Tutorial"]
 summary: "A step-by-step guide to getting TensorFlow Lite for Microcontrollers, Edge Impulse CLI, and Arduino IDE running smoothly on an M-series Mac."
+category: "edge-ai"
 ---
 
 Apple Silicon Macs are excellent TinyML development machines — but the toolchain

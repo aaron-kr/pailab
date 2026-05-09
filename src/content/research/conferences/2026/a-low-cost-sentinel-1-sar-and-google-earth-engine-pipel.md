@@ -13,4 +13,6 @@ tags: ["Big Data"]
 featured: false
 date: 2026-05-22
 keywords: ["SAR flood detection", "Sentinel-1", "Google Earth Engine", "Jeonju", "heritage risk", "API threshold"]
+awards: "Excellent Paper Award"
+awards_ko: "우수논문상"
 ---

@@ -150,6 +150,8 @@ const areas = defineCollection({
     description_ko: z.string().optional(),
     color:          z.string().optional(),
     order:          z.number().default(99),
+    href:           z.string().optional(),
+    hidden:         z.boolean().default(false),
   }),
 });
 

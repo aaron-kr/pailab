@@ -220,7 +220,7 @@ nav.site-nav{
 [data-theme="light"] .hero-fade{background: linear-gradient(to bottom, transparent, #0c1e30);}
 .hero-inner{
   position:relative;z-index:4;width:100%;padding:5rem 0 4rem;
-  display:grid;grid-template-columns:1fr 340px;gap:3rem;align-items:center;
+  display:grid;grid-template-columns:1fr 260px;gap:3rem;align-items:center;
 }
 .hero-eyebrow{
   font-family:var(--font-mono);font-size:.6rem;color:var(--cyan);
@@ -427,11 +427,18 @@ nav.site-nav{
   background-image:linear-gradient(rgba(36,255,252,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(36,255,252,.09) 1px,transparent 1px);
   background-size:36px 36px;pointer-events:none
 }
-.join-inner{position:relative;z-index:1;display:grid;grid-template-columns:1fr auto;gap:4rem;align-items:center}
+.join-inner{position:relative;z-index:5;display:grid;grid-template-columns:1fr auto;gap:4rem;align-items:center}
 .join-eyebrow{font-family:var(--font-mono);font-size:.58rem;color:var(--cyan);letter-spacing:.14em;margin-bottom:1rem;text-transform:uppercase;}
 .join-title{font-size:clamp(1.6rem,3.5vw,2.6rem);color:#d0e4f0;margin-bottom:1rem}
 .join-sub{font-size:.88rem;color:rgba(106,154,184,.85);line-height:1.85;max-width:500px;font-weight:300}
 .join-cta{display:flex;flex-direction:column;gap:10px;min-width:190px}
+@media (max-width:1024px){
+  .join-cta{flex-direction:row;justify-content:flex-start;flex-wrap:wrap}
+}
+@media (max-width:630px){
+  .join-inner{grid-template-columns:1fr;gap:2rem;text-align:center}
+  .join-cta{justify-content:center}
+}
 
 /* ── About ──────────────────────────────────────────────── */
 .about-grid{display:grid;grid-template-columns:240px 1fr;gap:3rem;align-items:start}
@@ -1294,6 +1301,7 @@ textarea.form-input { resize: vertical; }
 .unit-done-badge::before { content:"✓"; }
 .unit-card.is-done .unit-img-placeholder { background:rgba(45,212,191,.12); }
 .unit-card.is-done .unit-num-badge { color:var(--green-glow); }
+.unit-done-badge[hidden] { display: none; }
 
 /* ── Unit detail page (/curriculum/[track]/[unit]) ──────────── */
 .unit-detail-grid { display:grid; grid-template-columns:220px 1fr; gap:3rem; align-items:start; }

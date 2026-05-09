@@ -1,10 +1,10 @@
 ---
 title: "Open Datasets"
 title_ko: "오픈 데이터셋"
-slug: "open-datasets"
 icon: "🗃️"
-description: "Curated datasets for physical AI research — sensor logs, robot trajectories, and vision benchmarks released openly."
-description_ko: "물리적 AI 연구를 위한 큐레이션 데이터셋 — 센서 로그, 로봇 궤적, 비전 벤치마크 공개 배포."
-color: "#84cc16"
-order: 8
+description: "Curated datasets for Physical AI research, released openly to accelerate reproducible science."
+description_ko: "재현 가능한 과학을 가속화하기 위해 공개적으로 배포된 피지컬 AI 연구용 큐레이트 데이터셋."
+color: "#0ea5e9"
+order: 22
+hidden: true
 ---

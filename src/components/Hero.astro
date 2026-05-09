@@ -2,9 +2,24 @@
 // src/components/Hero.astro
 // Background image: place /public/hero.jpg — it will show behind the gradient mesh.
 // Logo image: place /public/logo-horz.png for nav, /public/logo2.png for footer.
-import { t, type Lang } from "@/i18n/translations";
+import { getCollection } from "astro:content";
+import { type Lang } from "@/i18n/translations";
+
 interface Props { lang: Lang }
 const { lang } = Astro.props;
+
+// Edit this when your society memberships change
+const PARTNER_SOCIETIES = 3; // KSPAI, KIICE, KLife
+
+const [research, curriculum, notes] = await Promise.all([
+  getCollection("research"),
+  getCollection("curriculum"),
+  getCollection("notes"),
+]);
+
+const pubCount   = research.filter(r => !r.data.private).length;
+const trackCount = curriculum.filter(t => !t.data.private).length;
+const noteCount  = notes.filter(n => !n.data.private).length;
 ---
 
 <div class="hero full-bleed">
@@ -42,23 +57,23 @@ const { lang } = Astro.props;
         </div>
       </div>
 
-      <!-- Stat panel -->
+      <!-- Stat panel — data driven from content collections -->
       <div class="hero-panel">
         <div class="stat-row">
-          <div class="stat-num">8+</div>
+          <div class="stat-num">{pubCount}</div>
           <div class="stat-label">{lang === "ko" ? "출판 및 프리프린트" : "PUBLICATIONS & PREPRINTS"}</div>
         </div>
         <div class="stat-row">
-          <div class="stat-num">5</div>
-          <div class="stat-label">{lang === "ko" ? "협력 대학교" : "PARTNER UNIVERSITIES"}</div>
+          <div class="stat-num">{trackCount}</div>
+          <div class="stat-label">{lang === "ko" ? "커리큘럼 트랙" : "CURRICULUM TRACKS"}</div>
         </div>
         <div class="stat-row">
-          <div class="stat-num">4</div>
-          <div class="stat-label">{lang === "ko" ? "오픈 데이터셋" : "OPEN DATASETS"}</div>
+          <div class="stat-num">{noteCount}</div>
+          <div class="stat-label">{lang === "ko" ? "노트 및 아티클" : "NOTES & ARTICLES"}</div>
         </div>
         <div class="stat-row">
-          <div class="stat-num">1</div>
-          <div class="stat-label">{lang === "ko" ? "학회 창립" : "ACADEMIC SOCIETY FOUNDED"}</div>
+          <div class="stat-num">{PARTNER_SOCIETIES}</div>
+          <div class="stat-label">{lang === "ko" ? "파트너 학회" : "PARTNER SOCIETIES"}</div>
         </div>
       </div>
     </div>
