@@ -22,7 +22,7 @@ Good research builds upon, extends, and cites previous works.
 
 # What is Source-Based Research?
 
-Academic research is not just about having ideas — it is about <ins>supporting those ideas with evidence</ins> from reliable sources.
+> Academic research is not just about having ideas — it is about <ins>supporting those ideas with evidence</ins> from reliable sources.
 
 In a nutshell, finding and citing sources involves:
 
@@ -60,7 +60,7 @@ Also try synonyms, broader / narrower terms, or related concepts.
 - “large language models in education”
 - “automated tutoring systems”
 
-Need help? Ask an LLM for suggestions:
+Need help? Ask an LLM for suggestions:<br>
 See more in [Unit 9 →](./unit-09-using-ai-in-research)
 
 ```
@@ -71,6 +71,8 @@ and possible Boolean search combinations for finding scholarly articles.
 ```
 
 ## 2. Find Academic Sources
+
+> Your University library system may be the best place to start.
 
 The best types of scholarly sources include:
 
@@ -92,6 +94,8 @@ Some places to search:
   - Government publications
   - Books and academic textbooks
 
+See [this link](#) <mark>(coming soon)</mark> for more help accessing and searching your university library database (in Korea).
+
 ### Understand Types of Sources
 
 **Primary Sources:** Original evidence or first-hand research
@@ -108,6 +112,8 @@ Some places to search:
 - Commentary papers
 
 ## 3. Evaluate Source Credibility
+
+> Good academic sources will pass the CRAAP test (see below).
 
 Good sources are usually:
 
@@ -130,6 +136,8 @@ Helpful source collecting tools include: [Zotero ↗](https://www.zotero.org/), 
 
 ## 4. Read Sources Efficiently
 
+> If you haven't found a reason to cite the paper within 10 minutes, stop reading and move to the next one.
+
 ### 📋 The Efficient Reading Checklist
 
 Instead of reading from start to finish, check these elements in order to decide if the paper is worth a deep dive:
@@ -140,7 +148,15 @@ Instead of reading from start to finish, check these elements in order to decide
 - **The Figures & Tables:** Can you understand the main result just by looking at the charts?
 - **The References:** Use the "Breadcrumb" method. Who are they citing frequently? Those are your must-read "seed" papers.
 
+### 💡 Pro-Tips for Speed
+
+- **"Search & Destroy":** Use <kbd>Cmd+F</kbd> (or <kbd>Ctrl+F</kbd>) for keywords like <mark>"however"</mark>, <mark>"limitations"</mark>, <mark>"future research"</mark>, or <mark>"significant."</mark>
+- **AI Summarizers:** Use tools like [The Moonlight ↗](https://www.themoonlight.io/), [Scholarcy ↗](https://www.scholarcy.com/) or [Consensus ↗](https://consensus.app/) to get a high-level "flashcard" of the paper's main claims before you open the PDF.<br>(More on using AI in [Unit 9 →](./unit-09-using-ai-in-research).)
+- **The 10-Minute Rule:** If you haven't found a reason to cite the paper within 10 minutes, stop reading and move to the next one.
+
 ## 5. Take Organized Notes
+
+> Write by "theme" rather than "summary."
 
 ### 🏗️ The Synthesis Matrix (Writing Prep)
 
@@ -151,13 +167,9 @@ Don't just take notes on individual papers. Create a table (Excel or Notion) whe
 | Smith (2022) | Remote work productivity | Survey | 15% increase | Only looked at tech sector |
 | Doe (2023) | Burnout in tech | Interviews | High correlation | Small sample size |
 
-### 💡 Pro-Tips for Speed
-
-- **"Search & Destroy":** Use <kbd>Cmd+F</kbd> (or <kbd>Ctrl+F</kbd>) for keywords like <mark>"however"</mark>, <mark>"limitations"</mark>, <mark>"future research"</mark>, or <mark>"significant."</mark>
-- **AI Summarizers:** Use tools like [The Moonlight ↗](https://www.themoonlight.io/), [Scholarcy ↗](https://www.scholarcy.com/) or [Consensus ↗](https://consensus.app/) to get a high-level "flashcard" of the paper's main claims before you open the PDF.<br>(More on using AI in [Unit 9 →](./unit-09-using-ai-in-research).)
-- **The 10-Minute Rule:** If you haven't found a reason to cite the paper within 10 minutes, stop reading and move to the next one.
-
 ## 6. Use & Cite Sources Properly
+
+> Sources <ins>support</ins> your own ideas, not replace them.
 
 Part of doing ethical research is citing your sources. Sources should support your own ideas, not replace them.
 
@@ -195,10 +207,13 @@ Try to include:
 
 - 3–6 references for a conference paper
 - 10+ references for a journal paper
+- 30+ references for a Tier 1 (SCIE) journal such as [IEEE Access](https://ieeeaccess.ieee.org/authors) or an [MDPI](https://www.mdpi.com/authors) journal
 
-Main idea: Good research depends on trustworthy sources and clear citation practices.
+**Key point:** Good research depends on trustworthy sources and clear citation practices.
 
-## Common Beginner Mistakes
+---
+
+# Common Beginner Mistakes
 
 - Using only Google searches
 - Relying on Wikipedia as a main source
@@ -209,17 +224,21 @@ Main idea: Good research depends on trustworthy sources and clear citation pract
 - Overusing direct quotations
 - Waiting until the end to build citations
 
-## Checklist
+**See also:** [Unit 8 →](./unit-08-biggest-research-mistakes)
 
-- ☐ Can you clearly explain what information you need?
-- ☐ Did you identify strong keywords and search terms?
-- ☐ Are your sources credible and relevant?
-- ☐ Did you read sources efficiently before deep reading?
-- ☐ Did you organize notes clearly?
-- ☐ Are you distinguishing between your ideas and source ideas?
-- ☐ Did you cite every borrowed idea, quote, or statistic?
-- ☐ Are your citations consistent in one citation style?
-- ☐ Did you verify citation formatting?
-- ☐ Did you avoid plagiarism and overcopying?
-- ☐ Are you synthesizing multiple sources together?
-- ☐ Can readers trace your evidence back to the original source?
+---
+
+# Checklist
+
+1. [ ] Can you clearly explain what information you need?
+2. [ ] Did you identify strong keywords and search terms?
+3. [ ] Are your sources credible and relevant?
+4. [ ] Did you read sources efficiently before deep reading?
+5. [ ] Did you organize notes clearly?
+6. [ ] Are you distinguishing between your ideas and source ideas?
+7. [ ] Did you cite every borrowed idea, quote, or statistic?
+8. [ ] Are your citations consistent in one citation style?
+9. [ ] Did you verify citation formatting?
+10. [ ] Did you avoid plagiarism and overcopying?
+11. [ ] Are you synthesizing multiple sources together?
+12. [ ] Can readers trace your evidence back to the original source?

@@ -125,7 +125,7 @@ Data can be gathered in a variety of ways:
 
 Almost all data will fall into one of two categories: <ins>quantitative</ins> or <ins>qualitative</ins>.
 
-- **Quantitative data** (numbers and logic) is like a microscope (zooming in on specific, measurable parts). 
+- **Quantitative data** (numbers and logic) is like a microscope (zooming in on specific, measurable parts).
 - **Qualitative data** (meanings and experiences) is a wide-angle lens (capturing an entire scene and the "why" of your experiment).
 
 When collecting data, remember the following key principles:

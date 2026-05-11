@@ -8,6 +8,7 @@ lang: "en"
 tags: ["Research", "Conferences", "ChatGPT", "References"]
 summary: "With the help of Claude.ai, I built and deployed 5 websites "
 naver_url: ""
+hidden: true
 ---
 
 With the help of Claude.ai, I built and deployed 5 websites in just over 1 month. From a visual, user's perspective, the sites looked incredible. They also performed well, building content, deploying from GitHub, and loading static pages quickly.
