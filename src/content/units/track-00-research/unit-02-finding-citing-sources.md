@@ -200,14 +200,29 @@ There are various citation formats, such as APA, MLA, and Chicago, but most engi
 
 **Example Citations:**
 
-- [1] J. Doe and A. Smith, "Title of the Paper," in *Proceedings of the Conference Name*, Year, pp. 1-10. <mark>doi:10.xxxx/xxxxx</mark>
-- [2] J. Doe, "Title of the Journal Article," *Journal Name*, vol. 10, no. 2, pp. 100-110, Year. <mark>doi:10.xxxx/xxxxx</mark>
+- [1] J. Doe and A. Smith, “Title of the Paper,” in _Proceedings of the Conference Name_, Year, pp. 1-10. <mark>doi:10.xxxx/xxxxx</mark>
+- [2] J. Doe, “Title of the Journal Article,” _Journal Name_, vol. 10, no. 2, pp. 100-110, Year. <mark>doi:10.xxxx/xxxxx</mark>
+- [3] J. Doe, “Title of the Book,” Publisher, Year. <mark>doi:10.xxxx/xxxxx</mark>
+- [4] J. Doe, “Title of the Conference Paper,” in _Proceedings of the Conference Name_, Year, pp. 20-30. <mark>doi:10.xxxx/xxxxx</mark>
+- [6] J. Doe, “Title of the Book Chapter,” in _Title of the Book_, Publisher, Year, pp. 50-70.
+- [7] J. Doe, “Title of the Website,” Year. [Online]. Available: https://www.example.com
+- [8] J. Doe, “Title of the Dataset,” Year. [Online]. Available: https://www.example.com/dataset
+- [9] J. Doe, “Title of the Software,” Version, Year. [Online]. Available: https://www.example.com/software
+- [10] J. Doe, “Title of the Patent,” Patent Number, Year. [Online]. Available: https://www.example.com/patent
+
+**Real Example:**
+
+- [1] M. J. López Mansueti and A. Snowberger, “A Low-Cost Sentinel-1 SAR and Google Earth Engine Pipeline for Flood Detection in Mid-Size Cities: Validation on the July 2023 Jeonju Flood Event,” in _Proceedings of the KIICE_, 2026, pp. 100-110.
+- [2] U.S. Department of Energy, “Fuel Cell Basics.” Accessed: May 11, 2026. [Online]. Available: https://www.energy.gov/cmei/fuels/fuel-cell-basics
+- [3] S. B. Mousavi, P. Ahmadi, and M. Raeesi, “Performance evaluation of a hybrid hydrogen fuel cell/battery bus with fuel cell degradation and battery aging,” _Renewable Energy_, vol. 227, 2024, Art. no. 120456. doi: 10.1016/j.renene.2024.120456.
+- [4] R. Ghimire, S. Niroula, B. Pandey, A. Subedi, and B. S. Thapa, “Techno-economic assessment of fuel cell-based power backup system as an alternative to diesel generators in Nepal: A case study for hospital applications,” International Journal of Hydrogen Energy, vol. 56, pp. 289–301, 2024, doi: 10.1016/j.ijhydene.2023.12.174.
+- [5] International Energy Agency (IEA), “Hydrogen.” Accessed: May 11, 2026. [Online]. Available: https://www.iea.org/energy-system/low-emission-fuels/hydrogen
 
 Try to include:
 
 - 3–6 references for a conference paper
 - 10+ references for a journal paper
-- 30+ references for a Tier 1 (SCIE) journal such as [IEEE Access](https://ieeeaccess.ieee.org/authors) or an [MDPI](https://www.mdpi.com/authors) journal
+- 30-50+ references for a Tier 1 (SCIE) journal such as [IEEE Access](https://ieeeaccess.ieee.org/authors) or an [MDPI](https://www.mdpi.com/authors) journal
 
 **Key point:** Good research depends on trustworthy sources and clear citation practices.
 
